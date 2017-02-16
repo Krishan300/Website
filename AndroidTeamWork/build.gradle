@@ -12,6 +12,18 @@ buildscript {
     }
 }
 
+/*buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        // the latest version of the android-apt plugin
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+    }
+}*/
+
+//apply plugin: 'com.neenbedankt.android-apt'
+
 allprojects {
     repositories {
         jcenter()
@@ -21,3 +33,5 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+

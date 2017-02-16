@@ -11,18 +11,36 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="edu.lehigh.cse216.androidtemwork.krm219.androidteamwork.MainActivity"
-    tools:showIn="@layout/activity_main"
-   >
+    tools:showIn="@layout/activity_main">
 
 
-    <TextView
-        android:text="Messages"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView6"
-        android:textSize="24sp"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"
-       />
 
-</RelativeLayout>
+    <!-- These are comments -!>
+          <Button
+           android:text="Send Messages"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_below="@id/textView6"
+           android:id="@+id/button3"
+
+           android:layout_marginBottom="124dp"
+           />
+
+       <TextView
+           android:text="Messages"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_above="@id/button3"
+           android:id="@+id/textView6"
+           android:textSize="24sp"
+           android:layout_alignParentLeft="true"
+           android:layout_alignParentStart="true"
+           android:layout_alignParentTop="true"
+           android:layout_alignParentRight="true"
+           android:layout_alignParentEnd="true"
+           />
+
+     -->
+
+
+   </RelativeLayout>
