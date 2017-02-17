@@ -45,44 +45,7 @@
               android:layout_height="472dp"
               android:layout_width="wrap_content"/>
   -->
-    <include layout="@layout/content_main"
-             android:id="@+id/include"
-             android:layout_height="472dp"
-             android:layout_width="wrap_content"/>
 
-
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#f00"
-        android:layout_below="@id/textView6"
-        android:id="@+id/editText"/>
-
-    <TextView
-        android:text="Messages"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@id/button3"
-
-        android:textSize="24sp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:id= "@+id/textView6"
-        />
-
-    <Button
-        android:text="Send Messages"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/textView6"
-        android:id="@+id/button3"
-
-        android:layout_marginBottom="124dp"
-        />
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -90,5 +53,10 @@
         android:theme="@style/AppTheme.AppBarOverlay">
 
     </android.support.design.widget.AppBarLayout>
+
+    <include layout="@layout/content_main"
+             android:id="@+id/include"
+             android:layout_height="472dp"
+             android:layout_width="0dp"/>
 
 </android.support.design.widget.CoordinatorLayout>

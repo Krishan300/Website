@@ -42,5 +42,30 @@
 
      -->
 
+    <ListView
+        android:id="@+id/list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+         />
 
-   </RelativeLayout>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/list_view"
+        android:id="@+id/editText"
+        />
+
+    <Button
+        android:text="Launch Message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/list_view"
+        android:layout_toEndOf="@+id/list_view"
+        android:layout_marginLeft="177dp"
+        android:layout_marginStart="177dp"
+        android:layout_marginBottom="115dp"
+        android:id="@+id/button2"/>
+
+
+</RelativeLayout>

@@ -12,6 +12,7 @@ public class ActivityMessage extends AppCompatActivity {
     @Override
 
 
+
     protected void onCreate(Bundle savedInstanceState) {
         String content;
         super.onCreate(savedInstanceState);
@@ -27,6 +28,7 @@ public class ActivityMessage extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });*/
+
         Intent intent=getIntent();
         content=intent.getStringExtra(getString(R.string.messagetext));
         if (content==null)
@@ -36,6 +38,7 @@ public class ActivityMessage extends AppCompatActivity {
         Log.e(TAG, content);
         TextView DisplayMessage=(TextView) findViewById(R.id.MessageDisplay);
         DisplayMessage.setText(content);
+
 
     }
 
