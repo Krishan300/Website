@@ -26,12 +26,10 @@ class Datum {
 
 
 /**
- * The App class is written to create an App object, which provides users a set of
- * methods to use with a passed-in MySQL database. The MySQL database connection is
- * based on a series of environment variables passed in by the user at runtime. Other
- * fields included in the class are a Gson object, which is a JSON parser, a static index,
- * which can help prevent running the code to generate the database as much as possible,
- * and the environment variables themselves.
+ *
+ * The App class is written to create an App object which takes in a database
+ * in mySQL and through get and post routes will store the data and classify it
+ *
  */
 public class App {
     // A JSON parser. We will only have one, so that we don't construct these
@@ -48,13 +46,7 @@ public class App {
     static String db = env.get("MYSQL_DB");
 
     /**
-     * Get all data from our "database", and return it in JSON format.
-     * In order to return data from MySQL server, this must be changed.
-     * We'll here call a method to retrieve data from the MySQL server instead
-     * of the "database" variable. In an effort to bypass the issues related to
-     * passing Connection objects, for these methods that manipulate the database,
-     * I've reproduced the connections to the database and made them individual
-     * connections.
+     * Get all data from our database and returns it in JSON format.
      */
     String getAllData() {
         // get the MYSQL configuration from the environment
@@ -92,8 +84,8 @@ public class App {
                 d.title = rs.getString("title");
                 d.comment = rs.getString("comment");
                 d.numLikes = rs.getInt("numLikes");
-                d.uploadDate = rs.getTimestamp("uploadDate") // UPdATE
-                d.lastLikeDate = rs.getTimestamp("lastLikedDate");   // llDATE
+                d.uploadDate = rs.getTimestamp("uploadDate"); // UPdATE
+                d.lastLikedDate = rs.getTimestamp("lastLikedDate");   // llDATE
                 results.add(d);
             }
             stmt.close();
@@ -109,8 +101,7 @@ public class App {
 
     /**
      * This insert takes new data from the frontend sever and adds it into the datum database
-     * @param   d   A Datum object retrieved by and built by the calling function, the
-     *              Spark Java "post" method in main().
+     * @param   d   A Datum object retrieved by and built through Spark framework
      */
     String insertDatum(Datum d) {
         // get the MYSQL configuration from the environment
@@ -133,18 +124,18 @@ public class App {
             return null;
         }
         // Only insert if whole datum is not null
-        if (d != null && d.title != null && d.comment != null && d.numLikes != null && d.uploadDate != null && d.lastLikedDate != null) {
+        if (d != null && d.title != null && d.comment != null && d.numLikes >= 0 && d.uploadDate != null && d.lastLikedDate != null) {
             try {
                 String insertStmt = "INSERT INTO tblData VALUES (default, ?, ?, ?, ?, ? )";
-                // index | Title (str) | Comment (str) | likes (int) | UploadDate (DATE obj) | lastLikedDate (DATE OBJ)
+                // index | Title (str) | Comment (str) | likes (int) | UploadDate (timestamp obj) | lastLikedDate (timestamp OBJ)
                 PreparedStatement stmt = conn.prepareStatement(insertStmt);
 
 
                 stmt.setString(1,d.title);
                 stmt.setString(2,d.comment);
-                stmt.setInt(3,numLikes);
-                stmt.setTimestamp(4,uploadDate);
-                stmt.setTimestamp(5,lastLikedDate)
+                stmt.setInt(3,d.numLikes);
+                stmt.setTimestamp(4,d.uploadDate);
+                stmt.setTimestamp(5,d.lastLikedDate);
                 // 0 index |  1 Title (str) | 2 Comment (str) | 3 likes (int) | 4 UploadDate (TIMESTAMP) | 5 lastLikedDate (TIMESTAMP)
                 stmt.executeUpdate();
                 stmt.close();
@@ -189,13 +180,13 @@ public class App {
         }
 
         // Check to make sure that neither value is null before running.
-        if (numLikes != null &&  != null) {
+        if (newNumLikes >= 0 ) {
             try {
                 String updateStmt = "UPDATE tblData SET numLikes = ?, lastLikedDate = ? WHERE id = ?";
                 PreparedStatement stmt = conn.prepareStatement(updateStmt);
-                stmt.setString(3, newNumLikes);
-                stmt.setTimestamp(5, newLastLikedDate);
-                stmt.setInt(6, which);   // SHould be 6 after adding in new fields
+                stmt.setInt(1, newNumLikes);
+                stmt.setTimestamp(2, newLastLikedDate);
+                stmt.setInt(3, which);   // SHould be 6 after adding in new fields
                 stmt.executeUpdate();
                 stmt.close();
                 //conn.close(); I dont think we need this
@@ -208,9 +199,7 @@ public class App {
 
 
     /**
-     * We construct our application by creating a database object and setting
-     * the first index. Since we reset the database on program restart, we
-     * can always start from 0.
+     * Construct app
      */
     public App() {
         // This index conditional will at least prevent every test method from trying to
@@ -264,7 +253,7 @@ public class App {
      * This is the main method. This created the main App object to be used during
      * execution, sets the static file location, a vital Spark Java process, and
      * contains a series of lambda functions the frontend will use to communicate,
-     * including a get home, get data, post data, delete data, and post new data (update).
+     * including a get home, get data, post data, and post new data (updateLikes).
      * @param args  Standard Java main class argument.
      */
     public static void main( String[] args ) {
