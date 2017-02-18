@@ -55,7 +55,7 @@
         likeClick() {
             $.ajax({
                 type: "PUT",
-                url: "/data/upvote/" + this.index,
+                url: "data/like/" + this.index + "/upvote",
                 data: JSON.stringify({"index":this.index, "title":this.title, "comment":this.comment, "uploadDate":this.uploadDate, "likeDate":Date.now()}),
                 dataType: "json",
                 success: function (data) {
@@ -72,7 +72,7 @@
         dislikeClick() {
             $.ajax({
                 type: "PUT",
-                url: "/data/downvote/" + this.index,
+                url: "data/like/" +this.index +"/downvote",
                 data: JSON.stringify({"index":this.index, "title":this.title, "comment":this.comment, "uploadDate":this.uploadDate, "likeDate":Date.now()}),
                 dataType: "json",
                 success: function (data) {
