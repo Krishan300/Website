@@ -293,7 +293,7 @@ public class App {
 
         // Route for RECORDING A LIKE. ":id" is used for getting index,
         // NEW DATUM IS IDENTICAL FOR EVERYTHING EXCEPT LIKE AND LLDATE
-        post("/data/:id", (req, res) -> {
+        post("/data/like/:id/upvote", (req, res) -> {
             // Call the update method above with the new datum object
             String result = "{\"res\":\"ok\"}";
             Datum d = app.gson.fromJson(req.body(), Datum.class);
@@ -304,7 +304,7 @@ public class App {
 
         // Route for RECORDING A DISLIKE. ":id" is used for getting index,
         // NEW DATUM IS IDENTICAL to like but decrements numlikes instead of incrementing it
-        post("/data/:id", (req, res) -> {
+        post("/data/like/:id/downvote", (req, res) -> {
             // Call the update method above with the new datum object
             String result = "{\"res\":\"ok\"}";
             Datum d = app.gson.fromJson(req.body(), Datum.class);
