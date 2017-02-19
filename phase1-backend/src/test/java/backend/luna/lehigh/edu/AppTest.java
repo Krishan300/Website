@@ -3,36 +3,75 @@ package backend.luna.lehigh.edu;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.lang.*;
+
 
 /**
  * Unit test for simple App.
  */
-public class AppTest 
-    extends TestCase
+public class AppTest extends TestCase
 {
     /**
-     * Create the test case
      *
-     * @param testName name of the test case
      */
-    public AppTest( String testName )
+    public void testConstructor()
     {
-        super( testName );
+        App app = new App();
+        assertTrue(app.ip != null);
+        assertTrue(app.port != null);
+        assertTrue(app.user != null);
+        assertTrue(app.pass != null);
+        assertTrue(app.db != null);
+    }
+
+
+    /**
+     *tests the getAllData Method
+     */
+    public void testGetAllData()
+    {
+        App app = new App();
+        //String output = app.getAllData();
+
     }
 
     /**
-     * @return the suite of tests being tested
+     *tests the insertDatum Method
      */
-    public static Test suite()
+    public void testInsertDatum()
     {
-        return new TestSuite( AppTest.class );
+        App app = new App();
+
+        Datum d = new Datum();
+        d.index = 1;
+        d.title = null;
+        d.comment = "test comment";
+        d.numLikes = 3;
+        d.uploadDate = java.sql.Timestamp.valueOf("2017-02-16 10:10:10.0");
+        d.lastLikedDate = java.sql.Timestamp.valueOf("2017-02-16 10:10:10.0");
+        assertEquals(app.insertDatum(d), "{\"res\":\"bad data\"}");
+
+        d.title = "test title";
+        assertEquals(app.insertDatum(d), "{\"res\":\"ok\"}");
+    }
+
+
+    /**
+     *tests the updateLike Method
+     */
+    public void testUpdateLike()
+    {
+        App app = new App();
     }
 
     /**
-     * Rigourous Test :-)
+     *tests the createDB Method
      */
-    public void testApp()
+    public void testCreateDB()
     {
-        assertTrue( true );
+        App app = new App();
     }
 }
