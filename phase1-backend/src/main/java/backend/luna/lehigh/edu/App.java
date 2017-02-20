@@ -8,6 +8,12 @@ import java.util.Map;
 import java.lang.*;
 
 /**
+ * @author Charles Mandala
+ * @version 1.0
+ */
+
+
+/**
  * We define a Datum which holds each row of data
  * Each row in Datum objrct is a specific post with has, in order:
  * index | Title (str) | Comment (str) | likes (int) | UploadDate (DATEtime obj) | likeDate (DATEtime OBJ)
@@ -20,8 +26,6 @@ class Datum {
     int numLikes;
     Date uploadDate;
     Date lastLikedDate;
-
-    // index | Title (str) | Comment (str) | likes (int) | UploadDate (DATE) | lastLikedDate (DATE)
 }
 
 
@@ -30,9 +34,7 @@ class Datum {
  * data in rows to be pulled from later
  */
 public class App {
-    // A JSON parser. We will only have one, so that we don't construct these
-    // too often, but the cost is that concurrent requests must take turns
-    // using the parser.
+    // A JSON parser. We will only have one
 
     final static String goodData = "{\"res\":\"ok\"}";
     final static String badData = "{\"res\":\"bad data\"}";
@@ -49,6 +51,7 @@ public class App {
 
     /**
      * Get all data from our database and returns it in JSON format.
+     * @return JSON object from SQL frontend
      */
     String getAllData() {
         // get the MYSQL configuration from the environment
@@ -104,6 +107,7 @@ public class App {
     /**
      * This insert takes new data from the frontend sever and adds it into the datum database
      * @param   d   A Datum object retrieved by and built through Spark framework
+     * @return command telling server if addition was a success or not
      */
     String insertDatum(Datum d) {
         // get the MYSQL configuration from the environment

@@ -41,6 +41,14 @@
 		<target>1.8</target>
 	   </configuration>	
 	 </plugin>
+	  <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.4</version>
+		<configuration>
+		 <mainClass>backend.luna.lehigh.edu</mainClass>
+		 </configuration>
+		 </plugin>
 	 <plugin>
 	  <groupId>org.codehaus.mojo</groupId>
 	  <artifactId>exec-maven-plugin</artifactId>
