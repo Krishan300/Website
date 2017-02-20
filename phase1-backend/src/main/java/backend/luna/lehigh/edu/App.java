@@ -10,7 +10,7 @@ import java.lang.*;
 /**
  *
  * Each row in Datum objrct is a specific post with has, in order:
- * index | Title (str) | Comment (str) | likes (int) | UploadDate (DATE obj) | likeDate (DATE OBJ)
+ * index | Title (str) | Comment (str) | likes (int) | UploadDate (DATEtime obj) | likeDate (DATEtime OBJ)
  * P1 CAM
  */
 class Datum {
@@ -18,10 +18,10 @@ class Datum {
     String title;
     String comment;
     int numLikes;
-    java.sql.Timestamp uploadDate;  //DATE OBJECT? DATESTAMP?
-    java.sql.Timestamp lastLikedDate; // Last Liked Date SAME AS ABOVE >????
+    Date uploadDate;  //DATE OBJECT? DATESTAMP?
+    Date lastLikedDate; // Last Liked Date SAME AS ABOVE >????
 
-    // index | Title (str) | Comment (str) | likes (int) | UploadDate (TIMESTAMP) | lastLikedDate (TIMESTAMP)
+    // index | Title (str) | Comment (str) | likes (int) | UploadDate (DATE) | lastLikedDate (DATE)
 }
 
 
@@ -58,11 +58,11 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = DriverManager.getConnection("jdbc:mysql://" + ip + ":" + port + "/" + db + "?useSSL=false", user, pass);
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object");
+                System.out.println("Error: getConnection returned null object in getAllData");
                 return null;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception");
+            System.out.println("Error: getConnection threw an exception in getAllData");
             e.printStackTrace();
             return null;
         }
@@ -84,11 +84,11 @@ public class App {
                 d.title = rs.getString("title");
                 d.comment = rs.getString("comment");
                 d.numLikes = rs.getInt("numLikes");
-                d.uploadDate = rs.getTimestamp("uploadDate"); // UPdATE
-                d.lastLikedDate = rs.getTimestamp("lastLikedDate");   // llDATE
+                d.uploadDate = rs.getDate("uploadDate"); // UPdATE
+                d.lastLikedDate = rs.getDate("lastLikedDate");   // llDATE
                 results.add(d);
             }
-            stmt.close();
+            //stmt.close();
             //conn.close();
         } catch (SQLException e) {
             System.out.println("Error: query failed");
@@ -119,7 +119,7 @@ public class App {
                 return null;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception");
+            System.out.println("Error: getConnection threw an exception in insertDatum");
             e.printStackTrace();
             return null;
         }
@@ -127,18 +127,18 @@ public class App {
         if (d != null && d.title != null && d.comment != null && d.numLikes >= 0 && d.uploadDate != null && d.lastLikedDate != null) {
             try {
                 String insertStmt = "INSERT INTO tblData VALUES (default, ?, ?, ?, ?, ? )";
-                // index | Title (str) | Comment (str) | likes (int) | UploadDate (timestamp obj) | lastLikedDate (timestamp OBJ)
+                // index | Title (str) | Comment (str) | likes (int) | UploadDate (DATE obj) | lastLikedDate DATE OBJ)
                 PreparedStatement stmt = conn.prepareStatement(insertStmt);
 
 
                 stmt.setString(1,d.title);
                 stmt.setString(2,d.comment);
                 stmt.setInt(3,d.numLikes);
-                stmt.setTimestamp(4,d.uploadDate);
-                stmt.setTimestamp(5,d.lastLikedDate);
-                // 0 index |  1 Title (str) | 2 Comment (str) | 3 likes (int) | 4 UploadDate (TIMESTAMP) | 5 lastLikedDate (TIMESTAMP)
+                stmt.setDate(4,d.uploadDate);
+                stmt.setDate(5,d.lastLikedDate);
+                // 0 index |  1 Title (str) | 2 Comment (str) | 3 likes (int) | 4 UploadDate (DATE) | 5 lastLikedDate (DATE)
                 stmt.executeUpdate();
-                stmt.close();
+                //stmt.close();
 
             } catch (SQLException e) {
                 System.out.println("Error: insertion failed");
@@ -159,7 +159,7 @@ public class App {
      * @param   which       This is the index of the values to change.
      * @param   inc         This is the value to increase/decrease amount of likes (+1= 1 like, -1= 1 dislike).
      */
-    protected static void updateLike(int which, int newNumLikes, Timestamp newLastLikedDate, int inc) {
+    protected static void updateLike(int idNum, int newNumLikes, Date newLastLikedDate, int inc) {
         // get the MYSQL configuration from the environment
         Connection conn = null;
 
@@ -168,13 +168,13 @@ public class App {
         try {
             // Open a connection, fail if we cannot get one
             conn = DriverManager.getConnection("jdbc:mysql://" + ip + ":" +          // HERE IS WHERE WE CONNECT
-                    port + "/" + db + "?useSSL=false", user, pass);
+                    port + "/" + db, user, pass);
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object");
                 return;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception");
+            System.out.println("Error: getConnection threw an exception in updateLike");
             e.printStackTrace();
             return;
         }
@@ -185,10 +185,10 @@ public class App {
                 String updateStmt = "UPDATE tblData SET numLikes = ?, lastLikedDate = ? WHERE id = ?";
                 PreparedStatement stmt = conn.prepareStatement(updateStmt);
                 stmt.setInt(1, newNumLikes);
-                stmt.setTimestamp(2, newLastLikedDate);
-                stmt.setInt(3, which);   // SHould be 6 after adding in new fields
+                stmt.setDate(2, newLastLikedDate);
+                stmt.setInt(3, idNum);   // S
                 stmt.executeUpdate();
-                stmt.close();
+                //stmt.close();
                 //conn.close(); I dont think we need this
             } catch (SQLException e) {
                 System.out.println("Error: unable to update row");
@@ -202,9 +202,7 @@ public class App {
      * Construct app
      */
     public App() {
-        // This index conditional will at least prevent every test method from trying to
-        // create the table. It won't prevent everything from trying to create the table
-        // all the time, but it'll catch any bad attempt regardless.
+
         if (index++ == 0) {
             createDB();
         }
@@ -216,34 +214,37 @@ public class App {
      * It executes a CREATE TABLE... command to the database.
      */
     public void createDB() {
+
         Connection conn = null;
 
         // Use these to connect to the database and issue commands
+
         PreparedStatement stmt = null;
+
         // Connect to the database; fail if we can't
         try {
             // Open a connection, fail if we cannot get one
             conn = DriverManager.getConnection("jdbc:mysql://" + ip + ":" +
-                    port + "/" + db + "?useSSL=false", user, pass);
+                    port + "/" + db, user, pass);
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object");
+                System.out.println("Error: getConnection returned null object in createDB");
                 return;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception");
+            System.out.println("Error: getConnection in createDB threw an exception");
             e.printStackTrace();
             return;
         }
         // Create a table to store data.  It matches the 'Datum' type from the
         // previous tutorial.
         System.out.println("Attempting to create tblData");
-        String createStatement = "CREATE TABLE tblData (id INT(64) NOT NULL AUTO_INCREMENT, title VARCHAR(200), " +
-                "comment VARCHAR(200), numLikes INT(64), uploadDate TIMESTAMP, lastLikeDate TIMESTAMP, PRIMARY KEY(id))";
+        String createStatement = "CREATE TABLE tblData (id INT(64) NOT NULL AUTO_INCREMENT, " +
+                "title VARCHAR(200), comment VARCHAR(200), numLikes INT(64), uploadDate DATETIME, lastLikeDate DATETIME, PRIMARY KEY(id))";
         try {
             stmt = conn.prepareStatement(createStatement);
             stmt.execute();
-            stmt.close();
-            conn.close();
+            //stmt.close();
+            //conn.close();
         } catch (SQLException e) {
             System.out.println("Table not created (it may already exist)");
         }
