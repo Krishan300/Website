@@ -3,10 +3,22 @@
 <head>
     <title>The Buzz: Home Page</title>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <script src="/libs/handlebars.runtime.js"></script>
-</head>
+    <script type="text/javascript" src="js/handlebars.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
 
+</head>
+<body>
+<div id="header">
+
+</div>
+<div id="commentBox">
+
+</div>
+<div id="listing">
+
+</div>
+</body>
 <script>
-    handlebars.template.index();
+    var html = Handlebars.templates.['index']; //must precompile index.ts first
 </script>
 </html>
