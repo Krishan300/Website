@@ -222,7 +222,6 @@ public class App {
         // Use these to connect to the database and issue commands
 
 
-
         // Connect to the database; fail if we can't
         try {
             // Open a connection, fail if we cannot get one
