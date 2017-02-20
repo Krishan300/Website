@@ -84,29 +84,29 @@
                     }
                 }
             });
-            getDataFromServer()
         }
     }
     function getDataFromServer() {
-        document.body.innerHTML = "";
-        document.body.innerHTML = "<h1 align='center'>The Buzz:</h1>  <h2 align='center'>The newest social media out there!</h2> <hr>"
+        document.getElementById("header").innerHTML = "";
+        document.getElementById("commentBox").innerHTML = "";
+        document.getElementById("listing").innerHTML = "";
+        document.getElementById("header").innerHTML = "<h1 align='center'>The Buzz:</h1>  <h2 align='center'>The newest social media out there!</h2> <hr>";
         var a = new CommentBox();
         document.body.innerHTML += a.boxDisplay();
         $.ajax({
             type: "GET",
             url: "/data",
             dataType: "json",
-            success: function(data) {
+            success: function (data) {
                 var b = new Comment[data.length];
-
-                for(let i in data) {
+                for (var i in data) {
                     var counter = 1;
                     b[data.length - counter] = new CommentList(data[i].index, data[i].title, data[i].comment, data[i].likes, data[i].uploadDate, data[i].likeDate);
                     counter++;
                 }
-
-                for(let j of b) {
-                    document.body.innerHTML += j.commentDisplay();
+                for (var _i = 0, b_1 = b; _i < b_1.length; _i++) {
+                    var j = b_1[_i];
+                    document.getElementById("listing").innerHTML += j.commentDisplay();
                 }
             }
         });

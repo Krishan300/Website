@@ -79,13 +79,14 @@ var CommentList = (function () {
                 }
             }
         });
-        getDataFromServer();
     };
     return CommentList;
 }());
 function getDataFromServer() {
-    document.body.innerHTML = "";
-    document.body.innerHTML = "<h1 align='center'>The Buzz:</h1>  <h2 align='center'>The newest social media out there!</h2> <hr>";
+    document.getElementById("header").innerHTML = "";
+    document.getElementById("commentBox").innerHTML = "";
+    document.getElementById("listing").innerHTML = "";
+    document.getElementById("header").innerHTML = "<h1 align='center'>The Buzz:</h1>  <h2 align='center'>The newest social media out there!</h2> <hr>";
     var a = new CommentBox();
     document.body.innerHTML += a.boxDisplay();
     $.ajax({
@@ -101,7 +102,7 @@ function getDataFromServer() {
             }
             for (var _i = 0, b_1 = b; _i < b_1.length; _i++) {
                 var j = b_1[_i];
-                document.body.innerHTML += j.commentDisplay();
+                document.getElementById("listing").innerHTML += j.commentDisplay();
             }
         }
     });
