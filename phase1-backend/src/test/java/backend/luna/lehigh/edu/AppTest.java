@@ -15,31 +15,51 @@ import java.lang.*;
 public class AppTest extends TestCase
 {
     /**
-     *
+     *tests constructor that gson is initialized and index is incremented
      */
     public void testConstructor()
     {
         App app = new App();
-        assertTrue(app.ip != null);
-        assertTrue(app.port != null);
-        assertTrue(app.user != null);
-        assertTrue(app.pass != null);
-        assertTrue(app.db != null);
+        assertNotNull(app.gson);
+        assertTrue(app.index > 0);
     }
 
 
     /**
-     *tests the getAllData Method
+     *tests the getAllData Method for tables with 0, 1, or multiples datums
      */
     public void testGetAllData()
     {
         App app = new App();
-        //String output = app.getAllData();
+        String output = app.getAllData();
+        //not sure what output will look like because backend isnt done
+        assertEquals(output, "");
 
+        Datum d = new Datum();
+        d.index = 1;
+        d.title = "test";
+        d.comment = "test comment";
+        d.numLikes = 3;
+        app.insertDatum(d);
+        output = app.getAllData();
+        //not sure what output will look like because backend isnt done
+        //will update later with serialized json
+        assertEquals(output, "");
+
+        Datum d2 = new Datum();
+        d2.index = 2;
+        d2.title = "test2";
+        d2.comment = "test comment2";
+        d2.numLikes = 4;
+        app.insertDatum(d2);
+        output = app.getAllData();
+        //not sure what output will look like because backend isnt done
+        //will update later with serialized json
+        assertEquals(output, "");
     }
 
     /**
-     *tests the insertDatum Method
+     *tests the insertDatum Method on both a null datum and one in good form
      */
     public void testInsertDatum()
     {
@@ -60,18 +80,56 @@ public class AppTest extends TestCase
 
 
     /**
-     *tests the updateLike Method
+     *tests the updateLike Method at initial time, and after a like
+     * and a dislike
      */
     public void testUpdateLike()
     {
         App app = new App();
+        Datum d = new Datum();
+        d.index = 1;
+        d.title = "test";
+        d.comment = "test comment";
+        d.numLikes = 3;
+        assertTrue(d.numLikes == 0);
+
+        //idx is index, but should be either 0 or 1 right now. not sure
+        //if counting starts at 0 here
+        try
+        {
+            //int idx = Integer.parseInt(req.params("id"));
+            app.updateLike(1, d.numLikes, d.lastLikedDate, 1);
+        }
+        catch(Exception e)
+        {
+            fail("error: updatelike could not increment likes");
+            e.printStackTrace();
+        }
+        assertTrue(d.numLikes == 1);
+
+        //idx is index, but should be either 0 or 1 right now. not sure
+        //if counting starts at 0 here
+        try {
+            app.updateLike(1, d.numLikes, d.lastLikedDate, -1);
+        }
+        catch(Exception e)
+        {
+            fail("error: update like could not decrement likes");
+            e.printStackTrace();
+        }
+        assertEquals(d.numLikes, 0);
+
     }
 
+
+
     /**
-     *tests the createDB Method
+     *tests the createDB Method by initializing an app which calls
+     * createDB() and then increments index from 0
      */
     public void testCreateDB()
     {
         App app = new App();
+        assertTrue(app.index > 0);
     }
 }
