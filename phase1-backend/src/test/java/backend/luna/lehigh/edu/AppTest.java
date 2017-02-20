@@ -3,6 +3,7 @@ package backend.luna.lehigh.edu;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import java.util.Calendar;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
@@ -40,6 +41,11 @@ public class AppTest extends TestCase
         d.title = "test";
         d.comment = "test comment";
         d.numLikes = 3;
+
+
+        d.uploadDate = createDate();
+        d.lastLikedDate = createDate();
+
         app.insertDatum(d);
         output = app.getAllData();
         //not sure what output will look like because backend isnt done
@@ -52,6 +58,9 @@ public class AppTest extends TestCase
         d2.comment = "test comment2";
         d2.numLikes = 4;
         app.insertDatum(d2);
+        d2.uploadDate = createDate();
+        d2.lastLikedDate = createDate();
+
         output = app.getAllData();
         //not sure what output will look like because backend isnt done
         //will update later with serialized json
@@ -70,11 +79,14 @@ public class AppTest extends TestCase
         d.title = null;
         d.comment = "test comment";
         d.numLikes = 3;
-        d.uploadDate = java.sql.Timestamp.valueOf("2017-02-16 10:10:10.0");
-        d.lastLikedDate = java.sql.Timestamp.valueOf("2017-02-16 10:10:10.0");
+        //bad date because title and dates are null
         assertEquals(app.insertDatum(d), "{\"res\":\"bad data\"}");
 
         d.title = "test title";
+        d.uploadDate = createDate();
+        d.lastLikedDate = createDate();
+
+        //works because everything now has initial value
         assertEquals(app.insertDatum(d), "{\"res\":\"ok\"}");
     }
 
@@ -91,6 +103,9 @@ public class AppTest extends TestCase
         d.title = "test";
         d.comment = "test comment";
         d.numLikes = 3;
+        d.uploadDate = createDate();
+        d.lastLikedDate = createDate();
+
         assertTrue(d.numLikes == 0);
 
         //idx is index, but should be either 0 or 1 right now. not sure
@@ -131,5 +146,25 @@ public class AppTest extends TestCase
     {
         App app = new App();
         assertTrue(app.index > 0);
+    }
+
+    /*creates a date object to be used to initialize several datum
+     *objects used in testing
+     */
+    public java.sql.Date createDate()
+    {
+        Calendar cal = Calendar.getInstance();
+        // set Date portion to January 10, 2017
+        cal.set( cal.YEAR, 2017 );
+        cal.set( cal.MONTH, cal.JANUARY );
+        cal.set( cal.DATE, 10 );
+        cal.set( cal.HOUR_OF_DAY, 10 );
+        cal.set( cal.MINUTE, 10 );
+        cal.set( cal.SECOND, 10 );
+        cal.set( cal.MILLISECOND, 10 );
+        //creates a date object to initialize upload dates and lastLiked date
+        java.sql.Date jsqlD = new java.sql.Date( cal.getTime().getTime() );
+
+        return jsqlD;
     }
 }
