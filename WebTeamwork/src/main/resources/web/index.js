@@ -4,19 +4,25 @@
 var CommentBox = (function () {
     function CommentBox() {
     }
+    //display comment creation box
     CommentBox.prototype.boxDisplay = function () {
-        return "<input id='newTitle' size='50' maxlength='50' type='text'>"
-            + "A title for your post! 50 characters max. </input>"
+        return "<input id='newTitle' size='50' maxlength='50' type='text' value='A title for your post! 50 characters max.'>"
+            + " </input>"
             + "<textarea id='newComment' rows='4' cols='50' maxlength='144'>"
             + "Share your thoughts with the world! 144 characters max, please. </textarea>" +
             "<button id='sendComment' onclick='sendComment()'>Send Comment</button>";
     };
+    //sends custom comment and title to db, checks for null
     CommentBox.prototype.sendComment = function () {
+        var title = document.getElementById("newTitle").textContent;
+        var comment = document.getElementById("newComment").textContent;
+        title = (title === "") ? null : title;
+        comment = (comment === "") ? null : title;
         $.ajax({
             type: "POST",
             url: "/data",
-            data: JSON.stringify({ "title": document.getElementById("newTitle"),
-                "comment": document.getElementById("newComment"),
+            data: JSON.stringify({ "title": title,
+                "comment": comment,
                 "likes": 0, "uploadDate": Date.now(), "likeDate": Date.now() }),
             dataType: "json",
             success: function (data) {
@@ -40,6 +46,7 @@ var CommentList = (function () {
         this.uploadDate = uploadDate;
         this.likeDate = likeDate;
     }
+    //displays comment
     CommentList.prototype.commentDisplay = function () {
         return "<hr> <h1>" + this.title + "</h1>"
             + "<p>" + this.comment + "</p><br>"
@@ -48,6 +55,7 @@ var CommentList = (function () {
             + "<p>This comment was posted on </p>" + this.uploadDate
             + "<p> and was last liked on </p>" + this.likeDate + "<br>";
     };
+    //sends message to db about specific comment being liked
     CommentList.prototype.likeClick = function () {
         $.ajax({
             type: "PUT",
@@ -64,6 +72,7 @@ var CommentList = (function () {
             }
         });
     };
+    //sends message to db about specific comment being disliked
     CommentList.prototype.dislikeClick = function () {
         $.ajax({
             type: "PUT",
@@ -79,31 +88,35 @@ var CommentList = (function () {
                 }
             }
         });
-        getDataFromServer();
     };
     return CommentList;
 }());
 function getDataFromServer() {
-    document.body.innerHTML = "";
-    document.body.innerHTML = "<h1 align='center'>The Buzz:</h1>  <h2 align='center'>The newest social media out there!</h2> <hr>";
+    //clear html
+    document.getElementById("header").innerHTML = "";
+    document.getElementById("commentBox").innerHTML = "";
+    document.getElementById("listing").innerHTML = "";
     var a = new CommentBox();
-    document.body.innerHTML += a.boxDisplay();
+    document.getElementById("commentBox").innerHTML = a.boxDisplay(); //display comment box
     $.ajax({
         type: "GET",
         url: "/data",
         dataType: "json",
         success: function (data) {
-            var b = new Comment[data.length];
+            var b = new CommentList[data.length];
+            //turn db data into comments stored in reverse chronological order
             for (var i in data) {
                 var counter = 1;
                 b[data.length - counter] = new CommentList(data[i].index, data[i].title, data[i].comment, data[i].likes, data[i].uploadDate, data[i].likeDate);
                 counter++;
             }
+            //display all comments
             for (var _i = 0, b_1 = b; _i < b_1.length; _i++) {
                 var j = b_1[_i];
-                document.body.innerHTML += j.commentDisplay();
+                document.getElementById("listing").innerHTML += j.commentDisplay();
             }
         }
     });
 }
+document.getElementById("header").innerHTML = "<h1 align='center'>The Buzz:</h1>  <h2 align='center'>The newest social media out there!</h2> <hr>";
 getDataFromServer();
