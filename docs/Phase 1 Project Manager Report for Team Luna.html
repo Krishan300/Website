@@ -1,0 +1,165 @@
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <title>Phase 1 Project Manager Report for Team XYZ</title>
+    <style>
+        body {
+            font-family: Roboto;
+        }
+        
+        div.answer {
+            border: solid 1px black;
+            width: 100%;
+            min-height: 15em;
+        }
+        
+        div.light {
+            background-color: lightgray;
+        }
+        
+        div.dark {
+            background-color: darkgray;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>CSE 216 Project Manager Report: Phase 1, Team XYZ</h1>
+    <h3>List your team members, providing name, email, and role for this project.</h3>
+    <div class="answer">Alexander Van Heest (ajv218): Project Manager<br />Charles Mandala (cam418): Backend<br />Kieran Horan (kjh219): Testing<br />Krishan Madan (krm219): Android<br />Robert Salay (rws218): Frontend</div>
+
+    <div class="light">
+        <h2>Back-End Server</h2>
+
+        <h3>Describe the REST API endpoints that your team agreed to implement. If this deviates significantly from class discussion,
+            explain why.</h3>
+        <div class="answer">We decided on a total of five REST endpoints: get root, get data, post data, post upvote, and post downvote. Get data is designed to show the list of messages. The post data is designed to allow user input. We decided on separate up and down vote routes that are ultimately fed into the same method and are separated by a boolean. This is basically the same as what was discussed in class.</div>
+
+        <h3>Describe the Data Model that your team agreed to implement. If this deviates significantly from class discussion,
+            explain why.</h3>
+        <div class="answer">The database tblData is created with an auto-incrementing id, a post title, the post body (comment), numLikes (sum of likes and dislikes), the upload timestamp, and the last dis/like timestamp. We decided that the TIMESTAMP object type would be the most effective for the purposes of our relevant dates.</div>
+
+        <h3>Does the back-end match the description above? Why or why not?</h3>
+        <div class="answer">Currently, our backend is the same as above.</div>
+
+        <h3>Is the back-end code appropriately organized into files / classes / packages?</h3>
+        <div class="answer">The primary code for the backend is stored in App.java and the pom.xml made by Maven stores the dependencies. The pushed files don't include the compiled classes. The folder hiearchy follows the necessary structure, starting with cse216_luna.</div>
+
+        <h3>Are variables, functions, classes and packages named well?</h3>
+        <div class="answer">Yes, everything is named accurately and explicitly.</div>
+
+        <h3>Are the dependencies in the pom.xml file appropriate? Were there any unexpected dependencies added to the program?</h3>
+        <div class="answer">The dependencies are the same as those used in phase0. There was nothing unexpected about them.</div>
+
+        <h3>What was the biggest issue that came up in code review of the back-end server?</h3>
+        <div class="answer">The single biggest issues are clearly that the code hasn't been tested with the frontend, the backend hasn't successfully been tested on its own, and the developer hasn't provided a finished enough tool for the testing developer to know whether or not his tests would be accurate or not. This was due to a multitude of issues allegedly related to Docker, but I'm not sure this is completely accurate. The tester sat down with the backend developer for hours on Sunday trying to get it to work, but the backend developer didn't succeed in getting it working and never went back to fix this.</div>
+
+        <h3>What technical debt do you see in the current back-end server implementation?</h3>
+        <div class="answer">We don't currently have a strong mechanism for handling dates after receiving them from the frontend. I also wonder if we will eventually need more extensive code on handling likes and dislikes, which will have to be expanded on signficantly in future phases. Also, we may need in the future to convert our try-catch connections in every MySQL-related method to some Singleton or similar structure. We will also need to convert our hard-coded JSON strings to better formatted JSON objects, which shouldn't take long but is worth considering.</div>
+    </div>
+
+    <div class="dark">
+        <h2>Web Front-End</h2>
+
+        <h3>Is the build and deploy process appropriate for the web front-end?</h3>
+        <div class="answer">The frontend has not been successfully tested with the backend, so there's no way I can comment on the deploy capacity for this part. There are also clearly issues with Handlebars that leads to a null page output, so there's no way of seeing if the TypeScript code is totally written correctly.</div>
+
+        <h3>What benefits did you observe on account of the use of TypeScript?</h3>
+        <div class="answer">While TypeScript seems like an extra level of indirection, it helps to see the compiled JavaScript because it may suggest some issues with the JavaScript code that wouldn't normally be caught. Since JavaScript has a nasty habit of returning no discernible indications of the issues with the code, it should theoretically help a developer to make sure that the JavaScript that results as the output is valid.</div>
+
+        <h3>How was the user interface designed? Why did the team settle on the design that is present in the code?</h3>
+        <div class="answer">There isn't a clear design that's available to view at this time. If this code was working, there would be three sections to the design: the header, the comment box, and the list of items. Since the frontend and backend developers haven't succeeded in testing the combination of their code and the frontend is having display issues, it's impossible to tell how the output would look even if an attempt was made to hardcode some data in there. Thus, I can't comment on this as much as I'd like to. From what I could see, the interface would simply be a plaintext header, a textbox for a title, a larger textbox for the comment, and a list, but I have no concept of how the list would look.</div>
+
+        <h3>Is the web front-end appropriately organized into files / classes / packages?</h3>
+        <div class="answer">As far as I can tell, yes. However, at the time of this review, it's ambiguous whether or not the frontend code is actually connected to any handlebars resources. It's unclear from my review whether or not the developer has successfully installed and utilized NPM, which I believe could be part of the issue. Otherwise, the HTML, JS, and TS files are in the correct locations.</div>
+
+        <h3>Are variables, functions, classes and packages named well?</h3>
+        <div class="answer">Yes. In our review, we made just a couple clarifications to the variable names, but otherwise it was fairly easy to understand what was going on.</div>
+
+        <h3>Are the dependencies in the package.json file appropriate? Were there any unexpected dependencies added to the program?</h3>
+        <div class="answer">The developer didn't seem to have a package.json file, and his configuration of NPM wasn't complete or had some other outstanding errors, so I guess the answer here is no.</div>
+
+        <h3>What was the biggest issue that came up in code review of the web front-end?</h3>
+        <div class="answer">Like the backend, the biggest issues were related to deployment. It's especially hard to visualize how this TypeScript code would perform, so much of my criticism is based on its incomplete state and what I suppose the issues are.</div>
+
+        <h3>What technical debt do you see in the current web front-end implementation?</h3>
+        <div class="answer">Due to issues with Handlebars, the developer didn't implement the comment list functionality with as much ease as there could've potentially been.</div>
+    </div>
+
+    <div class="light">
+        <h2>Android App</h2>
+
+        <h3>What difficulties arose during the conversion from ListView to RecyclerView?</h3>
+        <div class="answer">The Android developer didn't use a RecyclerView at all. It's still currently made as a ListView.</div>
+
+        <h3>Are the mechanisms for moving among Activities satisfactory and appropriate?</h3>
+        <div class="answer">There seems to be a NullPointerException that's holding back everything. The app doesn't launch at all in its current state, so it's hard to gauge whether or not anything is satisfactory or appropriate.</div>
+
+        <h3>Describe any significant deviations from the UI design discussed in class.</h3>
+        <div class="answer">There are supposed to be three boxes: an edittext title, an edittext comment, and a button. This seems similar to what we discussed in class, except they're in a strange layout that doesn't make much sense.</div>
+
+        <h3>Is the android app appropriately organized into files / classes / packages?</h3>
+        <div class="answer">It seems to be left in whatever the default configuration is.</div>
+
+        <h3>Are variables, functions, classes and packages named well?</h3>
+        <div class="answer">Most of the methods and variables that appear now are based on the object names, so yes.</div>
+
+        <h3>Are the dependencies in the build.gradle file appropriate? Were there any unexpected dependencies added to the program?</h3>
+        <div class="answer">There was nothing unexpected, no.</div>
+
+        <h3>What was the biggest issue that came up in code review of the android app?</h3>
+        <div class="answer">The biggest issue is that the code available is littered with bugs, and very little past the initial foundational setup needed to complete phase0 has been added. It's not clear from an evaluation, particularly since the app doesn't launch at all, what's wrong with what's happening, and the developer still may have a lot of work left in getting this to work. Additionally, my work with testing in merging branches properly was significantly delayed by the Android developer improperly pushing and deleting progress.</div>
+
+        <h3>What technical debt do you see in the current android app implementation?</h3>
+        <div class="answer">The progress isn't far along enough that I can identify what's actually going on in the code.</div>
+    </div>
+
+    <div class="dark">
+        <h2>Unit Tests</h2>
+
+        <h3>Are the unit tests for the back-end server complete/satisfactory? If yes, why do you have confidence in your answer.
+            If not, what's missing?</h3>
+        <div class="answer">Due to the lack of completion of the backend, there wasn't much the tester was able to do without making suppositions about the inner workings of the code, which still as of yet isn't finished. Rather than dive into the complexities of some of the intricacies of the code, he chose to focus on general functionality and tested a few of the conditionals of interest. Being this far behind, and only having had a day and a half to work on it, I'm not sure if much more that he could have done.</div>
+
+        <h3>Are the unit tests for the web front-end complete/satisfactory? If yes, why do you have confidence in your answer.
+            If not, what's missing?</h3>
+        <div class="answer">Considering the tester had about three and a half hours after we figured out the issues with the package.json and implemented a proper installation to write all of the frontend tests, it's safe to conclude that his tests are unfortunately incomplete. However, he did manage to write a few tests, but since the frontend isn't behaving properly, there's no way to see if the tests are valuable.</div>
+
+        <h3>What challenges did you observe in the way that the web front-end is being tested? Is Jasmine providing satisfactory
+            code coverage?</h3>
+        <div class="answer">Learning Jasmine and installing it took a long time to figure out. With the frontend missing its package.json file, it was extremely difficult to setup until we figured out that we needed to package.json.</div>
+
+        <h3>What challenges did you observe on account of the relationship between the database and the server? Was mocking used
+            to separate tests? Why or why not?</h3>
+        <div class="answer">Due to the amount of progress that was made, we can't actually tell with certainty what these nuances are. I'm sorry, I wish I had a better answer than this. If backend's MySQL statements are correct, then theoretically the backend and server should work well together.</div>
+
+        <h3>What was the biggest issue that came up in code review of the testing code?</h3>
+        <div class="answer">There were serious issues with the amount of time the tester was given and the code he was given to test. When we met up before the code review, we had to install NPM and setup the package.json file that was amiss from the frontend developer's code, and the tester met with the backend developer and tried for hours to get it to work, but the backend developer had no idea how to fix it. In both cases, he was given code that doesn't work, so by association, there's no official way to test whether or not his testing code would perform adequately with the code. My guess is that his tests all sufficiently tests the subjects within their scope.</div>
+    </div>
+
+    <div class="light">
+        <h2>Project-Wide</h2>
+
+        <h3>Were any difficulties encountered when generating documentation for the Java and TypeScript code?</h3>
+        <div class="answer">There were no difficulties generating the JavaDocs for backend and testing thanks to IntelliJ's relatively painles process. There was no way of creating JavaDocs for the TypeScript, so I had the frontend developer include JavaDoc-like comments in his TypeScript.</div>
+
+        <h3>Were there any issues with the use of git for source control?</h3>
+        <div class="answer">Many of us used Atlassian's SourceTree program (a git GUI) to simplify the process of adding, committing, and pushing. This helped us to be more aware of the changes we made to the git repo and helped us easily figure out what to git rm and add to the .gitignore. One issue I ran into was during an initial merge of backend and frontend. We were very confused about (and still are a bit confused about) how to combine frontend and backend to test them together, and I wasn't aware that we were only supposed to merge to the master repo when things were "finished", so I merged frontend and backend to master before Kieran merged master to his testing branch. We also had a lot of issues initially with people pushing their changes to the correct branches. By the end of this, we all learned quick ways of clearing changes and removing files with and without SourceTree.</div>
+
+        <h3>Were there any team issues that arose?</h3>
+        <div class="answer">We met many times to discuss expectations, procedures, and actual programming issues, and every person experienced delays in having their code test-ready after finishing programming. I asked everyone to be done at various points in the week, be ready to test at certain points, and all of the teammates agreed on the points. By the end of the duration of this phase, no one had finished despite expecting to be done earlier and backend, frontend, and Android were all held up by trivial errors that could've been quickly resolved. Most of these issues were due to fundamental compilation or basic conceptual issues, and all of these were due to issues with adapting to new technologies. It took longer than expected to test backend and frontend, partly because we were all very confused about how to connect the two if they were to live in different folder hierarchies, and it took a while to figure out how to get testing connected with the backend and frontend portions. Since backend and frontend didn't have finished products, we couldn't be sure that any attempts at testing the two combined would actually be purposeful. Reading up on prior Piazza questions helped allay some of these issues, but the phase ended with most of the work still undone.</div>
+
+        <h3>How did the amount of time your teammates spent compare to the amount of time you thought the tasks would take?</h3>
+        <div class="answer">My initial timeline was that frontend and backend should be done by Friday, testing and Android should be done by Sunday, and we would use the weekend and Monday to do code reviews. I've had a hard time since the coding part was finished understanding why various errors have been arising. Nothing was actually finished or even individually tested for working by mid-day Sunday, which marks everyone behind schedule and has disadvantaged Kieran's ability to test, and that left very little time to finish and do more complete and robust tests of each part and the parts together.</div>
+
+        <h3>Describe the most significant obstacle or difficulty your team faced.</h3>
+        <div class="answer">By far the biggest issue for every portion was understanding the scope of and functional portions of their portions. With the exception of Kieran's testing, everyone had at least some issues understanding what had to be done in their parts even after I tried to explain it. I believe this was mainly because the others didn't complete phase0, so many of them had to learn <b>everything<b> as they went without even a complete understanding of and background of phase0, which made everyone's work a lot harder for them. I found myself trying to explain conceptually what was going on to everyone with success, and by the end of these discussions, everyone felt more confident in what had to be done. But when it came time to actually code, there were a lot of issues with things that should've been encountered or resolved in phase0. I want to be clear: I don't blame my teammates for this issues. Rather, I wish there was more of a window of time between phase0 and phase1 (perhaps something in class) where we could go over for those who didn't finish what each of phase0's challenges entailed.</div>
+
+        <h3>What is your biggest concern as you think ahead to the next phase of the project?</h3>
+        <div class="answer">I'm most concerned that this code isn't sustainable and that people are still struggling to understand what's going on in the code. There didn't seem to be enough time during this process for everyone to catch up from phase0, so I hope that our group can meet soon after phase1 is finished to go over how everything works together before phase2 starts. I'm placing heavy emphasis on thorough documentation and commenting of each portion, and the major changes during code reviews reflect this. My primary mission throughout this was to get something that worked that was intelligible by whoever comes into the roles next. Unfortunately, I think our group will have catching up to do before we can start with phase2.</div>
+    </div>
+
+</body>
+
+</html>
