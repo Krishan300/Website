@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/exploded-aar/com.android.support/animated-vector-drawable/25.2.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="cb454b52545859ed2f24a6c01366805b0fa04b22">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-animated-vector-drawable-25.2.0_6672348f09e4abcfd41272d87b72371cc45d89a5/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Library/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/25.2.0/support-annotations-25.2.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="4a5a82a027706397fff621b22fd6fa796e91d7c5">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/support-annotations-25.2.0_fc7e9b7f66697b3554d044f857964ae653294ac1/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/exploded-aar/com.android.support/support-core-ui/25.2.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="fa0446a14ed5dd3725047d6399ffea771a564b30">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-core-ui-25.2.0_4775ac6a0a0840a2cc33e45fdae2ef14c113738a/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/25.2.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="702d339bc0a81d21354cd7e2cf2b67225fa4a16c">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-appcompat-v7-25.2.0_c96c7c87634c0baeaa76e0a77fc9922387f793a8/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="13e7c35eeead3d48c1f9aba01f4dcf52df5d2b5b">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run_9206e26ec9ea7426b1f7040c41494a5d6a32f954/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/exploded-aar/com.android.support/support-core-utils/25.2.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="e820b7be8c035dd522da4bc822e8a76c8e27921a">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-core-utils-25.2.0_3be123bb4f9d2b48747a6fd76a2781e98b2afd02/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="ef9d30269896f06eea7edf624d2fe2f39802aceb">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/instant-run-bootstrap_47d3cf32db4cfbd4c5d6db4b7bf0e57f2d24d4b2/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/exploded-aar/com.android.support/support-v4/25.2.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="d7c42c80f6509b9ea4db28ca7859ffae08ec5741">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-v4-25.2.0_eb03c0be9b44de241a4cfaba8fe8a65f0da56e92/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/exploded-aar/com.android.support/cardview-v7/25.2.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="30a4938ea5235ccf532b3e9f04200e68547e36ad">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-cardview-v7-25.2.0_002d7aaf232583575ef6aac849d9023489f274e1/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/exploded-aar/com.android.support/support-media-compat/25.2.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="ee394a892dd21c03a528139c1e8d4e0e1264ac84">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-media-compat-25.2.0_dde47f6c6feaab915cfe0e89826af73b9a095d4d/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/exploded-aar/com.android.support/support-vector-drawable/25.2.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="810f41e5b7fd99f196ebeabe865ba2c54e7e76dc">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-vector-drawable-25.2.0_1647767d54a3cc2beb9411b5d787c1743ce15801/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/25.2.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="152de8da301561dcb0946471697a420d8f7a68c5">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-recyclerview-v7-25.2.0_a0b2ef514ec204799e143a39a5498897fa2d9042/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/exploded-aar/com.android.support/support-compat/25.2.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="67eb33110dbacb46a48175b08ae0c96761d2c17d">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-compat-25.2.0_0462284e4c35c26f559d5c8ade16aca3cbe9600f/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/exploded-aar/com.android.support/support-fragment/25.2.0/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="8fe8a8f77d651982ce5e18f6187dc4daf914ac57">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-support-fragment-25.2.0_6a70635f3a9f80768c2a8e9393a2e3bea202b175/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/exploded-aar/com.android.support/multidex/1.0.1/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.2"
+        sha1="78ea232052df889856dcb7b7b542707c89bb3bfb">
+        <dex dex="/Users/alex/Documents/LEHIGH UNIVERSITY (2014-)/LEHIGH 2017 FALL SEMESTER/AndroidClass/phase1-android/app/build/intermediates/transforms/dex/debug/folders/1000/10/com.android.support-multidex-1.0.1_65f1641f0f38afc74a59a9bafe7efc6c04d9583d/classes.dex" />
+    </item>
+
+</items>
