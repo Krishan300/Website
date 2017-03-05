@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="edu.lehigh.cse216_luna.phase1.android.ajv218.phase1_android">
 
+    <uses-sdk tools:overrideLibrary="android.support.test.uiautomator.v18"/>
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

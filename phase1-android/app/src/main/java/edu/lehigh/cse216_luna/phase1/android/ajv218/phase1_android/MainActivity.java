@@ -18,7 +18,6 @@ import android.widget.EditText;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -88,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // We'll create an EditText object to store the user's input.
                 final EditText input = new EditText(mContext);
+                input.setHint("Enter data here!");
                 alert.setView(input);
 
                 // Finally, let's create the in box buttons: first OKAY:

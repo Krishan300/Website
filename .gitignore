@@ -1,1 +1,3 @@
 phase1-backend/target
+phase1-android/.gradle
+phase1-android/.idea/*
