@@ -2,6 +2,8 @@ package backend.luna.lehigh.edu;
 
 import static spark.Spark.*;
 import com.google.gson.*;
+
+import java.net.URISyntaxException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
@@ -23,10 +25,15 @@ class Datum {
     int index;
     String title;
     String comment;
+    String userName;
+    String userToken;
+    String author;
     int numLikes;
     java.util.Date uploadDate;
     java.util.Date lastLikeDate;
 }
+
+
 
 
 /**
@@ -38,37 +45,49 @@ public class App {
     final static String goodData = "{\"res\":\"ok\"}";
     final static String badData = "{\"res\":\"bad data\"}";
     final static String sFileLocation = "/web";        // FIX FOR WHATEVER THE HIERARCHY IT IS IN FINAL VERSION
+    Connection conn = null;
+
 
     // Only one gson instantiation, for efficiency.
-    final Gson gson;
+    final static Gson gson = new Gson();
 
     // Environment variables.
-    static Map<String, String> env = System.getenv();
-    static String ip = env.get("MYSQL_IP");
-    static String port = env.get("MYSQL_PORT");
-    static String user = env.get("MYSQL_USER");
-    static String pass = env.get("MYSQL_PASS");
-    static String db = env.get("MYSQL_DB");
+    //static Map<String, String> env = System.getenv();
+    //static String ip = env.get("MYSQL_IP");
+    //static String port = env.get("MYSQL_PORT");
+    //static String user = env.get("MYSQL_USER");
+    //static String pass = env.get("MYSQL_PASS");
+    //static String db = env.get("MYSQL_DB");
 
+    private static Connection getConnection() throws URISyntaxException, SQLException {
+        String dbUrl = System.getenv("JDBC_DATABASE_URL");
+        return DriverManager.getConnection(dbUrl);
+    }
     /**
      * Get all data from our database and returns it in JSON format.
      * @return JSON object from SQL frontend
      */
-    String getAllData() {
+    static String getAllData() {
         // get the MYSQL configuration from the environment
         Connection conn = null;
+
+
 
         // Use these to connect to the database and issue commands
         // Connect to the database; fail if we can't
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:mysql://" + ip + ":" + port + "/" + db + "?useSSL=false", user, pass);
+            conn = getConnection();
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object in getAllData");
                 return null;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception in getAllData");
+            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+            e.printStackTrace();
+            return null;
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
             return null;
         }
@@ -92,6 +111,7 @@ public class App {
                 currentDatum.numLikes = rs.getInt("numLikes");
                 currentDatum.uploadDate = sqlDateToJavaDate(rs.getTimestamp("uploadDate"));
                 currentDatum.lastLikeDate = sqlDateToJavaDate(rs.getTimestamp("lastLikeDate"));
+                currentDatum.author = rs.getString("author");
                 results.add(currentDatum);
             }
             stmt.close();
@@ -110,7 +130,7 @@ public class App {
      * @param   d   A Datum object retrieved by and built through Spark framework
      * @return command telling server if addition was a success or not
      */
-    String insertDatum(Datum d) {
+    static String insertDatum(Datum d) {
         // get the MYSQL configuration from the environment
         Connection conn = null;
 
@@ -119,8 +139,7 @@ public class App {
         //System.out.println("Connecting to " + ip + ":" + port + "/" + db);
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:mysql://" + ip + ":" +
-                    port + "/" + db + "?useSSL=false", user, pass);
+            conn = getConnection();
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object");
                 return null;
@@ -129,18 +148,23 @@ public class App {
             System.out.println("Error: getConnection threw an exception in insertDatum");
             e.printStackTrace();
             return null;
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            e.printStackTrace();
+            return null;
         }
         // Only insert if whole datum is not null
         if (d != null && d.title != null && d.comment != null && d.numLikes == 0 && d.uploadDate != null && d.lastLikeDate != null) {
             try {
                 //  (id, title, comment, numLikes, uploadDate, lastLikeDate)
-                String insertStmt = "INSERT INTO tblData VALUES (default, ?, ?, ?, ?, ?)";
+                String insertStmt = "INSERT INTO tblData VALUES (default, ?, ?, ?, ?, ?, ?)";
                 PreparedStatement stmt = conn.prepareStatement(insertStmt);
                 stmt.setString(1,d.title);
                 stmt.setString(2,d.comment);
                 stmt.setInt(3,d.numLikes);
                 stmt.setTimestamp(4,javaDateToSqlDate(d.uploadDate));
                 stmt.setTimestamp(5,javaDateToSqlDate(d.lastLikeDate));
+                stmt.setString(6,d.userName);
                 stmt.executeUpdate();
                 stmt.close();
             } catch (SQLException e) {
@@ -161,19 +185,24 @@ public class App {
      * @param   newLastLikeDate     This is the value to update time of last like/dislike.
      * @param   isLiked             If true, it's a LIKE. If false, it's a DISLIKE.
      */
-    void updateLike(int idNum, int numLikes, Date newLastLikeDate, Boolean isLiked) {
+    static void updateLike(int idNum, int numLikes, Date newLastLikeDate, Boolean isLiked) {
         // get the MYSQL configuration from the environment
         Connection conn = null;
         int newNumLikes = 0;
 
         // Check if it's like/dislike and change numLikes accordingly.
-        if (isLiked)    newNumLikes = ++numLikes;
-        else            newNumLikes = --numLikes;
+        if (isLiked)
+        {
+            newNumLikes = ++numLikes;
+        }
+        else
+        {
+            newNumLikes = --numLikes;
+        }
 
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:mysql://" + ip + ":" +          // HERE IS WHERE WE CONNECT
-                    port + "/" + db, user, pass);
+            conn = getConnection();
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object");
                 return;
@@ -182,9 +211,13 @@ public class App {
             System.out.println("Error: getConnection threw an exception in updateLike");
             e.printStackTrace();
             return;
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            e.printStackTrace();
+            return;
         }
 
-        //
+        // add vote to voteTbl
         try {
             String updateStmt = "UPDATE tblData SET numLikes = ?, lastLikeDate = ? WHERE id = ?";
             PreparedStatement stmt = conn.prepareStatement(updateStmt);
@@ -205,10 +238,6 @@ public class App {
      * Constructs an App object which creates a new Database and Gson Object to be used later by the different routes
      * This object is used to store the Database for each instance.
      */
-    public App() {
-        createDB();
-        gson = new Gson();
-    }
 
     /**
      * This method runs a command that drops the database tblData. Made private to ensure "adversaries"
@@ -221,14 +250,17 @@ public class App {
         // Connect to the database; fail if we can't
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:mysql://" + ip + ":" +
-                    port + "/" + db, user, pass);
+            conn = getConnection();
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object in createDB");
                 return;
             }
         } catch (SQLException e) {
             System.out.println("Error: getConnection in createDB threw an exception");
+            e.printStackTrace();
+            return;
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
             return;
         }
@@ -262,14 +294,17 @@ public class App {
         // Connect to the database; fail if we can't
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:mysql://" + ip + ":" +
-                    port + "/" + db, user, pass);
+            conn = getConnection();
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object in createDB");
                 return;
             }
         } catch (SQLException e) {
             System.out.println("Error: getConnection in createDB threw an exception");
+            e.printStackTrace();
+            return;
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
             return;
         }
@@ -312,13 +347,56 @@ public class App {
         return curCal.getTime();
     }
 
+    public static boolean validateUserToken(String uT, String uN){
+        Connection conn = null;
+
+        // Connect to the database; fail if we can't
+        try {
+            // Open a connection, fail if we cannot get one
+            conn = getConnection();
+            if (conn == null) {
+                System.out.println("Error: getConnection returned null object in createDB");
+                return false;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: getConnection in createDB threw an exception");
+            e.printStackTrace();
+            return false;
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            e.printStackTrace();
+            return false;
+        }
+
+        try {
+            //get username from user data table
+            String getStmt = "SELECT userName FROM userData WHERE userToken = ?";
+            PreparedStatement stmt = conn.prepareStatement(getStmt);
+            stmt.setString(1, uT);
+
+            ResultSet rs = stmt.executeQuery();
+            // iterate through the java ResultSet
+            while (rs.next()) {
+                //get username, if any, that matches the user token in the table
+                String uTCheck = rs.getString("userName");
+                if (uTCheck.equals(uN)){
+                    return true;
+                }
+            }
+            stmt.close();
+            //conn.close();
+        } catch (SQLException e) {
+            System.out.println("Error: query failed");
+            e.printStackTrace();
+        }
+        return false;
+    }
     /**
      * Main method which holds all get and post routes for updating and sending the database to the server.
      * Each route is formed as a lambda function which returns a GSON object to be passed.
      * @param args  Standard Java main class argument.
      */
     public static void main( String[] args ) {
-        App app = new App();
         // Set up static file service WHAT IS THE HIERARCHY HERE
         staticFileLocation(sFileLocation);
 
@@ -332,7 +410,7 @@ public class App {
         // GET '/data' returns a JSON string with all of the data in
         // the MySQL database.
         get("/data", (req, res) -> {
-            String result = app.getAllData();
+            String result = getAllData();
             // send a JSON object back
             res.status(200);
             res.type("application/json");
@@ -342,11 +420,17 @@ public class App {
         // POST a new item into the database
         post("/data", (req, res) -> {
             // Try to create a Datum from the request object
-            Datum d = app.gson.fromJson(req.body(), Datum.class);
-            String result = app.insertDatum(d);
-            res.status(200);
-            res.type("application/json");
-            return result;
+            Datum d = gson.fromJson(req.body(), Datum.class);
+            if (validateUserToken(d.userToken, d.userName)){
+                String result = insertDatum(d);
+                res.status(200);
+                res.type("application/json");
+                return result;
+            }else{
+                res.status(417);
+                res.type("application/json");
+                return null;
+            }
         });
 
 
@@ -354,20 +438,30 @@ public class App {
         // NEW DATUM IS IDENTICAL FOR EVERYTHING EXCEPT LIKE AND LLDATE
         post("/data/like/up/:id", (req, res) -> {
             // Call the update method above with the new datum object
-            Datum d = app.gson.fromJson(req.body(), Datum.class);
-            int idx = Integer.parseInt(req.params("id"));
-            app.updateLike(idx, d.numLikes, d.lastLikeDate, true);
-            return goodData;
+            Datum d = gson.fromJson(req.body(), Datum.class);
+            if (validateUserToken(d.userToken, d.userName)){
+                int idx = Integer.parseInt(req.params("id"));
+                updateLike(idx, d.numLikes, d.lastLikeDate, true);
+                return goodData;
+            }
+            else {
+                return badData;
+            }
         });
 
         // Route for RECORDING A DISLIKE. ":id" is used for getting index,
         // NEW DATUM IS IDENTICAL to like but decrements numlikes instead of incrementing it
         post("/data/like/down/:id", (req, res) -> {
             // Call the update method above with the new datum object
-            Datum d = app.gson.fromJson(req.body(), Datum.class);
-            int idx = Integer.parseInt(req.params("id"));
-            app.updateLike(idx, d.numLikes, d.lastLikeDate, false);
-            return goodData;
+            Datum d = gson.fromJson(req.body(), Datum.class);
+            if(validateUserToken(d.userToken, d.userName)) {
+                int idx = Integer.parseInt(req.params("id"));
+                updateLike(idx, d.numLikes, d.lastLikeDate, false);
+                return goodData;
+            }
+            else {
+                return badData;
+            }
         });
     }
 }
