@@ -3,15 +3,25 @@
 <head>
     <title>The Buzz: Home Page</title>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<<<<<<< HEAD
     <script type="text/javascript" src="js/handlebars.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
 <<<<<<< HEAD
 
+=======
+    <script src="handlebars.js"></script>
+    <script>
+        $(function(){
+            $("#includedContent").load("index.js");
+        });
+    </script>
+>>>>>>> remotes/origin/web
 </head>
 <body>
 <div id="header">
-    <h1 align='center'>The Buzz:</h1>  <h2 align='center'>The newest social media out there!</h2> <hr>"
+    <h1 align='center'>The Buzz:</h1>  <h2 align='center'>The newest social media out there!</h2> <hr>
 </div>
+<<<<<<< HEAD
 <div id="commentBox"/>
 <div id="listing"/>
 =======
@@ -19,17 +29,29 @@
 </head>
 <body>
 <div id="header">
+=======
+>>>>>>> remotes/origin/web
 
-</div>
 <div id="commentBox">
-
+<p>hello-1</p>
 </div>
 <div id="listing">
-
+<p>hello0</p>
 </div>
+<<<<<<< HEAD
 >>>>>>> remotes/origin/testing
+=======
+>>>>>>> remotes/origin/web
 </body>
-<script>
-    var html = Handlebars.templates.['index']; //must precompile index.ts first
+<script id="template_1" type="text/x-handlebars-template">
+    <hr> <h1>{{title}}</h1>
+    <p>{{comment}}</p><br>
+    <button id='like' onclick='likeClick()'>Like</button>
+    {{likes}}<button id='dislike' onclick='dislikeClick()'>Dislike</button><br>
+    <p>This comment was posted on </p>{{uploadDate}}
+    <p> and was last liked on </p>{{lastLikeDate}}<br>
 </script>
+
+<script src="index.js"></script>
+<p>hello3</p>
 </html>
