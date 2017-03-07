@@ -4,16 +4,18 @@ import static spark.Spark.*;
 import com.google.gson.*;
 
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 import java.lang.*;
-import java.util.Calendar;
 import java.util.Date;
 
 /**
- * @author Alex Van Heest, Kieran Horan
- * @version 1.1
+ * @author Alex Van Heest, Kieran Horan, Robert Salay
+ * @version 1.2
  */
 
 
@@ -31,6 +33,11 @@ class Datum {
     int numLikes;
     java.util.Date uploadDate;
     java.util.Date lastLikeDate;
+}
+
+class logDatum {
+    String userName;
+    String password;
 }
 
 
@@ -59,9 +66,210 @@ public class App {
     //static String pass = env.get("MYSQL_PASS");
     //static String db = env.get("MYSQL_DB");
 
+    //new getConnection method for postgre
     private static Connection getConnection() throws URISyntaxException, SQLException {
         String dbUrl = System.getenv("JDBC_DATABASE_URL");
         return DriverManager.getConnection(dbUrl);
+    }
+
+    //creates salt bytes for hashSalting process
+    private static byte[] getSalt() throws NoSuchAlgorithmException, NoSuchProviderException{
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        //create array for salt
+        byte[] salt = new byte[16];
+        //get random salt
+        sr.nextBytes(salt);
+        return salt;
+    }
+
+    //hashSalts a given password, used for both storing and comparing
+    private static String getSecurePassword(String password2Hash, byte[] salt){
+        String generatedPassword = null;
+        try {
+            // Create MessageDigest instance for MD5
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            // Add password bytes to digest
+            md.update(salt);
+            //Get hash's bytes
+            byte[] bytes = md.digest(password2Hash.getBytes());
+            // convert decimal format to hex
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bytes.length; i++){
+                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            //get complete hashed password in hex format
+            generatedPassword = sb.toString();
+        }
+        catch (NoSuchAlgorithmException e) {
+            System.out.println("Could not hash password");
+            e.printStackTrace();
+        }
+        return generatedPassword;
+    }
+
+    //creates salted and hashed value using previously saved salt
+    private static String hashPreviousPass(String password, byte[] salt){
+        String genPass;
+
+        genPass = getSecurePassword(password, salt);
+        return genPass;
+    }
+
+    //creates salted and hashed value, and saves salt in pw table
+    private static String hashPass(String password, String UN) throws NoSuchProviderException, NoSuchAlgorithmException{
+        Connection conn;
+        String genPass;
+        byte[] salt = getSalt();
+        genPass = getSecurePassword(password, salt);
+
+        try {
+            // Open a connection, fail if we cannot get one
+            conn = getConnection();
+            if (conn == null) {
+                System.out.println("Error: getConnection returned null object in getAllData");
+                return null;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+            e.printStackTrace();
+            return null;
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            e.printStackTrace();
+            return null;
+        }
+
+        int userID = getUserID(UN);
+        ResultSet rs;
+
+        try {
+            String updateStmt = "UPDATE pwHash SET salt = ?, saltPW = ? WHERE id = ?";
+            PreparedStatement stmt = conn.prepareStatement(updateStmt);
+            stmt.setBytes(1, salt);
+            stmt.setString(2, genPass);
+            stmt.setInt(3, userID);
+            stmt.execute();
+        } catch (SQLException e){
+            System.out.println("Error while storing salt");
+            e.printStackTrace();
+        }
+        return genPass;
+    }
+    //gets salt for passwords previously used, so people can log in
+    static byte[] getSavedSalt(String UN) {
+        Connection conn = null;
+
+        // Use these to connect to the database and issue commands
+        // Connect to the database; fail if we can't
+        try {
+            // Open a connection, fail if we cannot get one
+            conn = getConnection();
+            if (conn == null) {
+                System.out.println("Error: getConnection returned null object in getAllData");
+                return null;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+            e.printStackTrace();
+            return null;
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            e.printStackTrace();
+            return null;
+        }
+        int idNum = getUserID(UN);
+        byte[] saltResult = null;
+        ResultSet rs;
+
+        try {
+            String getStmt = "SELECT salt FROM pwHash WHERE userID = ?";
+            PreparedStatement stmt = conn.prepareStatement(getStmt);
+            stmt.setInt(1, idNum);
+            rs = stmt.executeQuery();
+            saltResult = rs.getBytes("salt");
+        } catch (SQLException e) {
+            System.out.println("Error while collecting previous salt");
+            e.printStackTrace();
+        }
+        return saltResult;
+    }
+
+    //produces the id number of a user from their username
+    private static int getUserID(String UN){
+        Connection conn = null;
+
+        // Use these to connect to the database and issue commands
+        // Connect to the database; fail if we can't
+        try {
+            // Open a connection, fail if we cannot get one
+            conn = getConnection();
+            if (conn == null) {
+                System.out.println("Error: getConnection returned null object in getAllData");
+                return -1;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+            e.printStackTrace();
+            return -1;
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            e.printStackTrace();
+            return -1;
+        }
+        int idNum = -1;
+        ResultSet rs;
+        try {
+            String getStmt = "SELECT userID FROM userData WHERE userName = ?";
+            PreparedStatement stmt = conn.prepareStatement(getStmt);
+            stmt.setString(1, UN);
+            rs = stmt.executeQuery();
+            idNum = rs.getInt("userID");
+        } catch (SQLException e){
+            System.out.println("Error while collecting user ID from Name");
+            e.printStackTrace();
+        }
+        return idNum;
+    }
+
+    //compares a given password with the stored password data
+    static Boolean comparePW(int uID, String saltedPW){
+        Connection conn = null;
+        try {
+            // Open a connection, fail if we cannot get one
+            conn = getConnection();
+            if (conn == null) {
+                System.out.println("Error: getConnection returned null object in getAllData");
+                return false;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            e.printStackTrace();
+        }
+
+        String savedSalt = "";
+        ResultSet rs;
+        try {
+            String getStmt = "SELECT saltedPW FROM pwHash WHERE userID = ?";
+            PreparedStatement stmt = conn.prepareStatement(getStmt);
+            stmt.setInt(1, uID);
+            rs = stmt.executeQuery();
+            savedSalt = rs.getString("saltedPW");
+        } catch (SQLException e) {
+            System.out.println("Error while comparing stored and supplied pws");
+            e.printStackTrace();
+        }
+        return savedSalt.equals(saltedPW);
+    }
+
+    //Creates a user token for login, should be unique for each user, and each time the user logs in
+    static String makeToken(String UN) {
+        Random ran = new Random();
+        int x = ran.nextInt(99999);
+        String uToken = UN + x;
+        return uToken;
     }
     /**
      * Get all data from our database and returns it in JSON format.
@@ -463,5 +671,24 @@ public class App {
                 return badData;
             }
         });
+
+        //Route for Login
+        //get route for login, sent Username & password, return validity boolean and user token
+        get("/data/login/", (req, res) -> {
+            String[] result = new String[2];
+            logDatum d = gson.fromJson(req.body(), logDatum.class);
+            byte[] salt = getSavedSalt(d.userName);
+            d.password = hashPreviousPass(d.password, salt);
+            int uID = getUserID(d.userName);
+            result[0] = String.valueOf(comparePW(uID, d.password));
+            result[1] = makeToken(d.userName);
+            res.status(200);
+            res.type("application/json");
+            return result;
+        });
+        //post route for signup, adds UN and email to possible users table
+
+        //get route for user page, returns UN, a bio, all made comments, and all liked comments
+
     }
 }
