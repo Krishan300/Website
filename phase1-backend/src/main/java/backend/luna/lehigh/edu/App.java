@@ -40,6 +40,11 @@ class logDatum {
     String password;
 }
 
+class signDatum {
+    String userName;
+    String eMail;
+}
+
 
 
 
@@ -555,6 +560,7 @@ public class App {
         return curCal.getTime();
     }
 
+    // returns true if the user token matches the most recent token paired with that user name
     public static boolean validateUserToken(String uT, String uN){
         Connection conn = null;
 
@@ -598,6 +604,53 @@ public class App {
             e.printStackTrace();
         }
         return false;
+    }
+
+    // adds user's sign up info to possible user table. This table includes their desired UN, their email, and
+    // a boolean that indicates if their sign up data has been read by the admin app, set to false.
+    // returns good data if everything is not null, or bad data if something is null.
+    static String signUpUser(signDatum d) {
+        // get the MYSQL configuration from the environment
+        Connection conn = null;
+
+        // Use these to connect to the database and issue commands
+        // Connect to the database; fail if we can't
+        //System.out.println("Connecting to " + ip + ":" + port + "/" + db);
+        try {
+            // Open a connection, fail if we cannot get one
+            conn = getConnection();
+            if (conn == null) {
+                System.out.println("Error: getConnection returned null object");
+                return null;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: getConnection threw an exception in insertDatum");
+            e.printStackTrace();
+            return null;
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            e.printStackTrace();
+            return null;
+        }
+        // Only insert if whole datum is not null
+        if (d != null && d.userName != null && d.eMail != null) {
+            try {
+                //  (id, title, comment, numLikes, uploadDate, lastLikeDate)
+                String insertStmt = "INSERT INTO pUserData VALUES (default, ?, ?, ?)";
+                PreparedStatement stmt = conn.prepareStatement(insertStmt);
+                stmt.setString(1,d.userName);
+                stmt.setString(2,d.eMail);
+                stmt.setBoolean(3,false);
+                stmt.executeUpdate();
+                stmt.close();
+            } catch (SQLException e) {
+                System.out.println("Error: insertion failed");
+                e.printStackTrace();
+            }
+            return goodData;
+        } else {
+            return badData;
+        }
     }
     /**
      * Main method which holds all get and post routes for updating and sending the database to the server.
@@ -687,7 +740,13 @@ public class App {
             return result;
         });
         //post route for signup, adds UN and email to possible users table
-
+        post("/data/signup/", (req, res) -> {
+           signDatum d = gson.fromJson(req.body(), signDatum.class);
+           String result = signUpUser(d);
+            res.status(200);
+            res.type("application/json");
+            return result;
+        });
         //get route for user page, returns UN, a bio, all made comments, and all liked comments
 
     }
