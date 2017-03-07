@@ -29,7 +29,7 @@ class Datum {
     String comment;
     String userName;
     String userToken;
-    String author;
+    int author;
     int numLikes;
     java.util.Date uploadDate;
     java.util.Date lastLikeDate;
@@ -276,6 +276,139 @@ public class App {
         String uToken = UN + x;
         return uToken;
     }
+
+    //using the username provided, returns a json containing this users bio, liked comments, and made comments
+    static String getUserData(String userName) {
+        int uID = getUserID(userName);
+        Connection conn = null;
+
+
+
+        // Use these to connect to the database and issue commands
+        // Connect to the database; fail if we can't
+        try {
+            // Open a connection, fail if we cannot get one
+            conn = getConnection();
+            if (conn == null) {
+                System.out.println("Error: getConnection returned null object in getAllData");
+                return null;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+            e.printStackTrace();
+            return null;
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            e.printStackTrace();
+            return null;
+        }
+        String result = "";
+        // watch multiples
+        //get bio
+        try {
+            String getStmt = "SELECT bio FROM userData WHERE userID = ?";
+            PreparedStatement stmt = conn.prepareStatement(getStmt);
+            stmt.setInt(1, uID);
+
+            ResultSet rs = stmt.executeQuery();
+
+            result = rs.getString("bio");
+        } catch (SQLException e) {
+            System.out.println("Error: query failed");
+            e.printStackTrace();
+        }
+        //get all comments this user liked
+        ArrayList<Datum> likeResults = new ArrayList<>();
+        try {
+            String getStmt = "SELECT commentID FROM voteData WHERE userID = ? AND voteUp = True";
+            PreparedStatement stmt = conn.prepareStatement(getStmt);
+            stmt.setInt(1, uID);
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Datum currentDatum = getComment(rs.getInt("id"));
+                likeResults.add(currentDatum);
+            }
+            stmt.close();
+        } catch (SQLException e) {
+            System.out.println("Error: query failed");
+            e.printStackTrace();
+        }
+        result += gson.toJson(likeResults);
+        //get all comments this user made
+        ArrayList<Datum> authorResults = new ArrayList<>();
+        try {
+            // get all data into a ResultSet
+            String getStmt = "SELECT * FROM tblData WHERE author = ?";
+            PreparedStatement stmt = conn.prepareStatement(getStmt);
+            stmt.setInt(1,uID);
+
+            ResultSet rs = stmt.executeQuery();
+            // iterate through the java ResultSet
+            while (rs.next()) {
+                // convert the RS to Data objects.
+                Datum currentDatum = new Datum();
+                currentDatum.index = rs.getInt("id");
+                currentDatum.title = rs.getString("title");
+                currentDatum.comment = rs.getString("comment");
+                currentDatum.numLikes = rs.getInt("numLikes");
+                currentDatum.uploadDate = sqlDateToJavaDate(rs.getTimestamp("uploadDate"));
+                currentDatum.lastLikeDate = sqlDateToJavaDate(rs.getTimestamp("lastLikeDate"));
+                currentDatum.author = rs.getInt("author");
+                authorResults.add(currentDatum);
+            }
+            stmt.close();
+            //conn.close();
+        } catch (SQLException e) {
+            System.out.println("Error: query failed");
+            e.printStackTrace();
+        }
+        // Convert the array of results to a JSON string and return it
+        result += gson.toJson(authorResults);
+        return result;
+    }
+
+    //returns comment data from ID number
+    static Datum getComment(int commentID) {
+        Connection conn = null;
+
+        try {
+            conn = getConnection();
+            if (conn == null) {
+                System.out.println("Error: getConnection returned null object in getAllData");
+                return null;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+            e.printStackTrace();
+            return null;
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            e.printStackTrace();
+            return null;
+        }
+        Datum d = new Datum();
+
+        try {
+            String getStmt = "SELECT * FROM tblData WHERE id = ?";
+            PreparedStatement stmt = conn.prepareStatement(getStmt);
+
+            ResultSet rs = stmt.executeQuery();
+
+            d.index = rs.getInt("id");
+            d.title = rs.getString("title");
+            d.comment = rs.getString("comment");
+            d.numLikes = rs.getInt("numLikes");
+            d.uploadDate = sqlDateToJavaDate(rs.getTimestamp("uploadDate"));
+            d.lastLikeDate = sqlDateToJavaDate(rs.getTimestamp("lastLikeDate"));
+            d.author = rs.getInt("author");
+        } catch (SQLException e) {
+            System.out.println("Error: query failed");
+            e.printStackTrace();
+        }
+        return d;
+    }
     /**
      * Get all data from our database and returns it in JSON format.
      * @return JSON object from SQL frontend
@@ -324,7 +457,7 @@ public class App {
                 currentDatum.numLikes = rs.getInt("numLikes");
                 currentDatum.uploadDate = sqlDateToJavaDate(rs.getTimestamp("uploadDate"));
                 currentDatum.lastLikeDate = sqlDateToJavaDate(rs.getTimestamp("lastLikeDate"));
-                currentDatum.author = rs.getString("author");
+                currentDatum.author = rs.getInt("author");
                 results.add(currentDatum);
             }
             stmt.close();
@@ -377,7 +510,8 @@ public class App {
                 stmt.setInt(3,d.numLikes);
                 stmt.setTimestamp(4,javaDateToSqlDate(d.uploadDate));
                 stmt.setTimestamp(5,javaDateToSqlDate(d.lastLikeDate));
-                stmt.setString(6,d.userName);
+                int idx = getUserID(d.userName);
+                stmt.setInt(6,idx);
                 stmt.executeUpdate();
                 stmt.close();
             } catch (SQLException e) {
@@ -748,6 +882,12 @@ public class App {
             return result;
         });
         //get route for user page, returns UN, a bio, all made comments, and all liked comments
-
+        get("/data/userpage/:UN/", (req, res) -> {
+            String userName = req.params("UN");
+            String result = getUserData(userName);
+            res.status(200);
+            res.type("application/json");
+            return result;
+        });
     }
 }
