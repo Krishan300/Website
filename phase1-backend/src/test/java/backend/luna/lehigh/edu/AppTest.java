@@ -197,16 +197,6 @@ public class AppTest extends TestCase
      * - testUpVoteDownVoteSuccess()    Should return a neutralized value for total votes.
      * - testDownVoteUpVoteSuccess()    Should return a neutralized value for total votes.
      *
-     * Pending Robert's completion of backend, or the availability of a skeleton copy of the backend
-     * code, the method names and passed arguments will largely remain a guess. This is done just so
-     * I can prove that I functionally understand how this should run and don't run out of time and have
-     * nothing to submit by Friday March 10th.
-     *
-     * Another change that will ultimately need to be made is to arguments used below. These are just logical
-     * guesses, but unless coincidence deals me a lucky hand, the order will likely need to be rearranged.
-     * Also, in order for literally all of these to work, the JSON return needs to be implemented for each
-     * of these new methods!
-     *
      * To adapt this to Robert's finished code, not much needs to be done. Just the above adjustments and a
      * careful analysis of my clearly outlined assumptions should make adapting this, while odiously monotonous,
      * pretty simple.
@@ -214,6 +204,20 @@ public class AppTest extends TestCase
      * Also note that due to the complete lack of an admin app at this time, I haven't provided any
      * JUnit tests for it yet. Some are already completed and are featured below from Kieran's work -- others
      * will still need to be written pending details of Robert's implementation.
+     *
+     * The methods that won't be tested explicitly (they're called by other methods, not in routes):
+     * getConnection()
+     * getSalt()
+     * getSecurePassword()
+     * hashPreviousPass()
+     * hashPass()
+     * getSavedSalt()
+     * getUserId()
+     * comparePw()
+     * makeToken()
+     *
+     * TODO: Add userpage tests using getUserData() method.
+     * TODO: Adjust names for login, post, changePassword.
      */
 
 
@@ -305,163 +309,154 @@ public class AppTest extends TestCase
     }
 
     public void testRegisterSuccess() {
-        // Start of every test -- create a new connection.
-        // ASSUMPTION: Phase 2 App includes a non-static method for register.
-        App app = new App();
+        // Create signDatum object:
+        signDatum sd = new signDatum();
 
         // Sample possible new user account.
         // ASSUMPTION: This account isn't already registered.
-        String registerUsername = "testsuccessname";
-        String registerPassword = "testsuccesspass";
-        String registerEmail = "test@success.com";
+        sd.userName = "testsuccessname";
+        String password = "testsuccesspass";
+        sd.eMail = "test@success.com";
 
         // Attempt to register.
         // ASSUMPTION: These credentials meet username, password, and email criteria.
-        String output = app.register(registerUsername, registerPassword, registerEmail);
+        String output = App.signUpUser(sd);
 
         // Finally, make sure it gets an "ok" response.
         assertEquals(output, goodResponse);
     }
 
     public void testRegisterExistingUser() {
-        // Start of every test -- create a new connection.
-        // ASSUMPTION: Phase 2 App includes a non-static method for register.
-        App app = new App();
+        // Create signDatum object:
+        signDatum sd = new signDatum();
 
         // Sample possible new user account.
         // ASSUMPTION: This username is already registered.
-        String existingUsername = "user1";
-        String registerPassword = "testsuccesspass";
-        String registerEmail = "test2@success.com";
+        sd.userName = "user1";
+        String password = "testsuccesspass";
+        sd.eMail = "test2@success.com";
 
         // Attempt to register.
-        String output = app.register(existingUsername, registerPassword, registerEmail);
+        String output = App.signUpUser(sd);
 
         // Finally, make sure it gets a "bad data" response.
         assertEquals(output, badResponse);
     }
 
     public void testRegisterExistingEmail() {
-        // Start of every test -- create a new connection.
-        // ASSUMPTION: Phase 2 App includes a non-static method for register.
-        App app = new App();
+        // Create signDatum object:
+        signDatum sd = new signDatum();
 
         // Sample possible new user account.
         // ASSUMPTION: This email is already registered.
-        String registerUsername = "testsuccessname2";
-        String registerPassword = "testsuccesspass";
-        String existingEmail = "test@success.com";
+        sd.userName = "testsuccessname2";
+        String password = "testsuccesspass";
+        sd.eMail = "test@success.com";
 
         // Attempt to register.
-        String output = app.register(registerUsername, registerPassword, existingEmail);
+        String output = App.signUpUser(sd);
 
         // Finally, make sure it gets a "bad data" response.
         assertEquals(output, badResponse);
     }
 
     public void testRegisterInvalidUser() {
-        // Start of every test -- create a new connection.
-        // ASSUMPTION: Phase 2 App includes a non-static method for register.
-        App app = new App();
+        // Create signDatum object:
+        signDatum sd = new signDatum();
 
         // Sample possible new user account.
         // ASSUMPTION: This username doesn't meet specs and is unable to be registered.
-        String invalidUsername = "(*#$(@#$&*bla bla bla you get the point";
-        String registerPassword = "testsuccesspass";
-        String registerEmail = "test@success.com";
+        sd.userName = "(*#$(@#$&*bla bla bla you get the point";
+        String password = "testsuccesspass";
+        sd.eMail = "test@success.com";
 
         // Attempt to register.
-        String output = app.register(invalidUsername, registerPassword, registerEmail);
+        String output = App.signUpUser(sd);
 
         // Finally, make sure it gets a "bad data" response.
         assertEquals(output, badResponse);
     }
 
     public void testRegisterInvalidEmail() {
-        // Start of every test -- create a new connection.
-        // ASSUMPTION: Phase 2 App includes a non-static method for register.
-        App app = new App();
+        // Create signDatum object:
+        signDatum sd = new signDatum();
 
         // Sample possible new user account.
         // ASSUMPTION: This email doesn't meet specs and is unable to be registered.
-        String registerUsername = "testsuccessname2";
-        String registerPassword = "testsuccesspass";
-        String invalidEmail = "no at sign in sight or period";
+        sd.userName = "testsuccessname2";
+        String password = "testsuccesspass";
+        sd.eMail = "no at sign in sight or period";
 
         // Attempt to register.
-        String output = app.register(registerUsername, registerPassword, invalidEmail);
+        String output = App.signUpUser(sd);
 
         // Finally, make sure it gets a "bad data" response.
         assertEquals(output, badResponse);
     }
 
     public void testRegisterInvalidPass() {
-        // Start of every test -- create a new connection.
-        // ASSUMPTION: Phase 2 App includes a non-static method for register.
-        App app = new App();
+        // Create signDatum object:
+        signDatum sd = new signDatum();
 
         // Sample possible new user account.
         // ASSUMPTION: This password doesn't meet specs and is unable to be registered.
-        String registerUsername = "testsuccessname2";
-        String invalidPassword = " ";                  // maybe too short?
-        String registerEmail = "test@success.com";
+        sd.userName = "testsuccessname2";
+        String password = " ";                  // maybe too short?
+        sd.eMail = "test@success.com";
 
         // Attempt to register.
-        String output = app.register(registerUsername, invalidPassword, registerEmail);
+        String output = App.signUpUser(sd);
 
         // Finally, make sure it gets a "bad data" response.
         assertEquals(output, badResponse);
     }
 
     public void testRegisterNoUser() {
-        // Start of every test -- create a new connection.
-        // ASSUMPTION: Phase 2 App includes a non-static method for register.
-        App app = new App();
+        // Create signDatum object:
+        signDatum sd = new signDatum();
 
         // Sample possible new user account.
         // ASSUMPTION: This username is null, which obviously shouldn't be allowed.
-        String emptyUsername = null;
-        String registerPassword = "testsuccesspassword";
-        String registerEmail = "test@success.com";
+        sd.userName = null;
+        String password = "testsuccesspassword";
+        sd.eMail = "test@success.com";
 
         // Attempt to register.
-        String output = app.register(emptyUsername, registerPassword, registerEmail);
+        String output = App.signUpUser(sd);
 
         // Finally, make sure it gets a "bad data" response.
         assertEquals(output, badResponse);
     }
 
     public void testRegisterNoEmail() {
-        // Start of every test -- create a new connection.
-        // ASSUMPTION: Phase 2 App includes a non-static method for register.
-        App app = new App();
+        // Create signDatum object:
+        signDatum sd = new signDatum();
 
         // Sample possible new user account.
         // ASSUMPTION: This email is null, which obviously shouldn't be allowed.
-        String registerUsername = "testsuccessname2";
-        String registerPassword = "testsuccesspassword";
-        String emptyEmail = null;
+        sd.userName = "testsuccessname2";
+        String password = "testsuccesspassword";
+        sd.eMail = null;
 
         // Attempt to register.
-        String output = app.register(registerUsername, registerPassword, emptyEmail);
+        String output = App.signUpUser(sd);
 
         // Finally, make sure it gets a "bad data" response.
         assertEquals(output, badResponse);
     }
 
     public void testRegisterNoPass() {
-        // Start of every test -- create a new connection.
-        // ASSUMPTION: Phase 2 App includes a non-static method for register.
-        App app = new App();
+        // Create signDatum object:
+        signDatum sd = new signDatum();
 
         // Sample possible new user account.
         // ASSUMPTION: This password is null, which obviously shouldn't be allowed.
-        String registerUsername = "testsuccessname2";
-        String emptyPassword = null;
-        String registerEmail = "test@success.com";
+        sd.userName = "testsuccessname2";
+        String password = null;
+        sd.eMail = "test@success.com";
 
         // Attempt to register.
-        String output = app.register(registerUsername, emptyPassword, registerEmail);
+        String output = App.signUpUser(sd);
 
         // Finally, make sure it gets a "bad data" response.
         assertEquals(output, badResponse);
