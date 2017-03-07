@@ -42,6 +42,7 @@ class logDatum {
 
 class signDatum {
     String userName;
+    String passWord;
     String eMail;
 }
 
@@ -237,8 +238,9 @@ public class App {
     }
 
     //compares a given password with the stored password data
-    static Boolean comparePW(int uID, String saltedPW){
+    static Boolean comparePW(String UN, String saltedPW){
         Connection conn = null;
+        int uID = getUserID(UN);
         try {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
@@ -291,18 +293,18 @@ public class App {
             conn = getConnection();
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object in getAllData");
-                return null;
+                return badData;
             }
         } catch (SQLException e) {
             System.out.println("Error: getConnection threw an SQL exception in getAllData");
             e.printStackTrace();
-            return null;
+            return badData;
         } catch (URISyntaxException e) {
             System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
-            return null;
+            return badData;
         }
-        String result = "";
+        String[] result = new String[3];
         // watch multiples
         //get bio
         try {
@@ -312,10 +314,11 @@ public class App {
 
             ResultSet rs = stmt.executeQuery();
 
-            result = rs.getString("bio");
+            result[0] = rs.getString("bio");
         } catch (SQLException e) {
             System.out.println("Error: query failed");
             e.printStackTrace();
+            return badData;
         }
         //get all comments this user liked
         ArrayList<Datum> likeResults = new ArrayList<>();
@@ -334,8 +337,9 @@ public class App {
         } catch (SQLException e) {
             System.out.println("Error: query failed");
             e.printStackTrace();
+            return badData;
         }
-        result += gson.toJson(likeResults);
+        result[1] = gson.toJson(likeResults);
         //get all comments this user made
         ArrayList<Datum> authorResults = new ArrayList<>();
         try {
@@ -363,10 +367,12 @@ public class App {
         } catch (SQLException e) {
             System.out.println("Error: query failed");
             e.printStackTrace();
+            return badData;
         }
         // Convert the array of results to a JSON string and return it
-        result += gson.toJson(authorResults);
-        return result;
+        result[2] = gson.toJson(authorResults);
+        String stringRes = gson.toJson(result);
+        return stringRes;
     }
 
     //returns comment data from ID number
@@ -532,21 +538,9 @@ public class App {
      * @param   newLastLikeDate     This is the value to update time of last like/dislike.
      * @param   isLiked             If true, it's a LIKE. If false, it's a DISLIKE.
      */
-    static void updateLike(int idNum, int numLikes, Date newLastLikeDate, Boolean isLiked) {
+    static void updateLike(int idNum, int numLikes, Date newLastLikeDate, String userName, Boolean isLiked) {
         // get the MYSQL configuration from the environment
         Connection conn = null;
-        int newNumLikes = 0;
-
-        // Check if it's like/dislike and change numLikes accordingly.
-        if (isLiked)
-        {
-            newNumLikes = ++numLikes;
-        }
-        else
-        {
-            newNumLikes = --numLikes;
-        }
-
         try {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
@@ -563,21 +557,63 @@ public class App {
             e.printStackTrace();
             return;
         }
-
-        // add vote to voteTbl
+        int newNumLikes = 0;
+        int pastVoteID = -1;
+        boolean pastVote = false;
         try {
-            String updateStmt = "UPDATE tblData SET numLikes = ?, lastLikeDate = ? WHERE id = ?";
-            PreparedStatement stmt = conn.prepareStatement(updateStmt);
-            stmt.setInt(1, newNumLikes);
-            stmt.setTimestamp(2, javaDateToSqlDate(newLastLikeDate));
-            stmt.setInt(3, idNum);
-            stmt.executeUpdate();
-            stmt.close();
-            //conn.close(); I don't think we need this
+            String getStmt = "SELECT id,voteUp FROM voteData WHERE commentID = ? AND userID = ?";
+            PreparedStatement stmt = conn.prepareStatement(getStmt);
+            stmt.setInt(1, idNum);
+            stmt.setInt(2, getUserID(userName));
+            ResultSet rs = stmt.executeQuery();
+            pastVoteID = rs.getInt("id");
+            pastVote = rs.getBoolean("voteUp");
         } catch (SQLException e) {
-            System.out.println("Error: unable to update row");
+            System.out.println("Error: unable to find voteData table");
             e.printStackTrace();
         }
+
+        if (pastVoteID >= 0) {
+            if (pastVote) {
+                newNumLikes = --numLikes;
+            } else {
+                newNumLikes = ++numLikes;
+            }
+
+            try {
+                String deleteStmt = "DELETE FROM voteData WHERE id = ?";
+                PreparedStatement stmt = conn.prepareStatement(deleteStmt);
+                stmt.setInt(1, pastVoteID);
+                stmt.execute();
+            } catch (SQLException e) {
+                System.out.println("Error: unable to delete voteData row");
+                e.printStackTrace();
+            }
+        } else {
+            // Check if it's like/dislike and change numLikes accordingly.
+            if (isLiked) {
+                newNumLikes = ++numLikes;
+            } else {
+                newNumLikes = --numLikes;
+            }
+        }
+
+            // add vote to voteTbl
+            try {
+                String updateStmt = "UPDATE tblData SET numLikes = ?, lastLikeDate = ? WHERE id = ?";
+                PreparedStatement stmt = conn.prepareStatement(updateStmt);
+                stmt.setInt(1, newNumLikes);
+                stmt.setTimestamp(2, javaDateToSqlDate(newLastLikeDate));
+                stmt.setInt(3, idNum);
+                stmt.executeUpdate();
+                stmt.close();
+                //conn.close(); I don't think we need this
+            } catch (SQLException e) {
+                System.out.println("Error: unable to update row");
+                e.printStackTrace();
+            }
+
+            // check if this user has already voted
     }
 
 
@@ -767,18 +803,28 @@ public class App {
             return null;
         }
         // Only insert if whole datum is not null
-        if (d != null && d.userName != null && d.eMail != null) {
+        if (d != null && d.userName != null && d.eMail != null && d.passWord != null) {
             try {
+                byte[] salt = getSalt();
+                d.passWord = getSecurePassword(d.passWord, salt);
                 //  (id, title, comment, numLikes, uploadDate, lastLikeDate)
-                String insertStmt = "INSERT INTO pUserData VALUES (default, ?, ?, ?)";
+                String insertStmt = "INSERT INTO pUserData VALUES (default, ?, ?, ?, ?, ?)";
                 PreparedStatement stmt = conn.prepareStatement(insertStmt);
                 stmt.setString(1,d.userName);
                 stmt.setString(2,d.eMail);
                 stmt.setBoolean(3,false);
+                stmt.setString(4, d.passWord);
+                stmt.setBytes(5, salt);
                 stmt.executeUpdate();
                 stmt.close();
             } catch (SQLException e) {
                 System.out.println("Error: insertion failed");
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                System.out.println("Error: no such algorithm");
+                e.printStackTrace();
+            } catch (NoSuchProviderException e) {
+                System.out.println("Error: no such provider");
                 e.printStackTrace();
             }
             return goodData;
@@ -836,7 +882,7 @@ public class App {
             Datum d = gson.fromJson(req.body(), Datum.class);
             if (validateUserToken(d.userToken, d.userName)){
                 int idx = Integer.parseInt(req.params("id"));
-                updateLike(idx, d.numLikes, d.lastLikeDate, true);
+                updateLike(idx, d.numLikes, d.lastLikeDate, d.userName, true);
                 return goodData;
             }
             else {
@@ -851,7 +897,7 @@ public class App {
             Datum d = gson.fromJson(req.body(), Datum.class);
             if(validateUserToken(d.userToken, d.userName)) {
                 int idx = Integer.parseInt(req.params("id"));
-                updateLike(idx, d.numLikes, d.lastLikeDate, false);
+                updateLike(idx, d.numLikes, d.lastLikeDate, d.userName, false);
                 return goodData;
             }
             else {
@@ -862,16 +908,17 @@ public class App {
         //Route for Login
         //get route for login, sent Username & password, return validity boolean and user token
         get("/data/login/", (req, res) -> {
-            String[] result = new String[2];
+            String result = "";
             logDatum d = gson.fromJson(req.body(), logDatum.class);
-            byte[] salt = getSavedSalt(d.userName);
-            d.password = hashPreviousPass(d.password, salt);
-            int uID = getUserID(d.userName);
-            result[0] = String.valueOf(comparePW(uID, d.password));
-            result[1] = makeToken(d.userName);
-            res.status(200);
-            res.type("application/json");
-            return result;
+            d.password = hashPreviousPass(d.password, getSavedSalt(d.userName));
+            if (comparePW(d.userName, d.password)) {
+                result = makeToken(d.userName);
+                res.type("application/json");
+                return result;
+            }
+
+            return badData;
+
         });
         //post route for signup, adds UN and email to possible users table
         post("/data/signup/", (req, res) -> {
@@ -881,13 +928,19 @@ public class App {
             res.type("application/json");
             return result;
         });
+
         //get route for user page, returns UN, a bio, all made comments, and all liked comments
         get("/data/userpage/:UN/", (req, res) -> {
-            String userName = req.params("UN");
-            String result = getUserData(userName);
-            res.status(200);
-            res.type("application/json");
-            return result;
+            Datum d = gson.fromJson(req.body(), Datum.class);
+            if(validateUserToken(d.userToken, d.userName)) {
+                String userName = req.params("UN");
+                String result = getUserData(userName);
+                res.status(200);
+                res.type("application/json");
+                return result;
+            }
+
+            return badData;
         });
     }
 }
