@@ -1,35 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- TODO: Reformat  -->
 <head>
     <title>The Buzz: Home Page</title>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="js/handlebars.js"></script>
-    <script type="text/javascript" src="js/index.js"></script>
-<<<<<<< HEAD
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/2.0.0/handlebars.js"></script>
+    <!-- NOT SURE IF THIS IS ACTUALLY NEEDED, BUT THIS DISPLAYS PROPERLY WITHOUT THIS HERE!
+     <script>
+         $(function(){
+             $("#includedContent").load("index.js");
+         });
+     </script> -->
+    <script id="template_1" type="text/x-handlebars-template">
+        <h1>{{title}}</h1><p>{{comment}}</p>
+        <button id='like' onclick='CommentList.prototype.likeClick()'>Like</button>   {{likes}}   <button id='dislike' onclick='CommentList.prototype.dislikeClick()'>Dislike</button><br>
+        <p>This comment was posted on {{uploadDate}} and was last liked on {{lastLikeDate}}</p><hr> 
+    </script>
 </head>
 <body>
 <div id="header">
-    <h1 align='center'>The Buzz:</h1>  <h2 align='center'>The newest social media out there!</h2> <hr>"
+    <h1 align='center'>The Buzz:</h1>  <h2 align='center'>The newest social media out there!</h2>
 </div>
-<div id="commentBox"/>
-<div id="listing"/>
-=======
-
-</head>
-<body>
-<div id="header">
-
-</div>
+<hr> 
 <div id="commentBox">
-
 </div>
-<div id="listing">
-
-</div>
->>>>>>> remotes/origin/testing
+<hr> 
 </body>
-<script>
-    var html = Handlebars.templates.['index']; //must precompile index.ts first
-</script>
+<div id="listing" />
+
+<script src="index.js"></script>
 </html>
