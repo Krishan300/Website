@@ -40,6 +40,12 @@ class logDatum {
     String password;
 }
 
+class pwDatum {
+    String userName;
+    String oldPW;
+    String newPW;
+}
+
 class signDatum {
     String userName;
     String passWord;
@@ -791,16 +797,16 @@ public class App {
             conn = getConnection();
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object");
-                return null;
+                return badData;
             }
         } catch (SQLException e) {
             System.out.println("Error: getConnection threw an exception in insertDatum");
             e.printStackTrace();
-            return null;
+            return badData;
         } catch (URISyntaxException e) {
             System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
-            return null;
+            return badData;
         }
         // Only insert if whole datum is not null
         if (d != null && d.userName != null && d.eMail != null && d.passWord != null) {
@@ -831,6 +837,46 @@ public class App {
         } else {
             return badData;
         }
+    }
+
+    public static String changePW(pwDatum d) {
+        // get the MYSQL configuration from the environment
+        Connection conn = null;
+
+        // Use these to connect to the database and issue commands
+        // Connect to the database; fail if we can't
+        //System.out.println("Connecting to " + ip + ":" + port + "/" + db);
+        try {
+            // Open a connection, fail if we cannot get one
+            conn = getConnection();
+            if (conn == null) {
+                System.out.println("Error: getConnection returned null object while changing passwords");
+                return badData;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: getConnection threw an exception in changePW");
+            e.printStackTrace();
+            return badData;
+        } catch (URISyntaxException e) {
+            System.out.println("Error: getConnection threw a URI Syntax exception in changePw");
+            e.printStackTrace();
+            return badData;
+        }
+        d.newPW = hashPreviousPass(d.newPW, getSavedSalt(d.userName));
+        int uID = getUserID(d.userName);
+
+        try {
+            Statement updateStmt = "UPDATE pwHash Set saltedPW = ? WHERE userID = ?";
+            PreparedStatement stmt = conn.prepareStatement(updateStmt);
+            stmt.setString(1,d.newPW);
+            stmt.setInt(2,uID);
+            stmt.execute();
+        } catch (SQLException e) {
+            System.out.println("Error: Query Failed");
+            e.printStackTrace();
+            return badData;
+        }
+        return goodData;
     }
     /**
      * Main method which holds all get and post routes for updating and sending the database to the server.
@@ -941,6 +987,16 @@ public class App {
             }
 
             return badData;
+        });
+
+        post("/data/pwchange/", (req, res) -> {
+            pwDatum d = gson.fromJson(req.body(), pwDatum.class);
+            String result = badData;
+            d.oldPW = hashPreviousPass(d.oldPW, getSavedSalt(d.userName));
+            if (comparePW(d.userName, d.oldPW)) {
+                result = changePW(d);
+            }
+            return result;
         });
     }
 }
