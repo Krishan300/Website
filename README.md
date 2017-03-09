@@ -1,13 +1,13 @@
 # Luna Phase 2 Testing
 
-**Orchestrated by Alex Van Heest**
+**Edited by Alex Van Heest**
 
 ****
 
 **What still needs to be done?**
 
 * ~~Phase 1 Android Testing (w/ Espresso)~~
-* Phase 2 Android Testing (w/ Espresso) -- pending design from Charles
-* Phase 1 Frontend Testing (w/ Jasmine) -- pending completed phase 1 frontend from Krishan
+* ~~Phase 2 Android Testing (w/ Espresso)~~ -- as done as it can be until one of us actually does any of Android
+* Phase 1 Frontend Testing (w/ Jasmine) -- pending completion of backend/frontend test
 * Phase 2 Frontend Testing (w/ Jasmine) -- pending design from Krishan
-* ~~Phase 2 Backend Testing (w/ JUnit)~~ -- 32 main-app tests written (pending name/argument changes from Robert's code)
+* ~~Phase 2 Backend Testing (w/ JUnit)~~

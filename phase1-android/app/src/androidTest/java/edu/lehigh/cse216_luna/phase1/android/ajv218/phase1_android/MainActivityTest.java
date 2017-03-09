@@ -86,6 +86,59 @@ public class MainActivityTest {
         onView(isRoot()).perform(waitFor(100));                             // Wait (to clear screen)-- min 0.1 secs.
         onView(withText("TESTDATA")).check(doesNotExist());                 // Check that item has been removed.
         //onView(isRoot()).perform(waitFor(5000));                          // As long as Toast messages come up.
+
+
+
+
+        // PHASE 2 TESTING:
+        // Our Android teammate is dropping the course and never completed the design I asked for
+        // from him, so I have no idea how we will be implementing the Phase 2 Android. To make up
+        // for my lack of testing, I've outlined how we may choose to implement Android during our
+        // inevitable catch-up period between phase 2 and phase 3 and how this would be tested:
+        //
+        // Our objectives are to:
+        // - read in data from backend using Volley:
+        //   * display all messages
+        //   * login
+        //   * logout
+        //   * register
+        //   * up vote
+        //   * down vote
+        // - handle network failures
+        // - handle unexpected logout
+
+        // UP/DOWN VOTING
+        // After phase 1, we completed a design that includes two buttons, a delete and a like
+        // button. We will repurpose the delete button into a dislike button and set these to
+        // post updates to the backend after upvoting or downvoting. I need to learn more about
+        // Volley, but I would assume that this can be done within this umbrella of tools. Otherwise,
+        // we need to figure out some way to trigger the server to call the up/down vote method.
+
+        // DISPLAY ALL MESSAGES
+        // This is likely the easiest part and will be received from Volley. We can make a GET
+        // request and prompt the backend for the data as JSON, which we can easily display here.
+        // In keeping up with server updates, we'll need to have a method like the frontend methods
+        // for getting updates as they appear. This may be tricky, and I'll need to look more into
+        // Volley before I can be sure about how to do this.
+
+        // LOGIN / LOGOUT
+        // The LOGIN page will appear at the front of the app upon loading. This will be required
+        // for the user to login and will hold the user's token that's created on the serverside.
+        // There will also be a button on the main message-list page for logging out.
+
+        // REGISTRATION
+        // Similar to the login, the option for registration will be presented in the activity for
+        // the login page. This will have to prompt the user for input and send it to the backend
+        // as we'll've attempted frontend to do.
+
+        // HANDLING ERRORS
+        // We'll likely need some kind of activity that triggers if a network error occurs. This
+        // trigger should be contained in the Android implementation throughout various methods so
+        // it can easily be called.
+
+
+        // I wish I could've tried at testing these things, but since we have nothing for phase 2,
+        // I decided to wait until we have a design at least for this part.
     }
 
     private static Matcher<View> childAtPosition(
