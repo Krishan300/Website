@@ -5,32 +5,40 @@
  *boxDisplay returns html code for displaying class on a web page
  *sendComment sends a post route to the database
  */
+var $;
+var Handlebars;
 var CommentBox = (function () {
-    function CommentBox() {}
+    function CommentBox() {
+    }
     /**
      * takes data from textboxes and converts it into a full json object, sent to the db via a POST route
      * shows an error if it can't send the data, otherwise reloads the page via getDataFromServer
      */
     CommentBox.prototype.sendComment = function () {
-        var title = document.getElementById("newTitle").textContent;
-        var comment = document.getElementById("newComment").textContent;
-        title = (title === "") ? null : title;
-        comment = (comment === "") ? null : title;
+        var myTitle = $("#newTitle").val();
+        var myComment = $("#newComment").val();
+        myTitle = (myTitle === "") ? null : myTitle;
+        myComment = (myComment === "") ? null : myComment;
+        //var myDate = Date.now();
+        // window.alert(myTitle);
         $.ajax({
             type: "POST",
             url: "/data",
-            data: JSON.stringify({ "title": title,
-                "comment": comment,
-                "likes": 0, "uploadDate": Date.now(), "lastLikeDate": Date.now() }),
-            dataType: "json",
-            success: function (data) {
-                if (data.res === "ok") {
-                    getDataFromServer();
-                }
-                else {
-                    window.alert("Error sending message: try again later.");
-                }
+            data: JSON.stringify({ title: myTitle, comment: myComment, numLikes: 0 }),
+            dataType: "json"
+        }).done( function (data, status) {
+            if (data.res === "ok") {
+                getDataFromServer();
             }
+            else {
+                window.alert("Error sending message: try again later.");
+            }
+        }).fail( function (errortype, data, status) {
+            window.alert("CommentBox.sendComment: FAIL CALLED");
+            window.alert(errortype.responseText);       // 500 Internal Error
+            window.alert(errortype.statusText);         // Server Error
+            window.alert(data.toString());              // error
+            window.alert(status);                       // Server Error
         });
     };
     /**
@@ -115,7 +123,6 @@ var CommentList = (function () {
      */
     CommentList.prototype.commentDisplay = function () {
         var source = $("#template_1").html();
-        //window.alert("hey loser");
         var template = Handlebars.compile(source);
         var context = { title: this.title,
             comment: this.comment,
@@ -140,46 +147,21 @@ function getDataFromServer() {
      * if possible, turns data into an array of commentList objects and displays them in reverse chronological order
      * if not, sends an error
      */
-
     $.ajax({
         type: "GET",
         url: "/data",
         dataType: "json",
         success: function (data) {
-            if (data.res === "ok") {
-                var cList = new CommentList[data.length];
-                //turn db data into comments stored in reverse chronological order
-                var counter = 1;
-                for (var i in data) {
-                    cList[data.length - counter] = new CommentList(data[i].index, data[i].title, data[i].comment, data[i].likes, data[i].uploadDate, data[i].lastLikeDate);
-                    counter++;
-                }
-                //display all comments
-                for (var k = 0; k < cList.length; k++) {
-                    document.getElementById("listing").innerHTML += cList[k].commentDisplay();
-                }
-            }
-            else {
-                window.alert("Cannot get web data at this time. Try again later.");
-            }
+            $.each(data, function(index, element) {
+                var likes = element.likes;
+                var cl = new CommentList(element.index, element.title, element.comment, element.numLikes, element.uploadDate, element.lastLikeDate);
+                document.getElementById("listing").innerHTML += cl.commentDisplay();
+            });
+        },
+        error: function () {
+            window.alert("something wrong with success:function(data) in getDataFromServer");
         }
     });
 }
 //calls getDataFromServer to initialize page
 getDataFromServer();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

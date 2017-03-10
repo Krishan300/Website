@@ -14,7 +14,3 @@ I have done what I can with the code I've been given so far. A lot of this is st
 * Phase 2 Frontend Testing (w/ Jasmine) -- since none of phase 2 frontend is actually done, this part will need to be done at some point during Phase 3......
 * ~~Phase 1 Backend Testing (w/ JUnit)~~ -- done by Kieran
 * ~~Phase 2 Backend Testing (w/ JUnit)~~ -- some of these methods are still not going to pass since the methods they rely on haven't yet been writtend despite being in the specs of the project; as such, they'll need to be updated before phase 3, though they're logically valid tests
-
-****
-
-**NOTE: This README can be deleted during the merge. Another copy is available in the docs folder, which should be merged into the master.**
