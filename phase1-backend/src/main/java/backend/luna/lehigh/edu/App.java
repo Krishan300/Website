@@ -128,7 +128,7 @@ public class App {
     }
 
     //creates salted and hashed value, and saves salt in pw table
-    private static String hashPass(String password, String UN) throws NoSuchProviderException, NoSuchAlgorithmException{
+    private static String hashPass(String password, String userName) throws NoSuchProviderException, NoSuchAlgorithmException{
         Connection conn;
         String genPass;
         byte[] salt = getSalt();
@@ -138,28 +138,27 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
+                System.out.println("Error: getConnection returned null object in hashPass");
                 return null;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+            System.out.println("Error: getConnection threw an SQL exception in hashPass");
             e.printStackTrace();
             return null;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            System.out.println("Error: getConnection threw a URI Syntax exception in hashPass");
             e.printStackTrace();
             return null;
         }
 
-        int userID = getUserID(UN);
         ResultSet rs;
 
         try {
-            String updateStmt = "UPDATE pwHash SET salt = ?, saltPW = ? WHERE id = ?";
+            String updateStmt = "UPDATE pUserData SET salt = ?, saltPW = ? WHERE userName = ?";
             PreparedStatement stmt = conn.prepareStatement(updateStmt);
             stmt.setBytes(1, salt);
             stmt.setString(2, genPass);
-            stmt.setInt(3, userID);
+            stmt.setString(3, userName);
             stmt.execute();
         } catch (SQLException e){
             System.out.println("Error while storing salt");
@@ -177,15 +176,15 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
+                System.out.println("Error: getConnection returned null object in getSavedSalt");
                 return null;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+            System.out.println("Error: getConnection threw an SQL exception in getSavedSalt");
             e.printStackTrace();
             return null;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getSavedSalt");
             e.printStackTrace();
             return null;
         }
@@ -216,15 +215,15 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
+                System.out.println("Error: getConnection returned null object in getUserID");
                 return -1;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+            System.out.println("Error: getConnection threw an SQL exception in getUserID");
             e.printStackTrace();
             return -1;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getUserID");
             e.printStackTrace();
             return -1;
         }
@@ -251,14 +250,14 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
+                System.out.println("Error: getConnection returned null object in comparePW");
                 return false;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+            System.out.println("Error: getConnection threw an SQL exception in comparePW");
             e.printStackTrace();
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            System.out.println("Error: getConnection threw a URI Syntax exception in comparePW");
             e.printStackTrace();
         }
 
@@ -298,15 +297,15 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
+                System.out.println("Error: getConnection returned null object in getUserData");
                 return badData;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+            System.out.println("Error: getConnection threw an SQL exception in getUserData");
             e.printStackTrace();
             return badData;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getUserData");
             e.printStackTrace();
             return badData;
         }
@@ -388,15 +387,15 @@ public class App {
         try {
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
+                System.out.println("Error: getConnection returned null object in getComment");
                 return null;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+            System.out.println("Error: getConnection threw an SQL exception in getComment");
             e.printStackTrace();
             return null;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getComment");
             e.printStackTrace();
             return null;
         }
@@ -499,11 +498,11 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object");
+                System.out.println("Error: getConnection returned null object in insertDatum");
                 return null;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception in insertDatum");
+            System.out.println("Error: getConnection threw an SQL exception in insertDatum");
             e.printStackTrace();
             return null;
         } catch (URISyntaxException e) {
@@ -551,11 +550,11 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object");
+                System.out.println("Error: getConnection returned null object in updateLike");
                 return;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception in updateLike");
+            System.out.println("Error: getConnection threw an SQL exception in updateLike");
             e.printStackTrace();
             return;
         } catch (URISyntaxException e) {
@@ -641,15 +640,15 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in createDB");
+                System.out.println("Error: getConnection returned null object in dropDB");
                 return;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection in createDB threw an exception");
+            System.out.println("Error: getConnection in createDB threw an SQL exception in dropDB");
             e.printStackTrace();
             return;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            System.out.println("Error: getConnection threw a URI Syntax exception in dropDB");
             e.printStackTrace();
             return;
         }
@@ -689,11 +688,11 @@ public class App {
                 return;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection in createDB threw an exception");
+            System.out.println("Error: getConnection in createDB threw an SQL exception in CreateDB");
             e.printStackTrace();
             return;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            System.out.println("Error: getConnection threw a URI Syntax exception in CreateDB");
             e.printStackTrace();
             return;
         }
@@ -745,15 +744,15 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in createDB");
+                System.out.println("Error: getConnection returned null object in validateUserToken");
                 return false;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection in createDB threw an exception");
+            System.out.println("Error: getConnection in createDB threw an SQL exception in validateUserToken");
             e.printStackTrace();
             return false;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            System.out.println("Error: getConnection threw a URI Syntax exception in validateUserToken");
             e.printStackTrace();
             return false;
         }
@@ -796,31 +795,27 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object");
+                System.out.println("Error: getConnection returned null object in signUpUser");
                 return badData;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception in insertDatum");
+            System.out.println("Error: getConnection threw an SQL exception in signUpUser");
             e.printStackTrace();
             return badData;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
+            System.out.println("Error: getConnection threw a URI Syntax exception in signUpUser");
             e.printStackTrace();
             return badData;
         }
         // Only insert if whole datum is not null
         if (d != null && d.userName != null && d.eMail != null && d.passWord != null) {
             try {
-                byte[] salt = getSalt();
-                d.passWord = getSecurePassword(d.passWord, salt);
-                //  (id, title, comment, numLikes, uploadDate, lastLikeDate)
-                String insertStmt = "INSERT INTO pUserData VALUES (default, ?, ?, ?, ?, ?)";
+                d.passWord = hashPass(d.passWord, d.userName);
+                String insertStmt = "INSERT INTO pUserData VALUES (default, ?, ?, ?)";
                 PreparedStatement stmt = conn.prepareStatement(insertStmt);
                 stmt.setString(1,d.userName);
                 stmt.setString(2,d.eMail);
-                stmt.setBoolean(3,false);
-                stmt.setString(4, d.passWord);
-                stmt.setBytes(5, salt);
+                stmt.setString(3, d.passWord);
                 stmt.executeUpdate();
                 stmt.close();
             } catch (SQLException e) {
@@ -866,7 +861,7 @@ public class App {
         int uID = getUserID(d.userName);
 
         try {
-            Statement updateStmt = "UPDATE pwHash Set saltedPW = ? WHERE userID = ?";
+            String updateStmt = "UPDATE pwHash Set saltedPW = ? WHERE userID = ?";
             PreparedStatement stmt = conn.prepareStatement(updateStmt);
             stmt.setString(1,d.newPW);
             stmt.setInt(2,uID);
