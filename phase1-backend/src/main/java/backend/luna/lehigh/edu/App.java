@@ -285,6 +285,10 @@ public class App {
     }
 
     //using the username provided, returns a json containing this users bio, liked comments, and made comments
+    /**
+     * @param userName name of user
+     * @return string of all user data
+     */
     static String getUserData(String userName) {
         int uID = getUserID(userName);
         Connection conn = null;
@@ -892,11 +896,18 @@ public class App {
         // GET '/data' returns a JSON string with all of the data in
         // the MySQL database.
         get("/data", (req, res) -> {
-            String result = getAllData();
-            // send a JSON object back
-            res.status(200);
-            res.type("application/json");
-            return result;
+            Datum d = gson.fromJson(req.body(), Datum.class);
+            if (validateUserToken(d.userToken, d.userName)){
+                String result = getAllData();
+                // send a JSON object back
+                res.status(200);
+                res.type("application/json");
+                return result;
+            }else{
+                res.status(417);
+                res.type("application/json");
+                return badData;
+            }
         });
 
         // POST a new item into the database
@@ -911,7 +922,7 @@ public class App {
             }else{
                 res.status(417);
                 res.type("application/json");
-                return null;
+                return badData;
             }
         });
 

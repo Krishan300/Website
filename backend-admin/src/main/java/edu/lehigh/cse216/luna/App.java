@@ -18,9 +18,15 @@ public class App
         return DriverManager.getConnection(dbUrl);
     }
 
+    /**
+     *
+     * @param rs specific user from possible users list
+     * @param conn connection to db
+     */
     static void checkUser(ResultSet rs, Connection conn) {
         String UN = null;
         String eMail = null;
+        Boolean qualified = true;
         try {
             UN = rs.getString("userName");
             eMail = rs.getString("eMail");
@@ -35,6 +41,7 @@ public class App
             stmt.setString(1, UN);
             ResultSet rSet = stmt.executeQuery();
             if (rSet.next()){
+                qualified = false;
                 Email from = new Email("admin@buzz.com");
                 String subject = "There was an issue setting up your account!";
                 Email to = new Email(eMail);
@@ -56,33 +63,35 @@ public class App
                     return;
                 }
                 return;
-            }
-            getStmt = "SELECT * FROM userData WHERE eMail = ?";
-            stmt = conn.prepareStatement(getStmt);
-            stmt.setString(1,eMail);
-            rSet = stmt.executeQuery();
-            if (rSet.next()) {
-                Email from = new Email("admin@buzz.com");
-                String subject = "There was an issue setting up your account!";
-                Email to = new Email(eMail);
-                Content content = new Content("text/plain", "It appears you already have an account. Your email address is already being used " +
-                "by the user called " + rs.getString("userName") + ". If this is not your account, please get in contact with use ASAP " +
-                "so we can sort out the problem. \n\n Sincerely, \n The Buzz Staff");
-                Mail mail = new Mail(from, subject, to, content);
-                SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
-                Request request = new Request();
-                try {
-                    request.method = Method.POST;
-                    request.endpoint = "mail/send";
-                    request.body = mail.build();
-                    Response response = sg.api(request);
-                    System.out.println(response.statusCode);
-                } catch (IOException e) {
-                    System.out.println("Error: could not send email to user");
-                    e.printStackTrace();
+            } else {
+                getStmt = "SELECT * FROM userData WHERE eMail = ?";
+                stmt = conn.prepareStatement(getStmt);
+                stmt.setString(1, eMail);
+                rSet = stmt.executeQuery();
+                if (rSet.next()) {
+                    qualified = false;
+                    Email from = new Email("admin@buzz.com");
+                    String subject = "There was an issue setting up your account!";
+                    Email to = new Email(eMail);
+                    Content content = new Content("text/plain", "It appears you already have an account. Your email address is already being used " +
+                            "by the user called " + rs.getString("userName") + ". If this is not your account, please get in contact with use ASAP " +
+                            "so we can sort out the problem. \n\n Sincerely, \n The Buzz Staff");
+                    Mail mail = new Mail(from, subject, to, content);
+                    SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
+                    Request request = new Request();
+                    try {
+                        request.method = Method.POST;
+                        request.endpoint = "mail/send";
+                        request.body = mail.build();
+                        Response response = sg.api(request);
+                        System.out.println(response.statusCode);
+                    } catch (IOException e) {
+                        System.out.println("Error: could not send email to user");
+                        e.printStackTrace();
+                        return;
+                    }
                     return;
                 }
-                return;
             }
         } catch (SQLException e) {
             System.out.println("SQL exception while checking users");
@@ -90,20 +99,22 @@ public class App
             return;
         }
         try {
-            String insertStmt = "INSERT INTO userData VALUES (default, ?, ?, ?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(insertStmt);
-            stmt.setString(1, rs.getString("userName"));
-            stmt.setString(2, null);
-            stmt.setString(3, null);
-            stmt.setString(4, rs.getString("eMail"));
-            stmt.execute();
-            insertStmt = "INSERT INTO pwHash VALUSE (default, ?, ?)";
-            stmt = conn.prepareStatement(insertStmt);
-            stmt.setBytes(1, rs.getBytes("salt"));
-            stmt.setString(2, rs.getString("password"));
-            stmt.execute();
+            if (qualified) {
+                String insertStmt = "INSERT INTO userData VALUES (default, ?, ?, ?, ?)";
+                PreparedStatement stmt = conn.prepareStatement(insertStmt);
+                stmt.setString(1, rs.getString("userName"));
+                stmt.setString(2, null);
+                stmt.setString(3, null);
+                stmt.setString(4, rs.getString("eMail"));
+                stmt.execute();
+                insertStmt = "INSERT INTO pwHash VALUSE (default, ?, ?)";
+                stmt = conn.prepareStatement(insertStmt);
+                stmt.setBytes(1, rs.getBytes("salt"));
+                stmt.setString(2, rs.getString("password"));
+                stmt.execute();
+            }
             String deleteStmt = "DELETE * FROM pUserData WHERE userName = ? AND eMail = ?";
-            stmt = conn.prepareStatement(deleteStmt);
+            PreparedStatement stmt = conn.prepareStatement(deleteStmt);
             stmt.setString(1, rs.getString("userName"));
             stmt.setString(2, rs.getString("eMail"));
             stmt.execute();
@@ -153,8 +164,7 @@ public class App
                 System.out.println("Improper usage of commands. Check the help command for more details.");
                 return;
             } else {
-                String createStatement = "CREATE TABLE " + args[1] + " (";
-                String primeKey = "id";
+                String createStatement = "CREATE TABLE IF NOT EXISTS " + args[1] + " (";
                 createStatement = createStatement + "id INT(64) NOT NULL AUTO_INCREMENT, ";
                 for(int i = 2; i < args.length; i += 2){
                     createStatement = createStatement + args[i] + " ";
