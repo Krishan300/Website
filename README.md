@@ -18,3 +18,14 @@ There is still a lot of work to be done in order for our group to officially com
 * Frontend: The frontend code is being held back by issues with NPM and Jasmine. From what I can determine, there is some configuration issue that is holding back the deployment here, possibly among other issues. As such, we have no clear idea yet whether or not we can rely on this code or not.
 * Android: The Android code needs to be cleaned up a lot or completely redone. There are many parts that haven't been attempted, and the parts that were attempted are far from complete.
 * Testing: Due to time constraints, the testing is very minimal and needs a lot more thoroughness. However, in order for testing to be ready to finish the work necessary, every other part needs to be complete or at least further along than it is now.
+
+
+
+
+
+Phase 2:
+Project Manager: Kieran
+Testing: Alex
+Backend: Robert
+Frontend: Krishan
+Android: Charles
