@@ -1,0 +1,10 @@
+body {
+  padding-top: 70px;
+}
+
+.indexMain {
+width: calc(100% - 10px);
+margin-left:auto;
+margin-right: auto;
+
+}
