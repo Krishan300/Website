@@ -1,0 +1,159 @@
+
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <title>Phase 2 Project Manager Report for Team LUNA</title>
+    <style>
+        body {
+            font-family: Roboto;
+        }
+        
+        div.answer {
+            border: solid 1px black;
+            width: 100%;
+            min-height: 15em;
+        }
+        
+        div.light {
+            background-color: lightgray;
+        }
+        
+        div.dark {
+            background-color: darkgray;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>CSE 216 Project Manager Report: Phase 2, Team LUNA</h1>
+    <h3>List your team members, providing name, email, and role for this project.</h3>
+    <div class="answer">Kieran Horan(kjh219): Project Manager<br />Alexander Van Heest (ajv218): Testing<br />Robert Salay (rws218): Backend<br />Krishan Madan (krm219): Frontend<br />Charles Mandala (cam418): Android</div>
+
+    <div class="light">
+        <h2>Back-End Server</h2>
+
+        <h3>Describe the REST API endpoints that your team agreed to implement. If this deviates significantly from class discussion,
+            explain why.</h3>
+        <div class="answer">We used the endpoints talked about in class. 10 total routes were implemented in the backend, 5 GET and 5 POST. The first GET route was used in the admin app to get the username and password combinations that are being used for registration. The other 4 GET routes are used in the app.java. The 5 POST routes are all in the backend's app.java and post information into the database when someone posts, comments, likes, or updates their user infomation.</div>
+
+        <h3>Describe the Data Model that your team agreed to implement. If this deviates significantly from class discussion,
+            explain why.</h3>
+        <div class="answer">Our data model does not deviate significantly from the class dicussion. It features a userTable, messageTable, commentTable, upvoteTable, and downvoteTable. The userTable is unchanged from phase1, and the other tables should have been created using the code from class.</div>
+
+        <h3>Is the back-end code appropriately organized into files / classes / packages?</h3>
+        <div class="answer">Yes. The file structure created for the admin app makes sense. It was added at the same level as the frontend, backend, and android folders. The file structure was created with maven so it has few differences other than names from the backend and frontend folder organization.</div>
+
+        <h3>Are the dependencies in the pom.xml file appropriate? Were there any unexpected dependencies added to the program?</h3>
+        <div class="answer">Nothing unexpected, we added a POSTGRE dependency and a sendgrid dependcy</div>
+
+        <h3>What was the biggest issue that came up in code review of the back-end server?</h3>
+        <div class="answer">During the code review, it became apparant that our backend developer had not yet created any of the additional sql statements that create, edit, and get data from the server. Writing these statements under a time crunch, especially because the developer left for home that day, was a huge struggle that we had little time to correct</div>
+
+        <h3>What technical debt do you see in the current back-end server
+         implementation?</h3>
+        <div class="answer">Most of the methods are filled with try catch statements, some inside of other try catch statement, that make the code difficult to decipher. This will be an issue for future backend developers should anything need to be changed. On top of that, there is likely massive technical debt riddled throughout the backend, but until we have a funcitoning frontend, we won't know what the issue is.</div>
+        
+        <h3>Describe any refactoring that was performed to reduce technical
+        debt from the last phase</h3>
+        <div class="answer">During our two day period of "herculean coding" Alex and I did a massive refactoring of the backend. What we thought was simple syntactical issues, turned out to be inherent flaws in the design. One of the biggest changes was the total overhaul of our mechanism for storing dates. We resolved the issue by getting the date in the backend instead of in the frontend.</div>
+    </div>
+
+    <div class="dark">
+        <h2>Web Front-End</h2>
+
+        <h3>Were there any difficulties with using Bootstrap?</h3>
+        <div class="answer">Krishan said he had initial difficulty understanding when to use bootstrap and what its purpose is. By the end, he claims there weren't any issues directly resulting from bootstrap</div>
+
+        <h3>What patterns are employed in the web front-end to make the code
+        more maintainable?</h3>
+        <div class="answer">Used MVC as a design pattern</div>
+
+        <h3>How was the user interface designed? Why did the team settle on the design that is present in the code?</h3>
+        <div class="answer">Web interface is still not functional, but the design is outlined fairly well and just needs to be implemented. If nothing else changes between now and the ultimate implementation, the login page  has comment boxes for username and password, along with buttons to login and go to the register page. The register page has comment boxes and takes the input to send to the admin app. After validating the login credentials, the user is redirected to the main page which is unchanged from phase1. The NavBar now appears and has everything agreed upon in class. The user pages should then display the users name, bio, and everything they have interacted with on the site. </div>
+
+        <h3>Is the web front-end appropriately organized into files / classes / packages?</h3>
+        <div class="answer">Yes.</div>
+
+        <h3>Are the dependencies in the package.json file appropriate? Were there any unexpected dependencies added to the program?</h3>
+        <div class="answer">Yes, and no new dependencies were added.</div>
+
+        <h3>What was the biggest issue that came up in code review of the web front-end?</h3>
+        <div class="answer">No new issues arose due to the code review. The code review was very difficult to perform because the code was still nonfunction and constantly changing up until the deadline, and so no new issues came up in the code review.</div>
+
+        <h3>What technical debt do you see in the current web front-end implementation?</h3>
+        <div class="answer">The code is still not functional so it is difficult to estimate how much work needs to be done before phase3 can be started. The only thing that is certain, is that there is a lot of technical debt lurking somewhere in the code.</div>
+    </div>
+
+    <div class="light">
+        <h2>Android App</h2>
+
+        <h3>What difficulties arose when using Volley?</h3>
+        <div class="answer">n/a</div>
+
+        <h3>Describe any significant deviations from the UI design discussed in class.</h3>
+        <div class="answer">n/a</div>
+
+        <h3>Is the android app appropriately organized into files / classes / packages?</h3>
+        <div class="answer">n/a</div>
+
+        <h3>Are the dependencies in the build.gradle file appropriate? Were there any unexpected dependencies added to the program?</h3>
+        <div class="answer">n/a</div>
+
+        <h3>What was the biggest issue that came up in code review of the android app?</h3>
+        <div class="answer">n/a</div>
+
+        <h3>What technical debt do you see in the current android app implementation?</h3>
+        <div class="answer">n/a</div>
+    </div>
+
+    <div class="dark">
+        <h2>Unit Tests</h2>
+
+        <h3>Are the unit tests for the back-end server complete/satisfactory?
+            If yes, why do you have confidence in your answer.  If not,
+            what's missing?</h3>
+        <div class="answer">Yes. I am confident that the tests currently written test everything that currently exists in the backend.</div>
+
+        <h3>Are the unit tests for the web front-end complete/satisfactory?
+            If yes, why do you have confidence in your answer.  If not,
+            what's missing?</h3>
+        <div class="answer">For the current frontend, the tests are as complete as they can be. He finished the almost non existent tests inherited from phase1, and added more. The testing for phase2 frontend, was extremely difficult given that he had only a design and non functioning method names to plan tests around.</div>
+
+        <h3>Are the unit tests for the android app complete/satisfactory? If
+            yes, why do you have confidence in your answer.  If not, what's
+            missing?</h3>
+        <div class="answer">For the current Android, yes. However, our phase2 android is completely nonexistent and so now tests exist for that.</div>
+        
+        <h3>What non-unit testing was performed?</h3>
+        <div class="answer">For android, none because of the lack of a phase2 android. For web, writing tests that actually access both the frontend and backend is near impossible because of development issues on both sides.</div>
+
+        <h3>What difficulties arose due to the use of Espresso?</h3>
+        <div class="answer">I was never made aware of any difficulties with espresso. Alex had the testing for phase1 done within the first week of phase2 and never was given the opportunity to write meaningful tests for phase2 android.</div>
+    </div>
+
+    <div class="light">
+        <h2>Project-Wide</h2>
+
+        <h3>How well did your team estimate effort?</h3>
+        <div class="answer">After the inital assignment, we met as a team and all agreed that this phase will require a very large time commitment. Rather than overestimate our own coding abilities this time around, we decided that it would be better to just meet and communicate much more frequently. This allowed us more accurate effort estimates because we were estimating much smaller tasks. Because of this, our effort level estimates were fairly accurate.</div>
+
+        <h3>What techniques (team programming, timelines, group design
+        exercises) did you use to mitigate risk?</h3>
+        <div class="answer">We used team programming extensively throughout this phase. We scheduled meetings at least 3 times a week and would work as closely as we could without having any one person do all of the work. As for timelines, we found it easier without them. Most timelines we set we ignored in the last phase, so we did away with them completely. For design, we tried to remain flexible and allowed the developers to deviate if they ran into any issues.</div>
+
+        <h3>Were there any team issues that arose?</h3>
+        <div class="answer">Yes. Our android developer stopped attending meetings and overall communication about 1 week into phase1. After meeting with you, we finally heard back from him that he is dropping the class. This set us back on Android, but was resolved and hopefully does not have any lasting repercussions.</div>
+
+        <h3>Describe the most significant obstacle or difficulty your team
+        faced.</h3>
+        <div class="answer">Our biggest challenge is that we spend that we spent at least the first week of the phase unable to do any work. We were still hampered by lingering issues and a general lack of understanding of what each role has to do.</div>
+
+        <h3>What is your biggest concern as you think ahead to the next phase
+        of the project?</h3>
+        <div class="answer">Going forward, our biggest concern is that we will always be one phase behind. It took an entire weekend of coding just to bring our phase1 to a somewhat working order. Submitting faulty code and hoping someone else fixes it in the next phase is a terrible practice. </div>
+    </div>
+
+</body>
+
+</html>
