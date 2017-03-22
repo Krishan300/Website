@@ -51,7 +51,7 @@ class login {
                 success: function (data) {
                     if (data.res == "ok") {
 
-                        //CommentBox.boxDisplay();
+                        commentBox.boxDisplay();
                     }
                     else {
                         window.alert("username or password is not valid");

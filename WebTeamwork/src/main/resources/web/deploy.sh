@@ -10,12 +10,12 @@ cp node_modules/handlebars/dist/handlebars.min.js ../deploy/lib
 
 cp -R node_modules/bootstrap/fonts/ ../deploy/
 
-cat content.css index.css nav.css login.css welcome.css > ../deploy/webTeamWork.css
+cat profile.css index.css nav.css login.css welcome.css > ../deploy/webTeamWork.css
 
 
-node_modules/typescript/bin/tsc --outFile ../deploy/webTeamWork.js content.ts  nav.ts welcome.ts login.ts index.ts commentBox.ts
+node_modules/typescript/bin/tsc --outFile ../deploy/webTeamWork.js profile.ts  nav.ts welcome.ts login.ts index.ts commentBox.ts
 
-node_modules/handlebars/bin/handlebars content.hb >> ../deploy/templates.js
+node_modules/handlebars/bin/handlebars profile.hb >> ../deploy/templates.js
 node_modules/handlebars/bin/handlebars nav.hb >> ../deploy/templates.js
 node_modules/handlebars/bin/handlebars login.hb >> ../deploy/templates.js 
 node_modules/handlebars/bin/handlebars welcome.hb >> ../deploy/templates.js

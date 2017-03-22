@@ -58,7 +58,7 @@ class commentBox{
         }
         //adds comment to commentList
         public static addtoCommentlist (){
-            commentList.putInDom()
+            commentList.putInDom();
 
         }
 

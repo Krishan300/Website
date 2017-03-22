@@ -4,7 +4,7 @@ class nav {
  public static init() {
    $("indexNav").html(Handlebars.templates['nav.hb']());
    $("#navContentBtn").click(nav.onContentClick);
-   $("navWelcomeBtn").click(nav.onWelcomeClick);
+   $("navProfileBtn").click(nav.onProfileClick);
 }
 
 private static highlight(which: any) {
@@ -18,9 +18,10 @@ public static onContentClick() {
 
 }
 
-public static onWelcomeClick(){
+//what happens when you click on profile button
+public static onProfileClick(){
  nav.highlight(this);
- welcome.putInDom();
+ profile.displayInfo();
 }
 
 }

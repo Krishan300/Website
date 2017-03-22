@@ -17,7 +17,7 @@
 
 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 <ul class="nav navbar-nav">
-<li><a id="navWelcomeBtn" href="#">Welcome</a></li>
+<li><a id="navProfileBtn" href="#">Welcome</a></li>
 <li><a id="navContentBtn" href="#">Content</a></li>
 </ul>
 </div>

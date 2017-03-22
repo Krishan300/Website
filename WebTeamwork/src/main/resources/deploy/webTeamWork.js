@@ -36,17 +36,7 @@ var nav = (function () {
     };
     return nav;
 }());
-var welcome = (function () {
-    function welcome() {
-    }
-    welcome.putInDom = function () {
-        $("#indexMain").html(Handlebars.templates['welcome.hb']({
-            when: new Date()
-        }));
-        $("indexMain").html(Handlebars.templates['loginpage.hb'])({});
-    };
-    return welcome;
-}());
+// This  is a typescript Login page
 var login = (function () {
     function login() {
     }
@@ -75,6 +65,7 @@ var login = (function () {
                 }
             }
         });
+        /**Retrieves data from backend. If data is retrieved, the password and username were authenticated */
         function getJsonFromServer() {
             $.ajax({
                 type: "GET",
@@ -83,7 +74,7 @@ var login = (function () {
                 dataType: "json",
                 success: function (data) {
                     if (data.res == "ok") {
-                        //CommentBox.boxDisplay();
+                        commentBox.boxDisplay();
                     }
                     else {
                         window.alert("username or password is not valid");
@@ -94,12 +85,11 @@ var login = (function () {
     };
     return login;
 }());
-/** Creates a comment input box, allows for title & comment
- *boxDisplay returns html code for displaying class on a web page
- *sendComment sends a post route to the database
+/** Should initialize a login page
  */
 var $;
 var Handlebars;
+//Equivalent of public static main. It runs once all the files have been loaded. Should initialize a login page
 $(document).ready(function () {
     login.init();
     login.sendUsername();
@@ -114,7 +104,7 @@ var commentBox = (function () {
         $("indexCommentBox").html(Handlebars.templates('commentBox.hb')());
         $("commentButton").click(commentBox.sendComment);
     };
-    commentBox.boxDisplay = function () {
+    commentBox.prototype.boxDisplay = function () {
         return "<input id='newTitle' size='50' maxlength='50' type='text' value='A title for your post! 50 characters max.'>"
             + " </input>"
             + "<textarea id='newComment' rows='4' cols='50' maxlength='144'>"
@@ -147,13 +137,13 @@ var commentBox = (function () {
             }
         });
     };
+    //adds comment to commentList
+    commentBox.addtoCommentlist = function () {
+        commentList.putInDom();
+    };
     commentBox.highlight = function (which) {
         $("commentBox").removeClass("active");
         $("commentBox").removeClass("active");
-    };
-    //Handle a click of the post message button
-    commentBox.send = function () {
-        commentBox.sendComment();
     };
     return commentBox;
 }());
