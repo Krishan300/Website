@@ -40,15 +40,8 @@ class logDatum {
     String password;
 }
 
-class pwDatum {
-    String userName;
-    String oldPW;
-    String newPW;
-}
-
 class signDatum {
     String userName;
-    String passWord;
     String eMail;
 }
 
@@ -128,7 +121,7 @@ public class App {
     }
 
     //creates salted and hashed value, and saves salt in pw table
-    private static String hashPass(String password, String userName) throws NoSuchProviderException, NoSuchAlgorithmException{
+    private static String hashPass(String password, String UN) throws NoSuchProviderException, NoSuchAlgorithmException{
         Connection conn;
         String genPass;
         byte[] salt = getSalt();
@@ -138,27 +131,28 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in hashPass");
+                System.out.println("Error: getConnection returned null object in getAllData");
                 return null;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in hashPass");
+            System.out.println("Error: getConnection threw an SQL exception in getAllData");
             e.printStackTrace();
             return null;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in hashPass");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
             return null;
         }
 
+        int userID = getUserID(UN);
         ResultSet rs;
 
         try {
-            String updateStmt = "UPDATE pUserData SET salt = ?, saltPW = ? WHERE userName = ?";
+            String updateStmt = "UPDATE pwHash SET salt = ?, saltPW = ? WHERE id = ?";
             PreparedStatement stmt = conn.prepareStatement(updateStmt);
             stmt.setBytes(1, salt);
             stmt.setString(2, genPass);
-            stmt.setString(3, userName);
+            stmt.setInt(3, userID);
             stmt.execute();
         } catch (SQLException e){
             System.out.println("Error while storing salt");
@@ -176,15 +170,15 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getSavedSalt");
+                System.out.println("Error: getConnection returned null object in getAllData");
                 return null;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getSavedSalt");
+            System.out.println("Error: getConnection threw an SQL exception in getAllData");
             e.printStackTrace();
             return null;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getSavedSalt");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
             return null;
         }
@@ -215,15 +209,15 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getUserID");
+                System.out.println("Error: getConnection returned null object in getAllData");
                 return -1;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getUserID");
+            System.out.println("Error: getConnection threw an SQL exception in getAllData");
             e.printStackTrace();
             return -1;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getUserID");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
             return -1;
         }
@@ -243,21 +237,20 @@ public class App {
     }
 
     //compares a given password with the stored password data
-    static Boolean comparePW(String UN, String saltedPW){
+    static Boolean comparePW(int uID, String saltedPW){
         Connection conn = null;
-        int uID = getUserID(UN);
         try {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in comparePW");
+                System.out.println("Error: getConnection returned null object in getAllData");
                 return false;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in comparePW");
+            System.out.println("Error: getConnection threw an SQL exception in getAllData");
             e.printStackTrace();
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in comparePW");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
         }
 
@@ -285,10 +278,6 @@ public class App {
     }
 
     //using the username provided, returns a json containing this users bio, liked comments, and made comments
-    /**
-     * @param userName name of user
-     * @return string of all user data
-     */
     static String getUserData(String userName) {
         int uID = getUserID(userName);
         Connection conn = null;
@@ -301,19 +290,19 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getUserData");
-                return badData;
+                System.out.println("Error: getConnection returned null object in getAllData");
+                return null;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getUserData");
+            System.out.println("Error: getConnection threw an SQL exception in getAllData");
             e.printStackTrace();
-            return badData;
+            return null;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getUserData");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
-            return badData;
+            return null;
         }
-        String[] result = new String[3];
+        String result = "";
         // watch multiples
         //get bio
         try {
@@ -323,11 +312,10 @@ public class App {
 
             ResultSet rs = stmt.executeQuery();
 
-            result[0] = rs.getString("bio");
+            result = rs.getString("bio");
         } catch (SQLException e) {
             System.out.println("Error: query failed");
             e.printStackTrace();
-            return badData;
         }
         //get all comments this user liked
         ArrayList<Datum> likeResults = new ArrayList<>();
@@ -346,9 +334,8 @@ public class App {
         } catch (SQLException e) {
             System.out.println("Error: query failed");
             e.printStackTrace();
-            return badData;
         }
-        result[1] = gson.toJson(likeResults);
+        result += gson.toJson(likeResults);
         //get all comments this user made
         ArrayList<Datum> authorResults = new ArrayList<>();
         try {
@@ -376,12 +363,10 @@ public class App {
         } catch (SQLException e) {
             System.out.println("Error: query failed");
             e.printStackTrace();
-            return badData;
         }
         // Convert the array of results to a JSON string and return it
-        result[2] = gson.toJson(authorResults);
-        String stringRes = gson.toJson(result);
-        return stringRes;
+        result += gson.toJson(authorResults);
+        return result;
     }
 
     //returns comment data from ID number
@@ -391,15 +376,15 @@ public class App {
         try {
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getComment");
+                System.out.println("Error: getConnection returned null object in getAllData");
                 return null;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getComment");
+            System.out.println("Error: getConnection threw an SQL exception in getAllData");
             e.printStackTrace();
             return null;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getComment");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
             return null;
         }
@@ -502,11 +487,11 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in insertDatum");
+                System.out.println("Error: getConnection returned null object");
                 return null;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in insertDatum");
+            System.out.println("Error: getConnection threw an exception in insertDatum");
             e.printStackTrace();
             return null;
         } catch (URISyntaxException e) {
@@ -547,18 +532,30 @@ public class App {
      * @param   newLastLikeDate     This is the value to update time of last like/dislike.
      * @param   isLiked             If true, it's a LIKE. If false, it's a DISLIKE.
      */
-    static void updateLike(int idNum, int numLikes, Date newLastLikeDate, String userName, Boolean isLiked) {
+    static void updateLike(int idNum, int numLikes, Date newLastLikeDate, Boolean isLiked) {
         // get the MYSQL configuration from the environment
         Connection conn = null;
+        int newNumLikes = 0;
+
+        // Check if it's like/dislike and change numLikes accordingly.
+        if (isLiked)
+        {
+            newNumLikes = ++numLikes;
+        }
+        else
+        {
+            newNumLikes = --numLikes;
+        }
+
         try {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in updateLike");
+                System.out.println("Error: getConnection returned null object");
                 return;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in updateLike");
+            System.out.println("Error: getConnection threw an exception in updateLike");
             e.printStackTrace();
             return;
         } catch (URISyntaxException e) {
@@ -566,63 +563,21 @@ public class App {
             e.printStackTrace();
             return;
         }
-        int newNumLikes = 0;
-        int pastVoteID = -1;
-        boolean pastVote = false;
+
+        // add vote to voteTbl
         try {
-            String getStmt = "SELECT id,voteUp FROM voteData WHERE commentID = ? AND userID = ?";
-            PreparedStatement stmt = conn.prepareStatement(getStmt);
-            stmt.setInt(1, idNum);
-            stmt.setInt(2, getUserID(userName));
-            ResultSet rs = stmt.executeQuery();
-            pastVoteID = rs.getInt("id");
-            pastVote = rs.getBoolean("voteUp");
+            String updateStmt = "UPDATE tblData SET numLikes = ?, lastLikeDate = ? WHERE id = ?";
+            PreparedStatement stmt = conn.prepareStatement(updateStmt);
+            stmt.setInt(1, newNumLikes);
+            stmt.setTimestamp(2, javaDateToSqlDate(newLastLikeDate));
+            stmt.setInt(3, idNum);
+            stmt.executeUpdate();
+            stmt.close();
+            //conn.close(); I don't think we need this
         } catch (SQLException e) {
-            System.out.println("Error: unable to find voteData table");
+            System.out.println("Error: unable to update row");
             e.printStackTrace();
         }
-
-        if (pastVoteID >= 0) {
-            if (pastVote) {
-                newNumLikes = --numLikes;
-            } else {
-                newNumLikes = ++numLikes;
-            }
-
-            try {
-                String deleteStmt = "DELETE FROM voteData WHERE id = ?";
-                PreparedStatement stmt = conn.prepareStatement(deleteStmt);
-                stmt.setInt(1, pastVoteID);
-                stmt.execute();
-            } catch (SQLException e) {
-                System.out.println("Error: unable to delete voteData row");
-                e.printStackTrace();
-            }
-        } else {
-            // Check if it's like/dislike and change numLikes accordingly.
-            if (isLiked) {
-                newNumLikes = ++numLikes;
-            } else {
-                newNumLikes = --numLikes;
-            }
-        }
-
-            // add vote to voteTbl
-            try {
-                String updateStmt = "UPDATE tblData SET numLikes = ?, lastLikeDate = ? WHERE id = ?";
-                PreparedStatement stmt = conn.prepareStatement(updateStmt);
-                stmt.setInt(1, newNumLikes);
-                stmt.setTimestamp(2, javaDateToSqlDate(newLastLikeDate));
-                stmt.setInt(3, idNum);
-                stmt.executeUpdate();
-                stmt.close();
-                //conn.close(); I don't think we need this
-            } catch (SQLException e) {
-                System.out.println("Error: unable to update row");
-                e.printStackTrace();
-            }
-
-            // check if this user has already voted
     }
 
 
@@ -644,15 +599,15 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in dropDB");
+                System.out.println("Error: getConnection returned null object in createDB");
                 return;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection in createDB threw an SQL exception in dropDB");
+            System.out.println("Error: getConnection in createDB threw an exception");
             e.printStackTrace();
             return;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in dropDB");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
             return;
         }
@@ -692,11 +647,11 @@ public class App {
                 return;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection in createDB threw an SQL exception in CreateDB");
+            System.out.println("Error: getConnection in createDB threw an exception");
             e.printStackTrace();
             return;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in CreateDB");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
             return;
         }
@@ -748,15 +703,15 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in validateUserToken");
+                System.out.println("Error: getConnection returned null object in createDB");
                 return false;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection in createDB threw an SQL exception in validateUserToken");
+            System.out.println("Error: getConnection in createDB threw an exception");
             e.printStackTrace();
             return false;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in validateUserToken");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
             return false;
         }
@@ -799,83 +754,37 @@ public class App {
             // Open a connection, fail if we cannot get one
             conn = getConnection();
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in signUpUser");
-                return badData;
+                System.out.println("Error: getConnection returned null object");
+                return null;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in signUpUser");
+            System.out.println("Error: getConnection threw an exception in insertDatum");
             e.printStackTrace();
-            return badData;
+            return null;
         } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in signUpUser");
+            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
             e.printStackTrace();
-            return badData;
+            return null;
         }
         // Only insert if whole datum is not null
-        if (d != null && d.userName != null && d.eMail != null && d.passWord != null) {
+        if (d != null && d.userName != null && d.eMail != null) {
             try {
-                d.passWord = hashPass(d.passWord, d.userName);
+                //  (id, title, comment, numLikes, uploadDate, lastLikeDate)
                 String insertStmt = "INSERT INTO pUserData VALUES (default, ?, ?, ?)";
                 PreparedStatement stmt = conn.prepareStatement(insertStmt);
                 stmt.setString(1,d.userName);
                 stmt.setString(2,d.eMail);
-                stmt.setString(3, d.passWord);
+                stmt.setBoolean(3,false);
                 stmt.executeUpdate();
                 stmt.close();
             } catch (SQLException e) {
                 System.out.println("Error: insertion failed");
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                System.out.println("Error: no such algorithm");
-                e.printStackTrace();
-            } catch (NoSuchProviderException e) {
-                System.out.println("Error: no such provider");
                 e.printStackTrace();
             }
             return goodData;
         } else {
             return badData;
         }
-    }
-
-    public static String changePW(pwDatum d) {
-        // get the MYSQL configuration from the environment
-        Connection conn = null;
-
-        // Use these to connect to the database and issue commands
-        // Connect to the database; fail if we can't
-        //System.out.println("Connecting to " + ip + ":" + port + "/" + db);
-        try {
-            // Open a connection, fail if we cannot get one
-            conn = getConnection();
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object while changing passwords");
-                return badData;
-            }
-        } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception in changePW");
-            e.printStackTrace();
-            return badData;
-        } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in changePw");
-            e.printStackTrace();
-            return badData;
-        }
-        d.newPW = hashPreviousPass(d.newPW, getSavedSalt(d.userName));
-        int uID = getUserID(d.userName);
-
-        try {
-            String updateStmt = "UPDATE pwHash Set saltedPW = ? WHERE userID = ?";
-            PreparedStatement stmt = conn.prepareStatement(updateStmt);
-            stmt.setString(1,d.newPW);
-            stmt.setInt(2,uID);
-            stmt.execute();
-        } catch (SQLException e) {
-            System.out.println("Error: Query Failed");
-            e.printStackTrace();
-            return badData;
-        }
-        return goodData;
     }
     /**
      * Main method which holds all get and post routes for updating and sending the database to the server.
@@ -896,18 +805,11 @@ public class App {
         // GET '/data' returns a JSON string with all of the data in
         // the MySQL database.
         get("/data", (req, res) -> {
-            Datum d = gson.fromJson(req.body(), Datum.class);
-            if (validateUserToken(d.userToken, d.userName)){
-                String result = getAllData();
-                // send a JSON object back
-                res.status(200);
-                res.type("application/json");
-                return result;
-            }else{
-                res.status(417);
-                res.type("application/json");
-                return badData;
-            }
+            String result = getAllData();
+            // send a JSON object back
+            res.status(200);
+            res.type("application/json");
+            return result;
         });
 
         // POST a new item into the database
@@ -922,7 +824,7 @@ public class App {
             }else{
                 res.status(417);
                 res.type("application/json");
-                return badData;
+                return null;
             }
         });
 
@@ -934,7 +836,7 @@ public class App {
             Datum d = gson.fromJson(req.body(), Datum.class);
             if (validateUserToken(d.userToken, d.userName)){
                 int idx = Integer.parseInt(req.params("id"));
-                updateLike(idx, d.numLikes, d.lastLikeDate, d.userName, true);
+                updateLike(idx, d.numLikes, d.lastLikeDate, true);
                 return goodData;
             }
             else {
@@ -949,7 +851,7 @@ public class App {
             Datum d = gson.fromJson(req.body(), Datum.class);
             if(validateUserToken(d.userToken, d.userName)) {
                 int idx = Integer.parseInt(req.params("id"));
-                updateLike(idx, d.numLikes, d.lastLikeDate, d.userName, false);
+                updateLike(idx, d.numLikes, d.lastLikeDate, false);
                 return goodData;
             }
             else {
@@ -960,48 +862,31 @@ public class App {
         //Route for Login
         //get route for login, sent Username & password, return validity boolean and user token
         get("/data/login/", (req, res) -> {
-            String result = "";
+            String[] result = new String[2];
             logDatum d = gson.fromJson(req.body(), logDatum.class);
-            d.password = hashPreviousPass(d.password, getSavedSalt(d.userName));
-            if (comparePW(d.userName, d.password)) {
-                result = makeToken(d.userName);
-                res.type("application/json");
-                return result;
-            }
-
-            return badData;
-
-        });
-        //post route for signup, adds UN and email to possible users table
-        post("/data/signup/", (req, res) -> {
-           signDatum d = gson.fromJson(req.body(), signDatum.class);
-           String result = signUpUser(d);
+            byte[] salt = getSavedSalt(d.userName);
+            d.password = hashPreviousPass(d.password, salt);
+            int uID = getUserID(d.userName);
+            result[0] = String.valueOf(comparePW(uID, d.password));
+            result[1] = makeToken(d.userName);
             res.status(200);
             res.type("application/json");
             return result;
         });
-
+        //post route for signup, adds UN and email to possible users table
+        post("/data/signup/", (req, res) -> {
+            signDatum d = gson.fromJson(req.body(), signDatum.class);
+            String result = signUpUser(d);
+            res.status(200);
+            res.type("application/json");
+            return result;
+        });
         //get route for user page, returns UN, a bio, all made comments, and all liked comments
         get("/data/userpage/:UN/", (req, res) -> {
-            Datum d = gson.fromJson(req.body(), Datum.class);
-            if(validateUserToken(d.userToken, d.userName)) {
-                String userName = req.params("UN");
-                String result = getUserData(userName);
-                res.status(200);
-                res.type("application/json");
-                return result;
-            }
-
-            return badData;
-        });
-
-        post("/data/pwchange/", (req, res) -> {
-            pwDatum d = gson.fromJson(req.body(), pwDatum.class);
-            String result = badData;
-            d.oldPW = hashPreviousPass(d.oldPW, getSavedSalt(d.userName));
-            if (comparePW(d.userName, d.oldPW)) {
-                result = changePW(d);
-            }
+            String userName = req.params("UN");
+            String result = getUserData(userName);
+            res.status(200);
+            res.type("application/json");
             return result;
         });
     }
