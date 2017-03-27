@@ -49,10 +49,15 @@ public class App {
     // Environment variables.
     static Map<String, String> env = System.getenv();
     static String ip = env.get("POSTGRES_IP");
+    static String url="localhost";
     static String port = env.get("POSTGRES_PORT");
     static String user = env.get("POSTGRES_USER");
     static String pass = env.get("POSTGRES_PASS");
     static String db = env.get("POSTGRES_DB");
+
+
+
+
 
     /**
      * Get all data from our database and returns it in JSON format.
@@ -66,7 +71,8 @@ public class App {
         // Connect to the database; fail if we can't
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:postgres://" + ip + ":" + port + "/" + db + "?useSSL=false", user, pass);
+            conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" + port + "/" + db + "?useSSL=false", user, pass);
+
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object in getAllData");
                 return null;
@@ -123,7 +129,7 @@ public class App {
         //System.out.println("Connecting to " + ip + ":" + port + "/" + db);
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:postgres://" + ip + ":" +
+            conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" +
                     port + "/" + db + "?useSSL=false", user, pass);
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object");
@@ -176,7 +182,7 @@ public class App {
 
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:postgres://" + ip + ":" +          // HERE IS WHERE WE CONNECT
+            conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" +          // HERE IS WHERE WE CONNECT
                     port + "/" + db, user, pass);
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object");
@@ -225,7 +231,7 @@ public class App {
         // Connect to the database; fail if we can't
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:postgres://" + ip + ":" +
+            conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" +
                     port + "/" + db, user, pass);
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object in createDB");
@@ -322,8 +328,15 @@ public class App {
      * @param args  Standard Java main class argument.
      */
     public static void main( String[] args ) {
-        Class.forName("org.postgresql.Driver");
+
         App app = new App();
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Where is your PostgreSQL JDBC Driver? "
+                    + "Include in your library path!");
+            e.printStackTrace();
+        }
         // Set up static file service WHAT IS THE HIERARCHY HERE
         staticFileLocation(sFileLocation);
 
