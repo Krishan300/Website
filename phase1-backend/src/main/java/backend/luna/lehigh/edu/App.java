@@ -36,6 +36,8 @@ class Datum {
  * data in rows to be pulled from later.
  */
 public class App {
+
+
     // Final static strings, used throughout program.
     final static String goodData = "{\"res\":\"ok\"}";
     final static String badData = "{\"res\":\"bad data\"}";
@@ -46,11 +48,11 @@ public class App {
 
     // Environment variables.
     static Map<String, String> env = System.getenv();
-    static String ip = env.get("MYSQL_IP");
-    static String port = env.get("MYSQL_PORT");
-    static String user = env.get("MYSQL_USER");
-    static String pass = env.get("MYSQL_PASS");
-    static String db = env.get("MYSQL_DB");
+    static String ip = env.get("POSTGRES_IP");
+    static String port = env.get("POSTGRES_PORT");
+    static String user = env.get("POSTGRES_USER");
+    static String pass = env.get("POSTGRES_PASS");
+    static String db = env.get("POSTGRES_DB");
 
     /**
      * Get all data from our database and returns it in JSON format.
@@ -64,7 +66,7 @@ public class App {
         // Connect to the database; fail if we can't
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:mysql://" + ip + ":" + port + "/" + db + "?useSSL=false", user, pass);
+            conn = DriverManager.getConnection("jdbc:postgres://" + ip + ":" + port + "/" + db + "?useSSL=false", user, pass);
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object in getAllData");
                 return null;
@@ -121,7 +123,7 @@ public class App {
         //System.out.println("Connecting to " + ip + ":" + port + "/" + db);
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:mysql://" + ip + ":" +
+            conn = DriverManager.getConnection("jdbc:postgres://" + ip + ":" +
                     port + "/" + db + "?useSSL=false", user, pass);
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object");
@@ -174,7 +176,7 @@ public class App {
 
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:mysql://" + ip + ":" +          // HERE IS WHERE WE CONNECT
+            conn = DriverManager.getConnection("jdbc:postgres://" + ip + ":" +          // HERE IS WHERE WE CONNECT
                     port + "/" + db, user, pass);
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object");
@@ -223,7 +225,7 @@ public class App {
         // Connect to the database; fail if we can't
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:mysql://" + ip + ":" +
+            conn = DriverManager.getConnection("jdbc:postgres://" + ip + ":" +
                     port + "/" + db, user, pass);
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object in createDB");
@@ -264,7 +266,7 @@ public class App {
         // Connect to the database; fail if we can't
         try {
             // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:mysql://" + ip + ":" +
+            conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" +
                     port + "/" + db, user, pass);
             if (conn == null) {
                 System.out.println("Error: getConnection returned null object in createDB");
@@ -320,6 +322,7 @@ public class App {
      * @param args  Standard Java main class argument.
      */
     public static void main( String[] args ) {
+        Class.forName("org.postgresql.Driver");
         App app = new App();
         // Set up static file service WHAT IS THE HIERARCHY HERE
         staticFileLocation(sFileLocation);
