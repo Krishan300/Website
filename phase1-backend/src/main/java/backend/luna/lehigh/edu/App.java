@@ -67,6 +67,14 @@ public class App {
         // get the MYSQL configuration from the environment
         Connection conn = null;
 
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Where is your PostgreSQL JDBC Driver? "
+                    + "Include in your library path!");
+            e.printStackTrace();
+        }
+
         // Use these to connect to the database and issue commands
         // Connect to the database; fail if we can't
         try {
@@ -88,7 +96,8 @@ public class App {
         ArrayList<Datum> results = new ArrayList<>();
         try {
             // get all data into a ResultSet
-            String getStmt = "SELECT * FROM tblData";
+            String getStmt = "SELECT * FROM \"tblData\";";
+            System.out.println("Is is working?");
             PreparedStatement stmt = conn.prepareStatement(getStmt);
 
             ResultSet rs = stmt.executeQuery();
@@ -124,6 +133,14 @@ public class App {
         // get the MYSQL configuration from the environment
         Connection conn = null;
 
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Where is your PostgreSQL JDBC Driver? "
+                    + "Include in your library path!");
+            e.printStackTrace();
+        }
+
         // Use these to connect to the database and issue commands
         // Connect to the database; fail if we can't
         //System.out.println("Connecting to " + ip + ":" + port + "/" + db);
@@ -144,7 +161,7 @@ public class App {
         if (d != null && d.title != null && d.comment != null && d.numLikes == 0 && d.uploadDate != null && d.lastLikeDate != null) {
             try {
                 //  (id, title, comment, numLikes, uploadDate, lastLikeDate)
-                String insertStmt = "INSERT INTO tblData VALUES (default, ?, ?, ?, ?, ?)";
+                String insertStmt = "INSERT INTO \"tblData\" docker run -p5432:5432 --name phase0-db -e POSTGRES_USER=root -e POSTGRES_ROOT_PASSWORD=abc123 -e POSTGRES_DB=mydb -d postgres\n VALUES (default, ?, ?, ?, ?, ?);";
                 PreparedStatement stmt = conn.prepareStatement(insertStmt);
                 stmt.setString(1,d.title);
                 stmt.setString(2,d.comment);
@@ -176,6 +193,14 @@ public class App {
         Connection conn = null;
         int newNumLikes = 0;
 
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Where is your PostgreSQL JDBC Driver? "
+                    + "Include in your library path!");
+            e.printStackTrace();
+        }
+
         // Check if it's like/dislike and change numLikes accordingly.
         if (isLiked)    newNumLikes = ++numLikes;
         else            newNumLikes = --numLikes;
@@ -196,7 +221,7 @@ public class App {
 
         //
         try {
-            String updateStmt = "UPDATE tblData SET numLikes = ?, lastLikeDate = ? WHERE id = ?";
+            String updateStmt = "UPDATE \"tblData\" SET numLikes = ?, lastLikeDate = ? WHERE id = ?;";
             PreparedStatement stmt = conn.prepareStatement(updateStmt);
             stmt.setInt(1, newNumLikes);
             stmt.setTimestamp(2, javaDateToSqlDate(newLastLikeDate));
@@ -228,6 +253,14 @@ public class App {
     private static void dropDB() {
         Connection conn = null;
 
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Where is your PostgreSQL JDBC Driver? "
+                    + "Include in your library path!");
+            e.printStackTrace();
+        }
+
         // Connect to the database; fail if we can't
         try {
             // Open a connection, fail if we cannot get one
@@ -238,15 +271,17 @@ public class App {
                 return;
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection in createDB threw an exception");
+            System.out.println("Error: getConnection in dropDB threw an exception");
             e.printStackTrace();
             return;
         }
 
+        System.out.println("Got to dropDB() and about to create PS");
         try {
             PreparedStatement stmt = null;
-            String createStatement = "DROP TABLE IF EXISTS tblData";
+            String createStatement = "DROP TABLE IF EXISTS \"tblData\";";
             stmt = conn.prepareStatement(createStatement);
+            System.out.println("Built statement");
             stmt.execute();
             stmt.close();
         } catch (SQLException e) {
@@ -255,6 +290,7 @@ public class App {
             return;
         }
     }
+
 
 
     /**
@@ -271,6 +307,14 @@ public class App {
 
         // Connect to the database; fail if we can't
         try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Where is your PostgreSQL JDBC Driver? "
+                    + "Include in your library path!");
+            e.printStackTrace();
+        }
+
+        try {
             // Open a connection, fail if we cannot get one
             conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" +
                     port + "/" + db, user, pass);
@@ -286,12 +330,14 @@ public class App {
         // Create a table to store data.  It matches the 'Datum' type from the
         // previous tutorial.
 
-        PreparedStatement stmt = null;
-        String createStatement = "CREATE TABLE tblData (id INT(64) NOT NULL AUTO_INCREMENT, title VARCHAR(200), comment VARCHAR(200), numLikes INT(64), uploadDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, lastLikeDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(id))";
+        PreparedStatement stmt;
+       String createStatement = "CREATE TABLE  \"tblData\" (id INT(64) NOT NULL SERIAL, title VARCHAR(200), comment VARCHAR(200), numLikes INT(64), uploadDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, lastLikeDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(id));";
+
         try {
             stmt = conn.prepareStatement(createStatement);
             stmt.execute();
             stmt.close();
+            System.out.println("stmt.execute worked. table created");
             //conn.close();
         } catch (SQLException e) {
             // Should we handle this in a better way?
