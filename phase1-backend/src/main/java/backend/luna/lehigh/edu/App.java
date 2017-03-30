@@ -96,8 +96,8 @@ public class App {
         ArrayList<Datum> results = new ArrayList<>();
         try {
             // get all data into a ResultSet
-            String getStmt = "SELECT * FROM \"tblData\";";
-            System.out.println("Is is working?");
+            String getStmt = "SELECT * FROM public.tblComments INNER JOIN tblUser ON public.tblComments.user_ID=tblUser.user_id WHERE message_id=?;";
+            System.out.println("Is it working?");
             PreparedStatement stmt = conn.prepareStatement(getStmt);
 
             ResultSet rs = stmt.executeQuery();
@@ -109,7 +109,7 @@ public class App {
                 currentDatum.title = rs.getString("title");
                 currentDatum.comment = rs.getString("comment");
                 currentDatum.numLikes = rs.getInt("numLikes");
-                currentDatum.uploadDate = sqlDateToJavaDate(rs.getTimestamp("uploadDate"));
+               currentDatum.uploadDate = sqlDateToJavaDate(rs.getTimestamp("uploadDate"));
                 currentDatum.lastLikeDate = sqlDateToJavaDate(rs.getTimestamp("lastLikeDate"));
                 results.add(currentDatum);
             }
@@ -161,7 +161,7 @@ public class App {
         if (d != null && d.title != null && d.comment != null && d.numLikes == 0 && d.uploadDate != null && d.lastLikeDate != null) {
             try {
                 //  (id, title, comment, numLikes, uploadDate, lastLikeDate)
-                String insertStmt = "INSERT INTO \"tblData\" docker run -p5432:5432 --name phase0-db -e POSTGRES_USER=root -e POSTGRES_ROOT_PASSWORD=abc123 -e POSTGRES_DB=mydb -d postgres\n VALUES (default, ?, ?, ?, ?, ?);";
+                String insertStmt = "INSERT INTO tblMessage VALUES (default, ?, ?, ?, ?, ?);";
                 PreparedStatement stmt = conn.prepareStatement(insertStmt);
                 stmt.setString(1,d.title);
                 stmt.setString(2,d.comment);
@@ -220,8 +220,8 @@ public class App {
         }
 
         //
-        try {
-            String updateStmt = "UPDATE \"tblData\" SET numLikes = ?, lastLikeDate = ? WHERE id = ?;";
+       try {
+            String updateStmt = "UPDATE tblMessage SET numLikes = ?, lastLikeDate = ? WHERE id = ?;";
             PreparedStatement stmt = conn.prepareStatement(updateStmt);
             stmt.setInt(1, newNumLikes);
             stmt.setTimestamp(2, javaDateToSqlDate(newLastLikeDate));
@@ -234,6 +234,8 @@ public class App {
             e.printStackTrace();
         }
     }
+
+
 
 
     /**
@@ -279,7 +281,7 @@ public class App {
         System.out.println("Got to dropDB() and about to create PS");
         try {
             PreparedStatement stmt = null;
-            String createStatement = "DROP TABLE IF EXISTS \"tblData\";";
+            String createStatement = "DROP TABLE IF EXISTS public.createUser;";
             stmt = conn.prepareStatement(createStatement);
             System.out.println("Built statement");
             stmt.execute();
@@ -331,11 +333,25 @@ public class App {
         // previous tutorial.
 
         PreparedStatement stmt;
-       String createStatement = "CREATE TABLE  \"tblData\" (id INT(64) NOT NULL SERIAL, title VARCHAR(200), comment VARCHAR(200), numLikes INT(64), uploadDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, lastLikeDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(id));";
+       // PreparedStatement stmt5;
+      /* String createStatement = "CREATE TABLE IF NOT EXISTS tbldata (id INT(64) NOT NULL SERIAL, title VARCHAR(200), comment VARCHAR(200), numLikes INT(64), uploadDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, lastLikeDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(id));";
 
         try {
-            stmt = conn.prepareStatement(createStatement);
-            stmt.execute();
+            stmt5 = conn.prepareStatement(createStatement);
+            stmt5.executeUpdate();
+            stmt5.close();
+            System.out.println("stmt.execute worked. table created");
+            //conn.close();
+        } catch (SQLException e) {
+            // Should we handle this in a better way?
+            System.out.println("Table not created (it may already exist)");
+        }*/
+
+
+        String createUser="CREATE TABLE IF NOT EXISTS tbluser (user_id SERIAL PRIMARY KEY, username VARCHAR (255), realname VARCHAR (255), email VARCHAR(255));";
+        try {
+            stmt = conn.prepareStatement(createUser);
+            stmt.executeUpdate();
             stmt.close();
             System.out.println("stmt.execute worked. table created");
             //conn.close();
@@ -343,6 +359,53 @@ public class App {
             // Should we handle this in a better way?
             System.out.println("Table not created (it may already exist)");
         }
+
+
+
+        PreparedStatement stmt2;
+        String createMessage="CREATE TABLE IF NOT EXISTS tblMessage (message_id SERIAL PRIMARY KEY, user_id INTEGER, title VARCHAR(50), body VARCHAR(140), numLikes INT(64), uploadDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, lastLikeDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(id),  FOREIGN KEY (user_id) REFERENCES tblUser (user_id));";
+        try {
+            stmt2 = conn.prepareStatement(createMessage);
+            stmt2.executeUpdate();
+            stmt2.close();
+            System.out.println("stmt.execute worked. table created");
+        } catch (SQLException e) {
+            System.out.println ("Message table not created");
+
+
+        }
+
+
+        PreparedStatement stmt3;
+        String createComment="CREATE TABLE IF NOT EXISTS tblComments (comment_id SERIAL PRIMARY KEY, user_id INTEGER, message_id INTEGER, comment_text VARCHAR(255), uploadDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (user_id) REFERENCES tblUser (user_id), FOREIGN_KEY (message_id) REFERENCES tblMessage (message_id));";
+        try {
+            stmt3 = conn.prepareStatement(createComment);
+            stmt3.executeUpdate();
+            stmt3.close();
+            System.out.println("stmt.execute worked. table created");
+        } catch (SQLException e) {
+            System.out.println ("Comment table not created");
+
+
+        }
+
+        PreparedStatement stmt4;
+        String createdownvote="CREATE TABLE IF NOT EXISTS tblDownVotes ( user_id INTEGER, message_id INTEGER, FOREIGN KEY (user_id) REFERENCES tblUser (user_id),  FOREIGN KEY (message_id) REFERENCES tblMessage (message_id), PRIMARY KEY (user_id, message_id));";
+        try {
+            stmt4 = conn.prepareStatement(createdownvote);
+            stmt4.executeUpdate();
+            stmt4.close();
+            System.out.println("stmt.execute worked. table created");
+        } catch (SQLException e) {
+            System.out.println ("Downvote not created");
+
+
+        }
+
+
+
+
+
     }
 
     /**
