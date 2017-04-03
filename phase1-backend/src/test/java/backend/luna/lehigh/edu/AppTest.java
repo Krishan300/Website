@@ -20,7 +20,7 @@ public class AppTest extends TestCase
      */
     public void testConstructor()
     {
-        App app = new App();
+        App app = new App(true);
         assertNotNull(app.gson);
     }
 
@@ -28,63 +28,118 @@ public class AppTest extends TestCase
     /**
      *tests the getAllData Method for tables with 0, 1, or multiples datums
      */
-    public void testGetAllData()
+  /*  public void testGetMessage()
     {
-        App app = new App();
-        String output = app.getAllData();
+        App app = new App(true);
+        String output = app.getMessage();
         //not sure what output will look like because backend isnt done
         assertEquals(output, "[]");
 
-        Datum d = new Datum();
-        d.index = 1;
-        d.title = "test";
-        d.comment = "test comment";
-        d.numLikes = 0;
+        Message m = new Message();
+        m.user_id = 1;
+        m.message_id=2;
+        m.title = "test";
+        m.body = "placeholder";
+        m.uploadDate = new Date(117, 1, 16, 20, 10);
+        //d.lastLikeDate = new Date(117, 1, 16, 20, 10);
 
+        app.insertMessage(m);
+        output = app.getMessage();
+        assertEquals(output, "{\"user_id\":1,\"message_id\":2, \"title\":\"test\",\"body\":\"placeholder\",\"uploadDate\":\"Feb 16, 2017 8:10:00 PM\"}");
 
-        d.uploadDate = new Date(117, 1, 16, 20, 10);
-        d.lastLikeDate = new Date(117, 1, 16, 20, 10);
-
-        app.insertDatum(d);
-        output = app.getAllData();
-        assertEquals(output, "[{\"index\":1,\"title\":\"test\",\"comment\":\"test comment\",\"numLikes\":0,\"uploadDate\":\"Feb 16, 2017 8:10:00 PM\",\"lastLikeDate\":\"Feb 16, 2017 8:10:00 PM\"}]");
-
-        Datum d2 = new Datum();
-        d2.index = 2;
+        Message d2 = new Message();
+        d2.user_id = 2;
+        d2.message_id=1;
         d2.title = "test2";
-        d2.comment = "test comment2";
-        d2.numLikes = 0;
+        d2.body = "test message2";
+
         d2.uploadDate = new Date(117, 1, 16, 20, 10);
-        d2.lastLikeDate = new Date(117, 1, 16, 20, 10);
-        app.insertDatum(d2);
 
-        output = app.getAllData();
+        app.insertMessage(d2);
 
-        assertEquals(output, "[{\"index\":1,\"title\":\"test\",\"comment\":\"test comment\",\"numLikes\":0,\"uploadDate\":\"Feb 16, 2017 8:10:00 PM\",\"lastLikeDate\":\"Feb 16, 2017 8:10:00 PM\"},{\"index\":2,\"title\":\"test2\",\"comment\":\"test comment2\",\"numLikes\":0,\"uploadDate\":\"Feb 16, 2017 8:10:00 PM\",\"lastLikeDate\":\"Feb 16, 2017 8:10:00 PM\"}]");
+        output = app.getMessage();
+
+        assertEquals(output, "[{\"user_id\":1,\"message_id\":2, \"title\":\"test\",\"body\":\"placeholder\",\"uploadDate\":\"Feb 16, 2017 8:10:00 PM\"},{\"user_id\":2, \"message_id\":1, \"title\":\"test2\", \"body\":\"test message2\",\"uploadDate\":\"Feb 16, 2017 8:10:00 PM\"}]");
+    } */
+
+
+
+
+    /**
+     *tests the getUser Method for tables with 0, 1, or multiples datums
+     */
+    public void testGetUser () {
+        App app=new App(true);
+        String output;
+        User u=new User();
+        u.user_id=2;
+        u.username="John";
+        u.realname="Catherine";
+        u.email="genericemail@aol.com";
+        app.insertUser(u);
+        output=app.getUser();
+        assertEquals(output, "[{\"user_id\":2,\"username\": \"John\", \"realname\": \"Catherine\", \"email\": \"genericemail@aol.com\"}]");
+
+        User u2=new User();
+        u.user_id=1;
+        u.username="Jimmy";
+        u.realname="Jimmyrealname";
+        u.email="dumbemail@aol.com";
+        app.insertUser(u2);
+        output=app.getUser();
+        assertEquals(output, "[{\"user_id\":2,\"username\": \"John\", \"realname\": \"Catherine\", \"email\": \"genericemail@aol.com\"}, {\"user_id\":1,\"username\": \"Jimmy\", \"realname\": \"Jimmyrealname\" \"email\": \"dumbemail@aol.com\"}]");
+
+
     }
 
     /**
      *tests the insertDatum Method on both a null datum and one in good form
      */
-    public void testInsertDatum()
+  /*  public void testInsertMessage()
     {
-        App app = new App();
+        App app = new App(true);
 
-        Datum d = new Datum();
-        d.index = 1;
-        d.title = null;
-        d.comment = "test comment";
-        d.numLikes = 0;
+        Message m = new Message();
+        m.user_id = 1;
+        m.message_id=2;
+        m.title = null;
+        m.body = "placeholder";
+
         //bad date because title and dates are null
-        assertEquals(app.insertDatum(d), "{\"res\":\"bad data\"}");
+        assertEquals(app.insertMessage(m), "{\"res\":\"bad data\"}");
 
-        d.title = "test title";
-        d.uploadDate = new Date(117, 1, 16, 20, 10);
-        d.lastLikeDate = new Date(117, 1, 16, 20, 10);
+        m.title = "test title";
+        m.uploadDate = new Date(117, 1, 16, 20, 10);
+
 
         //works because everything now has initial value
-        assertEquals(app.insertDatum(d), "{\"res\":\"ok\"}");
-    }
+        assertEquals(app.insertMessage(m), "{\"res\":\"ok\"}");
+    }*/
+
+  public void testInsertUser(){
+
+      App app = new App();
+      User u= new User();
+      u.user_id=1;
+      u.username="The User";
+      u.realname="John";
+      u.email="Placeholder";
+
+      assertEquals(app.insertUser(u), "{\"res\":\"ok\"}");
+
+
+      u.realname=null;
+
+
+      assertEquals(app.insertUser(u),"{\"res\":\"bad data\"}");
+
+
+
+
+
+
+
+  }
 
 
     /**
@@ -93,43 +148,38 @@ public class AppTest extends TestCase
      */
     public void testUpdateLike()
     {
-        App app = new App();
-        Datum d = new Datum();
-        d.index = 1;
-        d.title = "test";
-        d.comment = "test comment";
-        d.numLikes = 0;
-        d.uploadDate = new Date(117, 1, 16, 20, 10);
-        d.lastLikeDate = new Date(117, 1, 16, 20, 10);
-
-        assertTrue(d.numLikes == 0);
+        App app = new App(true);
+        Vote v = new Vote();
+        v.user_id = 1;
+        v.message_id=2;
+        v.isLiked=true;
 
         String output = null;
         try
         {
-            app.insertDatum(d);
-            app.updateLike(1, d.numLikes, d.lastLikeDate, true);
-            output = app.getAllData();
+            app.updateLike(v);
+            output = app.getUpvotes();
         }
         catch(Exception e)
         {
             fail("error: updatelike could not increment likes");
             e.printStackTrace();
         }
-        assertEquals(output, "[{\"index\":1,\"title\":\"test\",\"comment\":\"test comment\",\"numLikes\":1,\"uploadDate\":\"Feb 16, 2017 8:10:00 PM\",\"lastLikeDate\":\"Feb 16, 2017 8:10:00 PM\"}]");
+        assertEquals(output, "{\"user_id\":1,\"message_id\":2}");
         // EXPECTED {"index":1,"title":"test","comment":"test comment","numLikes":1,"uploadDate":"Feb 16, 2017 8:10:00 PM","lastLikeDate":"Feb 16, 2017 8:10:00 PM"}
         // HAD
 
         try {
-            app.updateLike(1, 1, d.lastLikeDate, false);
-            output = app.getAllData();
+            v.isLiked=false;
+            app.updateLike(v);
+            output = app.getDownvotes();
         }
         catch(Exception e)
         {
             fail("error: update like could not decrement likes");
             e.printStackTrace();
         }
-        assertEquals(output, "[{\"index\":1,\"title\":\"test\",\"comment\":\"test comment\",\"numLikes\":0,\"uploadDate\":\"Feb 16, 2017 8:10:00 PM\",\"lastLikeDate\":\"Feb 16, 2017 8:10:00 PM\"}]");
+        assertEquals(output, "[{\"user_id\":1,\"message_id\":2}]");
     }
 
     /**
@@ -138,7 +188,7 @@ public class AppTest extends TestCase
      */
     public void testCreateDB()
     {
-        App app = new App();
+        App app = new App(true);
         assertNotNull(app.gson);
     }
 }
