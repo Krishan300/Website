@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="true"
+        jar="/Users/alex/.gradle/caches/modules-2/files-2.1/org.ccil.cowan.tagsoup/tagsoup/1.2/639fd364750d7363c85797dc944b4a80f78fa684/tagsoup-1.2.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="639fd364750d7363c85797dc944b4a80f78fa684">
+        <dex dex="/Users/alex/cse216_luna/phase1-android/app/build/intermediates/transforms/dex/androidTest/debug/folders/1000/10/tagsoup-1.2_57f6168f260b152dc18bbdd17c039e59ff814bfd/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/.android/build-cache/edba93518e0732b1f520749e03ccdbc672960433/output/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="56576e0b04aae5e9756bf6e791f74b5e3850ac03">
+        <dex dex="/Users/alex/cse216_luna/phase1-android/app/build/intermediates/transforms/dex/androidTest/debug/folders/1000/10/classes_9e6bc37543383ef58e431da2abc124ef76eebb20/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/.android/build-cache/a9c0eb9396ce16927c750a3e7a409c157138fd7e/output/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="efc9e293447db1929eb3853a3f83e8f46a957436">
+        <dex dex="/Users/alex/cse216_luna/phase1-android/app/build/intermediates/transforms/dex/androidTest/debug/folders/1000/10/classes_5746f94ca49bb3274da2ac2637941948fbd0812b/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/.android/build-cache/f3bd5348019106c6e8bfa37ba38832428a65ea21/output/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="8b15a3d5c69b57f385cf1f26609d460375dc0ad8">
+        <dex dex="/Users/alex/cse216_luna/phase1-android/app/build/intermediates/transforms/dex/androidTest/debug/folders/1000/10/classes_c1217b1f305a11010b154f3d4d9988aeadfe3c65/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/Users/alex/.gradle/caches/modules-2/files-2.1/com.google.android.apps.common.testing.accessibility.framework/accessibility-test-framework/2.0/7837f95bdff9f797003454247fef02b78d49ae75/accessibility-test-framework-2.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="25.0.2"
+        sha1="7837f95bdff9f797003454247fef02b78d49ae75">
+        <dex dex="/Users/alex/cse216_luna/phase1-android/app/build/intermediates/transforms/dex/androidTest/debug/folders/1000/10/accessibility-test-framework-2.0_27aad2fed1557360b933d481242d10bfdffeba0c/classes.dex" />
+    </item>
+
+</items>
