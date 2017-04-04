@@ -1,0 +1,134 @@
+
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <title>Phase 3 Project Manager Report for Team XYZ</title>
+    <style>
+        body {
+            font-family: Roboto;
+        }
+
+        div.answer {
+            border: solid 1px black;
+            width: 100%;
+            min-height: 15em;
+        }
+
+        div.light {
+            background-color: lightgray;
+        }
+
+        div.dark {
+            background-color: darkgray;
+        }
+    </style>
+</head>
+
+<body>
+<h1>CSE 216 Project Manager Report: Phase 3, Team Luna</h1>
+<h3>List your team members, providing name, email, and role for this project.</h3>
+<div class="answer">Robert Salay rws218@lehigh.edu Project Manager
+Krishan Madan krm219@lehigh.edu Backend
+Alex Van Heest ajv218@lehigh.edu Frontend
+Kieran Horan kjh219@lehigh.edu Android</div>
+
+<div class="light">
+    <h2>Back-End Server</h2>
+
+    <h3>Describe the OAuth implementation for the back-end.  How much code is duplicated for the web and Android apps?</h3>
+    <div class="answer">OAuth is still being worked on, none is duplicated for the other apps.</div>
+
+    <h3>Is the back-end code appropriately organized into files / classes / packages?</h3>
+    <div class="answer">Yes, it is properly organized</div>
+
+    <h3>Are the dependencies in the pom.xml file appropriate? Were there any unexpected dependencies added to the program?</h3>
+    <div class="answer">The dependencies are appropriate and expected.</div>
+
+    <h3>What was the biggest issue that came up in code review of the back-end server?</h3>
+    <div class="answer">Insert statements aren't working properly. Tables accept date from commandline, just not from code.</div>
+
+    <h3>What technical debt do you see in the current back-end server implementation?</h3>
+    <div class="answer">Insert statements have syntax errors, and Oauth needs to be implemented.</div>
+
+    <h3>Describe any refactoring that was performed to reduce technical
+        debt from the last phase</h3>
+    <div class="answer">Postgres was successfully added. The Admin app was reintegrated with the backend app.</div>
+</div>
+
+<div class="dark">
+    <h2>Web Front-End</h2>
+
+    <h3>What approach was used for the web's OAuth flow?</h3>
+    <div class="answer">Frontend currently does not have OAuth in the application.</div>
+
+    <h3>Is the web front-end appropriately organized into files / classes / packages?</h3>
+    <div class="answer">Yes, there is deployment code to organize everything properly on runtime.</div>
+
+    <h3>Are the dependencies in the package.json file appropriate? Were there any unexpected dependencies added to the program?</h3>
+    <div class="answer">The dependencies are appropriate and expected.</div>
+
+    <h3>What was the biggest issue that came up in code review of the web front-end?</h3>
+    <div class="answer">Issues with live updates on the site, no password verification.</div>
+
+    <h3>What technical debt do you see in the current web front-end implementation?</h3>
+    <div class="answer">Portions of the code may be difficult to reuse. Code may need to change based on backend's OAuth implementation.</div>
+</div>
+
+<div class="light">
+    <h2>Android App</h2>
+
+    <h3>What approach was used for the Android app's OAuth flow?</h3>
+    <div class="answer">Could not be implemented, was unable to work without a functional backend</div>
+
+    <h3>Is the android app appropriately organized into files / classes / packages?</h3>
+    <div class="answer">Yes, android studio automatically organizes everything in a legible way.</div>
+
+    <h3>Are the dependencies in the build.gradle file appropriate? Were there any unexpected dependencies added to the program?</h3>
+    <div class="answer">Kieran added butterknife.bind and butterknife.Butterknife.</div>
+
+    <h3>What was the biggest issue that came up in code review of the android app?</h3>
+    <div class="answer">With no functioning backend, Kieran could only make a skeletal app.</div>
+
+    <h3>What technical debt do you see in the current android app implementation?</h3>
+    <div class="answer">A lot of work still needs to be done to properly connect the backend and app. To do notes were left for the next person though. The main activity is sloppy, and needs to be fixed.</div>
+</div>
+
+<div class="dark">
+    <h2>Unit Tests</h2>
+
+    <h3>How did your tester verify the correctness of the web OAuth flow?</h3>
+    <div class="answer"></div>
+
+    <h3>How did your tester verify the correctness of the Android OAuth flow?</h3>
+    <div class="answer"></div>
+
+    <h3>What other testing of the back-end was performed?</h3>
+    <div class="answer"></div>
+
+    <h3>Did your tester evaluate whether the implementation is secure?</h3>
+    <div class="answer"></div>
+</div>
+
+<div class="light">
+    <h2>Project-Wide</h2>
+
+    <h3>Describe any ways in which your team has become more or less
+        effective over time?</h3>
+    <div class="answer"></div>
+
+    <h3>Were there any team issues that arose?</h3>
+    <div class="answer"></div>
+
+    <h3>Describe the most significant obstacle or difficulty your team
+        faced.</h3>
+    <div class="answer"></div>
+
+    <h3>What is your biggest concern as you think ahead to the next phase
+        of the project?</h3>
+    <div class="answer"></div>
+</div>
+
+</body>
+
+</html>
