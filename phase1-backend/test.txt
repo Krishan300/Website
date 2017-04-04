@@ -1,0 +1,87 @@
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building phase1-backend 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ phase1-backend ---
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] skip non existing resourceDirectory /Users/krishanmadan/p3_backend/phase1-backend/src/main/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:compile (default-compile) @ phase1-backend ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ phase1-backend ---
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] skip non existing resourceDirectory /Users/krishanmadan/p3_backend/phase1-backend/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.2:testCompile (default-testCompile) @ phase1-backend ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ phase1-backend ---
+[INFO] Surefire report directory: /Users/krishanmadan/p3_backend/phase1-backend/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running backend.luna.lehigh.edu.AppTest
+Error: getConnection in dropDB threw an exception
+Error: getConnection in createDB threw an exception
+Error: getConnection in dropDB threw an exception
+Error: getConnection in createDB threw an exception
+Error: getConnection threw an exception in insertDatum
+Error: getConnection in dropDB threw an exception
+Error: getConnection in createDB threw an exception
+Error: getConnection threw an exception in insertDatum
+Error: getConnection threw an exception in updateLike
+Error: getConnection threw an exception in getAllData
+Error: getConnection in dropDB threw an exception
+Error: getConnection in createDB threw an exception
+Error: getConnection in dropDB threw an exception
+Error: getConnection in createDB threw an exception
+Error: getConnection threw an exception in getAllData
+Tests run: 5, Failures: 3, Errors: 0, Skipped: 0, Time elapsed: 0.401 sec <<< FAILURE!
+testInsertDatum(backend.luna.lehigh.edu.AppTest)  Time elapsed: 0.091 sec  <<< FAILURE!
+junit.framework.ComparisonFailure: expected:<null> but was:<{"res":"bad data"}>
+	at junit.framework.Assert.assertEquals(Assert.java:81)
+	at junit.framework.Assert.assertEquals(Assert.java:87)
+	at backend.luna.lehigh.edu.AppTest.testInsertDatum(AppTest.java:79)
+
+testUpdateLike(backend.luna.lehigh.edu.AppTest)  Time elapsed: 0.072 sec  <<< FAILURE!
+junit.framework.ComparisonFailure: expected:<null> but was:<[{"index":1,"title":"test","comment":"test comment","numLikes":1,"uploadDate":"Feb 16, 2017 8:10:00 PM","lastLikeDate":"Feb 16, 2017 8:10:00 PM"}]>
+	at junit.framework.Assert.assertEquals(Assert.java:81)
+	at junit.framework.Assert.assertEquals(Assert.java:87)
+	at backend.luna.lehigh.edu.AppTest.testUpdateLike(AppTest.java:119)
+
+testGetAllData(backend.luna.lehigh.edu.AppTest)  Time elapsed: 0.02 sec  <<< FAILURE!
+junit.framework.ComparisonFailure: expected:<null> but was:<[]>
+	at junit.framework.Assert.assertEquals(Assert.java:81)
+	at junit.framework.Assert.assertEquals(Assert.java:87)
+	at backend.luna.lehigh.edu.AppTest.testGetAllData(AppTest.java:36)
+
+
+Results :
+
+Failed tests:   testInsertDatum(backend.luna.lehigh.edu.AppTest): expected:<null> but was:<{"res":"bad data"}>
+  testUpdateLike(backend.luna.lehigh.edu.AppTest): expected:<null> but was:<[{"index":1,"title":"test","comment":"test comment","numLikes":1,"uploadDate":"Feb 16, 2017 8:10:00 PM","lastLikeDate":"Feb 16, 2017 8:10:00 PM"}]>
+  testGetAllData(backend.luna.lehigh.edu.AppTest): expected:<null> but was:<[]>
+
+Tests run: 5, Failures: 3, Errors: 0, Skipped: 0
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 2.088 s
+[INFO] Finished at: 2017-03-29T17:10:32-04:00
+[INFO] Final Memory: 10M/155M
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.12.4:test (default-test) on project phase1-backend: There are test failures.
+[ERROR] 
+[ERROR] Please refer to /Users/krishanmadan/p3_backend/phase1-backend/target/surefire-reports for the individual test results.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

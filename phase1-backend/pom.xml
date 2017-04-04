@@ -5,36 +5,49 @@
   <artifactId>phase1-backend</artifactId>
   <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>phase0-backend</name>
+  <name>phase1-backend</name>
   <url>http://maven.apache.org</url>
+
   <dependencies>
-	  <dependency>
-		  <groupId>org.postgresql</groupId>
-		  <artifactId>postgresql</artifactId>
-		  <version>9.4.1208</version>
-	  </dependency>
-	  <dependency>
+
+
+
+	    <dependency>
 		  <groupId>com.google.code.gson</groupId>
 		  <artifactId>gson</artifactId>
           <version>2.8.0</version>
 	  </dependency>
-	<dependency>
+
+	  <dependency>
+		  <groupId>org.postgresql</groupId>
+		  <artifactId>postgresql</artifactId>
+		  <version>42.0.0</version>
+	  </dependency>
+
+	  <dependency>
 	<groupId>mysql</groupId>
 	<artifactId>mysql-connector-java</artifactId>
 	<version>5.1.6</version>
 	</dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+
+
 	<dependency>
 	 <groupId>com.sparkjava</groupId>
 	 <artifactId>spark-core</artifactId>
 	 <version>2.5</version>
 	</dependency>
+
+
+
   </dependencies>
+
 	<build>
 	 <plugins>
 	  <plugin>
@@ -50,8 +63,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>2.10.4</version>
-		<configuration>
-		 <mainClass>backend.luna.lehigh.edu</mainClass>
+		 <configuration>
 		 </configuration>
 		 </plugin>
 	 <plugin>
@@ -59,11 +71,12 @@
 	  <artifactId>exec-maven-plugin</artifactId>
 	  <version>1.2.1</version>
 	  <configuration>
-	   <mainClass>backend.luna.lehigh.edu</mainClass>
+	   <mainClass>backend.luna.lehigh.edu.App</mainClass>
 	   <arguments>
 	   </arguments>
 	  </configuration>
 	 </plugin>
 	 </plugins>
+
    </build>
   </project>
