@@ -1,0 +1,11 @@
+a { 
+	cursor: pointer; 
+}
+
+#article-list li {
+	list-style-type: none;
+}
+
+#article-list li a {
+	text-decoration: none;
+}
