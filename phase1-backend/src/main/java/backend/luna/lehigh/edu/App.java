@@ -3,451 +3,310 @@ package backend.luna.lehigh.edu;
 import static spark.Spark.*;
 import com.google.gson.*;
 
-import java.net.URISyntaxException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.SecureRandom;
+import javax.xml.transform.Result;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Map;
 import java.lang.*;
 import java.util.Calendar;
 import java.util.Date;
-
-
+import java.util.Hashtable;
+import java.security.MessageDigest;
 
 /**
- * @author Alex Van Heest, Kieran Horan, Robert Salay
- * @version 1.2
+ * @author Alex Van Heest (created for reasons of testing Phase 3 frontend)
+ * @version 1.2.1
  */
 
 
 /**
  * Datum object is the base object for storing our data on the backend. We store an index, title, comment,
  * number of likes, upload date, and like date.
+ * DEPRECATED: Now using newer class to handle objects in multiple tables.
  */
 class Datum {
     int index;
     String title;
     String comment;
-    String userName;
-    String userToken;
-    int author;
     int numLikes;
     java.util.Date uploadDate;
-
-    //java.util.Date lastLikeDate;
+    java.util.Date lastLikeDate;
 }
-
-class logDatum {
-    String userName;
-    String password;
-}
-
-class signDatum {
-    String userName;
-    String eMail;
-}
-
-
-
 
 /**
- * The App class creates an App object which passes in a MySQL database and stores the
+ * UserObj - a class that stores data pertaining to tblUser table.
+ */
+class UserObj {
+    int user_id;
+    String username;
+    String realname;
+    String email;
 
+    // below is probably more common constructor since frontend won't know new user's index
+    public UserObj(String Gusername, String Grealname, String Gemail) {
+        username = Gusername;
+        realname = Grealname;
+        email = Gemail;
+    }
 
+    public UserObj(int Guser_id, String Gusername, String Grealname, String Gemail) {
+        user_id = Guser_id;
+        username = Gusername;
+        realname = Grealname;
+        email = Gemail;
+    }
+}
+
+/**
+ * MessageObj - a class that stores data pertaining to tblMessage table.
+ */
+class MessageObj {
+    int user_id;
+    int message_id;
+    String title;
+    String body;
+    java.util.Date uploadDate;
+    String username;
+    String realname;
+    String email;
+
+    public MessageObj (int Guser_id, int Gmessage_id, String Gtitle, String Gbody, java.util.Date GuploadDate,
+                       String Gusername, String Grealname, String Gemail) {
+        user_id = Guser_id;
+        message_id = Gmessage_id;
+        title = Gtitle;
+        body = Gbody;
+        uploadDate = GuploadDate;
+        username = Gusername;
+        realname = Grealname;
+        email = Gemail;
+    }
+
+    public MessageObj (int Guser_id, String Gtitle, String Gbody) {
+        user_id = Guser_id;
+        title = Gtitle;
+        body = Gbody;
+    }
+}
+
+/**
+ * MessageContentObj - a class that stores data pertaining to tblMessage table.
+ * This version of the object includes userdata to be included with Message content, used
+ * by front page. Perhaps this could've been better done with just a single MessageObj,
+ * but hindsight is 20/20. I will have to adapt this at some point though.
+ */
+class MessageContentObj {
+    int user_id;
+    int message_id;
+    String title;
+    String body;
+    java.util.Date uploadDate;
+    String username;
+    String realname;
+    String email;
+    int upvotes;
+    int downvotes;
+    int tot_votes;
+
+    public MessageContentObj (int Guser_id, int Gmessage_id, String Gtitle, String Gbody, java.util.Date GuploadDate,
+                       String Gusername, String Grealname, String Gemail, int Gupvotes, int Gdownvotes,
+                       int Gtot_votes) {
+        user_id = Guser_id;
+        message_id = Gmessage_id;
+        title = Gtitle;
+        body = Gbody;
+        uploadDate = GuploadDate;
+        username = Gusername;
+        realname = Grealname;
+        email = Gemail;
+        upvotes = Gupvotes;
+        downvotes = Gdownvotes;
+        tot_votes = Gtot_votes;
+    }
+}
+
+/**
+ * CommentObj - a class that stores data pertaining to tblComment table.
+ */
+class CommentObj {
+    int user_id;
+    int message_id;
+    int comment_id;
+    String comment_text;
+    java.util.Date uploadDate;
+    String username;
+    String realname;
+    String email;
+
+    public CommentObj(int Guser_id, int Gmessage_id, String Gcomment_text) {
+        user_id = Guser_id;
+        message_id = Gmessage_id;
+        comment_text = Gcomment_text;
+    }
+
+    public CommentObj (int Guser_id, int Gmessage_id, int Gcomment_id, String Gcomment_text, java.util.Date GuploadDate,
+                       String Gusername, String Grealname, String Gemail) {
+        user_id = Guser_id;
+        message_id = Gmessage_id;
+        comment_id = Gcomment_id;
+        comment_text = Gcomment_text;
+        uploadDate = GuploadDate;
+        username = Gusername;
+        realname = Grealname;
+        email = Gemail;
+    }
+}
+
+/**
+ * VoteObj - a class that stores data pertaining to tblUpVote / tblDownVote table.
+ */
+class VoteObj {
+    int user_id;
+    int message_id;
+
+    public VoteObj (int Guser_id, int Gmessage_id) {
+        user_id = Guser_id;
+        message_id = Gmessage_id;
+    }
+}
+
+/**
+ * UserStateObj - a class that holds a username and secret key that're received from
+ * frontend.
+ */
+class UserStateObj {
+    String username;
+    int secret_key;
+
+    public UserStateObj (String Gusername, int GsecretKey) {
+        username = Gusername;
+        secret_key = GsecretKey;
+    }
+}
+
+/**
+ * LoginObj - a class that stores received login credentials from frontend for validation.
+ */
+class LoginObj {
+    String username;
+    String password;
+
+    public LoginObj (String Gusername, String Gpassword) {
+        username = Gusername;
+        password = Gpassword;
+    }
+}
 
 /**
  * The App class creates an App object which passes in a MySQL database and stores the
  * data in rows to be pulled from later.
  */
 public class App {
-
-
     // Final static strings, used throughout program.
     final static String goodData = "{\"res\":\"ok\"}";
     final static String badData = "{\"res\":\"bad data\"}";
     final static String sFileLocation = "/web";        // FIX FOR WHATEVER THE HIERARCHY IT IS IN FINAL VERSION
-    Connection conn = null;
 
     // Only one gson instantiation, for efficiency.
     final Gson gson;
 
-
-
     // Environment variables.
-    //static Map<String, String> env = System.getenv();
-    //static String ip = env.get("MYSQL_IP");
-    //static String port = env.get("MYSQL_PORT");
-    //static String user = env.get("MYSQL_USER");
-    //static String pass = env.get("MYSQL_PASS");
-    //static String db = env.get("MYSQL_DB");
+    static Map<String, String> env = System.getenv();
+    static String ip = env.get("POSTGRES_IP");
+    static String port = env.get("POSTGRES_PORT");
+    static String user = env.get("POSTGRES_USER");
+    static String pass = env.get("POSTGRES_PASS");
+    static String db = env.get("POSTGRES_DB");
 
-    //new getConnection method for postgre
-    private static Connection getConnection() throws URISyntaxException, SQLException {
-        String dbUrl = System.getenv("JDBC_DATABASE_URL");
-        return DriverManager.getConnection(dbUrl);
-    }
+    static Hashtable<String, Integer> hashtable = new Hashtable<>();
 
-    //creates salt bytes for hashSalting process
-    private static byte[] getSalt() throws NoSuchAlgorithmException, NoSuchProviderException{
-        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG", "SUN");
-        //create array for salt
-        byte[] salt = new byte[16];
-        //get random salt
-        sr.nextBytes(salt);
-        return salt;
-    }
-
-    //hashSalts a given password, used for both storing and comparing
-    private static String getSecurePassword(String password2Hash, byte[] salt){
-        String generatedPassword = null;
-        try {
-            // Create MessageDigest instance for MD5
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            // Add password bytes to digest
-            md.update(salt);
-            //Get hash's bytes
-            byte[] bytes = md.digest(password2Hash.getBytes());
-            // convert decimal format to hex
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < bytes.length; i++){
-                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
-            }
-            //get complete hashed password in hex format
-            generatedPassword = sb.toString();
-        }
-        catch (NoSuchAlgorithmException e) {
-            System.out.println("Could not hash password");
-            e.printStackTrace();
-        }
-        return generatedPassword;
-    }
-
-    //creates salted and hashed value using previously saved salt
-    private static String hashPreviousPass(String password, byte[] salt){
-        String genPass;
-
-        genPass = getSecurePassword(password, salt);
-        return genPass;
-    }
-
-    //creates salted and hashed value, and saves salt in pw table
-    private static String hashPass(String password, String UN) throws NoSuchProviderException, NoSuchAlgorithmException{
-        Connection conn;
-        String genPass;
-        byte[] salt = getSalt();
-        genPass = getSecurePassword(password, salt);
-
-        try {
-            // Open a connection, fail if we cannot get one
-            conn = getConnection();
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
-                return null;
-            }
-        } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getAllData");
-            e.printStackTrace();
-            return null;
-        } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
-            e.printStackTrace();
-            return null;
-        }
-
-        int userID = getUserID(UN);
-        ResultSet rs;
-
-        try {
-            String updateStmt = "UPDATE pwHash SET salt = ?, saltPW = ? WHERE id = ?";
-            PreparedStatement stmt = conn.prepareStatement(updateStmt);
-            stmt.setBytes(1, salt);
-            stmt.setString(2, genPass);
-            stmt.setInt(3, userID);
-            stmt.execute();
-        } catch (SQLException e){
-            System.out.println("Error while storing salt");
-            e.printStackTrace();
-        }
-        return genPass;
-    }
-    //gets salt for passwords previously used, so people can log in
-    static byte[] getSavedSalt(String UN) {
+    /**
+     * This is the long-awaited method that returns a Connection object. Replaces all the versions
+     * throughout the code to keep the Connection stuff consistent and easier to update.
+     */
+    public static Connection createConnection() {
+        // Connection to be returned.
         Connection conn = null;
 
-        // Use these to connect to the database and issue commands
-        // Connect to the database; fail if we can't
-        try {
-            // Open a connection, fail if we cannot get one
-            conn = getConnection();
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
-                return null;
-            }
-        } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getAllData");
-            e.printStackTrace();
-            return null;
-        } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
-            e.printStackTrace();
-            return null;
-        }
-            e.printStackTrace();
-        }
-        return genPass;
-    }
-    //gets salt for passwords previously used, so people can log in
-    static byte[] getSavedSalt(String UN) {
-        // Use these to connect to the database and issue commands
-        // Connect to the database; fail if we can't
-        try {
-            // Open a connection, fail if we cannot get one
-            conn = getConnection();
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
-                return null;
-            }
-        } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getAllData");
-            e.printStackTrace();
-            return null;
-        }
-        int idNum = getUserID(UN);
-        byte[] saltResult = null;
-        ResultSet rs;
-
-        try {
-        try {
-            // get all data into a ResultSet
-            String getStmt = "SELECT * FROM tblMessage;";
-            System.out.println("Is it working?");
-            PreparedStatement stmt = conn.prepareStatement(getStmt);
-            stmt.setInt(1, idNum);
-            rs = stmt.executeQuery();
-            saltResult = rs.getBytes("salt");
-        } catch (SQLException e) {
-            System.out.println("Error while collecting previous salt");
-            e.printStackTrace();
-        }
-        return saltResult;
-    }
-
-    //produces the id number of a user from their username
-    private static int getUserID(String UN){
-        Connection conn = null;
-
-        // Use these to connect to the database and issue commands
-        // Connect to the database; fail if we can't
-        try {
-            // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" + port + "/" + db + "?useSSL=false", user, pass);
-
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
-                return -1;
-            }
-        } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception in getMessage");
-            e.printStackTrace();
-            return null;
-        }
-        int idNum = -1;
-        ResultSet rs;
-        try {
-            // get all data into a ResultSet
-            String getStmt = "SELECT * FROM tblMessage;";
-            System.out.println("Is it working?");
-            PreparedStatement stmt = conn.prepareStatement(getStmt);
-
-    //compares a given password with the stored password data
-    static Boolean comparePW(int uID, String saltedPW){
-        Connection conn = null;
-        try {
-            // Open a connection, fail if we cannot get one
-            conn = getConnection();
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
-                return false;
-        } catch (SQLException e) {
-            System.out.println("Error: query failed");
-            e.printStackTrace();
-        }
-        // Convert the array of results to a JSON string and return it
-        result = gson.toJson(results);
-        return result;
-    }
-
-    String getUpvotes () {
-        // get the MYSQL configuration from the environment
-        Connection conn = null;
+        // Include the needed driver (needs to be tested, may be redundant.
         try {
             Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            System.err.println("Where is your PostgreSQL JDBC Driver? "
-                    + "Include in your library path!");
+        }
+        catch (ClassNotFoundException e) {
+            System.err.println("ERROR in createConnection(): Driver not found");
             e.printStackTrace();
         }
 
-        // Use these to connect to the database and issue commands
         // Connect to the database; fail if we can't
         try {
-            // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" + port + "/" + db + "?useSSL=false", user, pass);
+            // Open a connection, fail if we cannot get one. Connection to POSTGRES server at following url:
+            String url = "jdbc:postgresql://" + ip + ":" + port + "/" + db;
+            conn = DriverManager.getConnection(url, user, pass);
 
+            // Make sure connection object isn't null. If it is, print error and exit.
             if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getVotes");
-                return null;
+                System.out.println("Error in createDB(): getConnection returned null object in createDB");
+                System.exit(-1);
             }
         } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception in getVotes");
+            // Unable to create connection to DB. Check env variables?
+            System.out.println("Error in createDB(): getConnection in createDB threw an exception");
             e.printStackTrace();
-            return null;
+            System.exit(-1);
         }
-        String result = "";
-        // watch multiples
-        //get bio
-        try {
-            String getStmt = "SELECT bio FROM userData WHERE userID = ?";
-            PreparedStatement stmt = conn.prepareStatement(getStmt);
-            stmt.setInt(1, uID);
 
-            ResultSet rs = stmt.executeQuery();
-
-            result = rs.getString("bio");
-        } catch (SQLException e) {
-            System.out.println("Error: query failed");
-            e.printStackTrace();
-        }
-        //get all comments this user liked
-        ArrayList<Datum> likeResults = new ArrayList<>();
-        try {
-            String getStmt = "SELECT commentID FROM voteData WHERE userID = ? AND voteUp = True";
-            PreparedStatement stmt = conn.prepareStatement(getStmt);
-            stmt.setInt(1, uID);
-
-            ResultSet rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                Datum currentDatum = getComment(rs.getInt("id"));
-                likeResults.add(currentDatum);
-            }
-            stmt.close();
-        } catch (SQLException e) {
-            System.out.println("Error: query failed");
-            e.printStackTrace();
-        }
-        result += gson.toJson(likeResults);
-        //get all comments this user made
-        ArrayList<Datum> authorResults = new ArrayList<>();
-        try {
-            // get all data into a ResultSet
-            String getStmt = "SELECT * FROM tblData WHERE author = ?";
-            PreparedStatement stmt = conn.prepareStatement(getStmt);
-            stmt.setInt(1,uID);
-
-            ResultSet rs = stmt.executeQuery();
-            // iterate through the java ResultSet
-            while (rs.next()) {
-                // convert the RS to Data objects.
-                Datum currentDatum = new Datum();
-                currentDatum.index = rs.getInt("id");
-                currentDatum.title = rs.getString("title");
-                currentDatum.comment = rs.getString("comment");
-                currentDatum.numLikes = rs.getInt("numLikes");
-                currentDatum.uploadDate = sqlDateToJavaDate(rs.getTimestamp("uploadDate"));
-                currentDatum.lastLikeDate = sqlDateToJavaDate(rs.getTimestamp("lastLikeDate"));
-                currentDatum.author = rs.getInt("author");
-                authorResults.add(currentDatum);
-            }
-            stmt.close();
-        } catch (SQLException e) {
-            System.out.println("Error: query failed");
-            e.printStackTrace();
-        }
-        // Convert the array of results to a JSON string and return it
-        result += gson.toJson(authorResults);
-        return result;
+        return conn;
     }
 
-    //returns comment data from ID number
-    static Datum getComment(int commentID) {
-        Connection conn = null;
-
-        // Use these to connect to the database and issue commands
-        // Connect to the database; fail if we can't
-        try {
-            conn = getConnection();
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
-                return null;
-            }
-        } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getAllData");
-            e.printStackTrace();
-            return null;
-        } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
-            e.printStackTrace();
-            return null;
-        }
-
-        try {
-            String getStmt = "SELECT * FROM tblData WHERE id = ?";
-            PreparedStatement stmt = conn.prepareStatement(getStmt);
-
-            ResultSet rs = stmt.executeQuery();
-
-            d.index = rs.getInt("id");
-            d.title = rs.getString("title");
-            d.comment = rs.getString("comment");
-            d.numLikes = rs.getInt("numLikes");
-            d.uploadDate = sqlDateToJavaDate(rs.getTimestamp("uploadDate"));
-            d.lastLikeDate = sqlDateToJavaDate(rs.getTimestamp("lastLikeDate"));
-            d.author = rs.getInt("author");
-        } catch (SQLException e) {
-            System.out.println("Error: query failed");
-            e.printStackTrace();
-        }
-        return d;
-    }
     /**
-     * This insert takes a user from the frontend and adds it to the user database
-     * @param u User on frontend added to databse
-
+     * Check to see if all five expected tables exist. Used primarily for testing
+     * purposes.
+     *
+     * @return True if all tables found, false if any / all are missing.
      */
-    static String getAllData() {
-        // get the MYSQL configuration from the environment
-        Connection conn = null;
+    public boolean hasFoundTables() {
+        Connection conn = createConnection();
+        boolean retval = true;  // only changed if one is found to not exist
+        String[] tblNames = {"tbluser", "tblmessage", "tblcomments", "tbldownvotes", "tblupvotes"};
 
-
-
-        // Use these to connect to the database and issue commands
-        // Connect to the database; fail if we can't
         try {
-            // Open a connection, fail if we cannot get one
-            conn = getConnection();
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
-                return null;
+            // Loop through all tblNames provided above. Ensure that each returns true.
+            PreparedStatement stmt;
+            ResultSet rs;
+            String queryTemplate = "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = ?);";
+            for (String tblname : tblNames) {
+                stmt = conn.prepareStatement(queryTemplate);
+                stmt.setString(1,tblname);
+                rs = stmt.executeQuery();
+                while (rs.next()) {
+                    retval = rs.getBoolean("exists");
+                }
+                if (!retval)    break;
             }
-        } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getAllData");
+        }
+        catch (SQLException e) {
+            System.out.println("Error in tablesAreFound(): connections failed");
             e.printStackTrace();
-            return null;
-        } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
-            e.printStackTrace();
-            return null;
+            retval = false;
         }
 
-        String result = "";
-        // watch multiples
+        return retval;
+    }
+
+    /**
+     * Get all data from our database and returns it in JSON format.
+     * @return JSON object from SQL frontend
+     *
+     * DEPRECATED: Replaced for "gen 3" with new versions that depend on
+     *             which data is actually needed.
+     */
+    String getAllData() {
+        Connection conn = createConnection();
+
         ArrayList<Datum> results = new ArrayList<>();
         try {
             // get all data into a ResultSet
-            String getStmt = "SELECT * FROM tblData";
+            String getStmt = "SELECT * FROM tbldata";
             PreparedStatement stmt = conn.prepareStatement(getStmt);
 
             ResultSet rs = stmt.executeQuery();
@@ -461,61 +320,6 @@ public class App {
                 currentDatum.numLikes = rs.getInt("numLikes");
                 currentDatum.uploadDate = sqlDateToJavaDate(rs.getTimestamp("uploadDate"));
                 currentDatum.lastLikeDate = sqlDateToJavaDate(rs.getTimestamp("lastLikeDate"));
-                currentDatum.author = rs.getInt("author");
-                results.add(currentDatum);
-            }
-            stmt.close();
-            //conn.close();
-        } catch (SQLException e) {
-            System.out.println("Error: query failed");
-            e.printStackTrace();
-        // get the MYSQL configuration from the environment
-        Connection conn = null;
-
-
-
-        // Use these to connect to the database and issue commands
-        // Connect to the database; fail if we can't
-
-        // Use these to connect to the database and issue commands
-        // Connect to the database; fail if we can't
-        try {
-            // Open a connection, fail if we cannot get one
-            conn = getConnection();
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object in getAllData");
-                return null;
-            }
-        } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an SQL exception in getAllData");
-            e.printStackTrace();
-            return null;
-        } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
-            e.printStackTrace();
-            return null;
-        }
-
-        String result = "";
-        // watch multiples
-        ArrayList<Datum> results = new ArrayList<>();
-        try {
-            // get all data into a ResultSet
-            String getStmt = "SELECT * FROM tblData";
-            PreparedStatement stmt = conn.prepareStatement(getStmt);
-
-            ResultSet rs = stmt.executeQuery();
-            // iterate through the java ResultSet
-            while (rs.next()) {
-                // convert the RS to Data objects.
-                Datum currentDatum = new Datum();
-                currentDatum.index = rs.getInt("id");
-                currentDatum.title = rs.getString("title");
-                currentDatum.comment = rs.getString("comment");
-                currentDatum.numLikes = rs.getInt("numLikes");
-                currentDatum.uploadDate = sqlDateToJavaDate(rs.getTimestamp("uploadDate"));
-                currentDatum.lastLikeDate = sqlDateToJavaDate(rs.getTimestamp("lastLikeDate"));
-                currentDatum.author = rs.getInt("author");
                 results.add(currentDatum);
             }
             stmt.close();
@@ -525,47 +329,249 @@ public class App {
             e.printStackTrace();
         }
         // Convert the array of results to a JSON string and return it
-        result = gson.toJson(results);
+        String result = gson.toJson(results);
         return result;
     }
+
+    /**
+     * Method that collects all Messages from tblMessage and returns a JSON string with
+     * all its contents. Also collects all
+     *
+     * OBJECT PARAMS:
+     * int user_id;
+     * int message_id;
+     * String title;
+     * String body;
+     * java.util.Date uploadDate;
+     * String username;
+     * String realname;
+     * String email;
+     *
+     * @return  All Messages formatted as JSON string.
+     */
+    String getAllMessages() {
+        Connection conn = createConnection();
+        ArrayList<MessageObj> allMessages = new ArrayList<>();
+
+        try {
+            // Retrieve all contents from Message table:
+            PreparedStatement stmt = conn.prepareStatement("SELECT tblmessage.user_id," +
+                    "tblmessage.message_id, tblmessage.title, tblmessage.body, tblmessage.create_date, " +
+                    "tbluser.username, tbluser.realname, tbluser.email " +
+                    "FROM tblmessage INNER JOIN tbluser " +
+                    "ON tblmessage.user_id = tbluser.user_id ORDER BY message_id DESC;");
+            ResultSet rs = stmt.executeQuery();
+            // iterate through the java ResultSet
+
+            while (rs.next()) {
+                // convert the RS to MessageObj objects.
+                allMessages.add(new MessageObj(rs.getInt("user_id"),
+                        rs.getInt("message_id"), rs.getString("title"),
+                        rs.getString("body"),
+                        sqlDateToJavaDate(rs.getTimestamp("create_date")),
+                        rs.getString("username"), rs.getString("realname"),
+                        rs.getString("email")));
+            }
+            stmt.close();
+        }
+        catch (SQLException e) {
+            System.out.println("ERROR IN getAllMessages(): Unable to retrieve messages");
+            e.printStackTrace();
+        }
+
+        // Return properly formatted JSON string:
+        return gson.toJson(allMessages);
+    }
+
+    /**
+     * Method that collects all Comments from tblComment pertaining to a given message_id
+     * and returns a JSON string with all of the contents.
+     *
+     * OBJECT PARAMS:
+     * int user_id;
+     * int message_id;
+     * int comment_id;
+     * String comment_text;
+     * java.util.Date uploadDate;
+     * String username;
+     * String realname;
+     * String email;
+     *
+     * @return  All Comments formatted as JSON string.
+     */
+    String getAllComments(int givenMessage_id) {
+        Connection conn = createConnection();
+        ArrayList<CommentObj> allComments = new ArrayList<>();
+
+        try {
+            // Retrieve all contents from Comment table for specified message_id:
+            PreparedStatement stmt = conn.prepareStatement("SELECT tblcomments.comment_id, " +
+                    "tblcomments.user_id, tblcomments.comment_text, tblcomments.create_date, " +
+                    "tbluser.username, tbluser.realname, tbluser.email " +
+                    "FROM tblcomments INNER JOIN tbluser ON tblcomments.user_id = tbluser.user_id " +
+                    "WHERE message_id=?;");
+            stmt.setInt(1, givenMessage_id);
+            ResultSet rs = stmt.executeQuery();
+
+            // iterate through the java ResultSet
+            while (rs.next()) {
+                // convert the RS to MessageObj objects.
+                allComments.add(new CommentObj(rs.getInt("user_id"),
+                        givenMessage_id, rs.getInt("comment_id"),
+                        rs.getString("comment_text"),
+                        sqlDateToJavaDate(rs.getTimestamp("create_date")),
+                        rs.getString("username"), rs.getString("realname"),
+                        rs.getString("email")));
+            }
+            stmt.close();
+        }
+        catch (SQLException e) {
+            System.out.println("ERROR IN getAllComments(): Unable to retrieve comments for Message with id " + givenMessage_id + "!");
+            e.printStackTrace();
+        }
+
+        // Return properly formatted JSON string:
+        return gson.toJson(allComments);
+    }
+
+    /**
+     * Method that returns Message data with upvotes and downvotes for specified message_id.
+     *
+     * OBJECT STRUCTURE:
+     * int user_id;
+     * int message_id;
+     * String title;
+     * String body;
+     * java.util.Date uploadDate;
+     * String username;
+     * String realname;
+     * String email;
+     * int upvotes;
+     * int downvotes;
+     * int tot_votes;
+     *
+     * @return  Message data, num upvotes, and num downvotes formatted as JSON.
+     */
+    String getMessageContentAndVotes(int givenMessage_id) {
+        Connection conn = createConnection();
+        ArrayList<MessageContentObj> msgData = new ArrayList<>();
+
+        try {
+            // First retrieve details of message at givenMessage_id:
+            PreparedStatement stmt = conn.prepareStatement("SELECT tbluser.username, " +
+                    "tbluser.realname, tbluser.email, tblmessage.message_id, tblmessage.title, " +
+                    "tblmessage.body, tblmessage.create_date, tbluser.user_id " +
+                    "FROM tblmessage INNER JOIN tbluser ON tblmessage.user_id = tbluser.user_id " +
+                    "WHERE tblmessage.message_id = ?;");
+            stmt.setInt(1, givenMessage_id);
+            ResultSet rs = stmt.executeQuery();
+
+            // should only be one row but for now it's forgivable
+            int curUser_id = 0, curMessage_id = 0;
+            String curTitle = null, curBody = null, curUsername = null, curRealname = null, curEmail = null;
+            java.util.Date curCreate_date = new Date();
+            while (rs.next()) {
+                curUser_id = rs.getInt("user_id");
+                curMessage_id = rs.getInt("message_id");
+                curTitle = rs.getString("title");
+                curBody = rs.getString("body");
+                curCreate_date = sqlDateToJavaDate(rs.getTimestamp("create_date"));
+                curUsername = rs.getString("username");
+                curRealname = rs.getString("realname");
+                curEmail = rs.getString("email");
+            }
+
+            // Next get the total upvotes and downvotes:
+            int curUpvotes = 0, curDownvotes = 0;
+            PreparedStatement stmt2 = conn.prepareStatement("SELECT COUNT(*) AS totupvotes FROM tblupvotes WHERE message_id = ?;");
+            stmt2.setInt(1, givenMessage_id);
+            ResultSet rs2 = stmt2.executeQuery();
+            while (rs2.next()) {
+                curUpvotes = rs2.getInt("totupvotes");
+            }
+
+            PreparedStatement stmt3 = conn.prepareStatement("SELECT COUNT(*) AS totdownvotes FROM tbldownvotes WHERE message_id = ?;");
+            stmt3.setInt(1, givenMessage_id);
+            ResultSet rs3 = stmt3.executeQuery();
+            while (rs3.next()) {
+                curDownvotes = rs3.getInt("totdownvotes");
+            }
+
+            // Then create the new object and add it to the arraylist
+            msgData.add(new MessageContentObj(curUser_id, curMessage_id, curTitle, curBody, curCreate_date,
+                    curUsername, curRealname, curEmail, curUpvotes, curDownvotes, curUpvotes - curDownvotes));
+
+            stmt.close();
+            stmt2.close();
+            stmt3.close();
+        }
+        catch (SQLException e) {
+            System.out.println("ERROR IN getAllContentAndVotes(): Unable to retrieve Message with id " + givenMessage_id + "!");
+            e.printStackTrace();
+        }
+
+        // Return properly formatted JSON string:
+        return gson.toJson(msgData);
+    }
+
+    /**
+     * Method that takes in a user_id and returns all user data pertaining to that user. Doesn't
+     * include posts & comments, this will be done in a separate method. Intended to be called by a
+     * method that combine the two and output into a JSON format for frontend to use.
+     *
+     * UserObj:
+     * int user_id;
+     * String username;
+     * String realname;
+     * String email;
+     *
+     * @return Properly formatted JSON string with user data.
+     */
+    String getUserData(int givenUser_id) {
+        Connection conn = createConnection();
+        ArrayList<UserObj> userData = new ArrayList<>();
+
+        try {
+            // Retrieve all userdata for as at givenUser_id:
+            PreparedStatement stmt = conn.prepareStatement("SELECT * FROM tbluser WHERE user_id = ?;");
+            stmt.setInt(1,givenUser_id);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                userData.add(new UserObj(givenUser_id, rs.getString("username"),
+                        rs.getString("realname"), rs.getString("email")));
+            }
+        }
+        catch (SQLException e) {
+            System.out.println("ERROR IN getUserData(): Unable to retrieve comments for Message with id " + givenUser_id + "!");
+            e.printStackTrace();
+        }
+
+        // Return properly formatted JSON string:
+        return gson.toJson(userData);
+    }
+
 
     /**
      * This insert takes new data from the frontend sever and adds it into the datum database
      * @param   d   A Datum object retrieved by and built through Spark framework
      * @return command telling server if addition was a success or not
+     *
+     * DEPRECATED: Replaced by inserts for the new multi-table POSTGRES schema.
      */
-    static String insertDatum(Datum d) {
-        // get the MYSQL configuration from the environment
-        Connection conn = null;
+    String insertDatum(Datum d) {
+        Connection conn = createConnection();
 
-        // Use these to connect to the database and issue commands
-        // Connect to the database; fail if we can't
-        //System.out.println("Connecting to " + ip + ":" + port + "/" + db);
-        try {
-            // Open a connection, fail if we cannot get one
-            conn = getConnection();
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object");
-                return null;
-            }
-        } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception in insertDatum");
-            e.printStackTrace();
-            return null;
-        }
         // Only insert if whole datum is not null
         if (d != null && d.title != null && d.comment != null && d.numLikes == 0 && d.uploadDate != null && d.lastLikeDate != null) {
             try {
                 //  (id, title, comment, numLikes, uploadDate, lastLikeDate)
-                String insertStmt = "INSERT INTO tblData VALUES (default, ?, ?, ?, ?, ?, ?)";
+                String insertStmt = "INSERT INTO tbldata VALUES (default, ?, ?, ?, ?, ?);";
                 PreparedStatement stmt = conn.prepareStatement(insertStmt);
                 stmt.setString(1,d.title);
                 stmt.setString(2,d.comment);
                 stmt.setInt(3,d.numLikes);
                 stmt.setTimestamp(4,javaDateToSqlDate(d.uploadDate));
                 stmt.setTimestamp(5,javaDateToSqlDate(d.lastLikeDate));
-                int idx = getUserID(d.userName);
-                stmt.setInt(6,idx);
                 stmt.executeUpdate();
                 stmt.close();
             } catch (SQLException e) {
@@ -579,45 +585,166 @@ public class App {
     }
 
     /**
-     * Execute an UPDATE query to modify contents of both upvote tables. Done by passing a boolean isLiked to indicate
+     * Method that takes in a new user object and adds it into the database. (NOTE: Building this into
+     * the main App for now because I'm creating this just so I can build the frontend. Configuration
+     * shouldn't have to be changed much after this, but for now, I'd like it to all be convenient to find.)
+     * @param uo    A passed-in UserObj from the frontend.
+     * @return      Either good or bad response to frontend.
+     */
+    String insertUser(UserObj uo) {
+        Connection conn = createConnection();
+
+        // Only insert if whole UserObj is not null
+        if (uo != null && uo.username != null && uo.realname != null && uo.email != null) {
+            try {
+                //  (user_id, username, realname, email)
+                String insertStmt = "INSERT INTO tbluser VALUES (default, ?, ?, ?);";
+                PreparedStatement stmt = conn.prepareStatement(insertStmt);
+                stmt.setString(1,uo.username);
+                stmt.setString(2,uo.realname);
+                stmt.setString(3,uo.email);
+                stmt.executeUpdate();
+                stmt.close();
+            }
+            catch (SQLException e) {
+                System.out.println("Error in insertUser(): user insertion failed");
+                e.printStackTrace();
+                return badData;
+            }
+            return goodData;
+        }
+        else {
+            return badData;
+        }
+    }
+
+    /**
+     * Method that takes in a new message object and adds it into the database. (NOTE: Building this into
+     * the main App for now because I'm creating this just so I can build the frontend. Configuration
+     * shouldn't have to be changed much after this, but for now, I'd like it to all be convenient to find.)
+     * @param mo    A passed-in MessageObj from the frontend.
+     * @return      Either good or bad response to frontend.
+     */
+    String insertMessage(MessageObj mo) {
+        Connection conn = createConnection();
+
+        // Only insert if relevant parts of MessageObj are not null
+        if (mo != null && mo.user_id > -1 && mo.title != null && mo.body != null) {
+            try {
+                //  ((message_id, user_id, title, body, create_date)
+                String insertStmt = "INSERT INTO tblmessage VALUES (default, ?, ?, ?, default);";
+                PreparedStatement stmt = conn.prepareStatement(insertStmt);
+                stmt.setInt(1,mo.user_id);
+                stmt.setString(2,mo.title);
+                stmt.setString(3,mo.body);
+                stmt.executeUpdate();
+                stmt.close();
+            }
+            catch (SQLException e) {
+                System.out.println("Error in insertMessage(): message insertion failed");
+                e.printStackTrace();
+                return badData;
+            }
+            return goodData;
+        }
+        else {
+            return badData;
+        }
+    }
+
+
+    /**
+     * Method that takes in a new comment object and adds it into the database. (NOTE: Building this into
+     * the main App for now because I'm creating this just so I can build the frontend. Configuration
+     * shouldn't have to be changed much after this, but for now, I'd like it to all be convenient to find.)
+     * @param co    A passed-in CommentObj from the frontend.
+     * @return      Either good or bad response to frontend.
+     */
+    String insertComment(CommentObj co) {
+        Connection conn = createConnection();
+
+        // Only insert if relevant parts of MessageObj are not null
+        if (co != null && co.user_id > -1 && co.message_id > -1 && co.comment_text != null) {
+            try {
+                //  (comment_id, user_id, message_id, comment_text, create_date)
+                String insertStmt = "INSERT INTO tblcomments VALUES (default, ?, ?, ?, default);";
+                PreparedStatement stmt = conn.prepareStatement(insertStmt);
+                stmt.setInt(1,co.user_id);
+                stmt.setInt(2,co.message_id);
+                stmt.setString(3,co.comment_text);
+                stmt.executeUpdate();
+                stmt.close();
+            }
+            catch (SQLException e) {
+                System.out.println("Error in insertComment(): comment insertion failed");
+                e.printStackTrace();
+                return badData;
+            }
+            return goodData;
+        }
+        else {
+            return badData;
+        }
+    }
+
+    /**
+     * Method that takes in a new VoteObj object and adds it into the database. (NOTE: Building this into
+     * the main App for now because I'm creating this just so I can build the frontend. Configuration
+     * shouldn't have to be changed much after this, but for now, I'd like it to all be convenient to find.)
+     * @param vo    A passed-in VoteObj from the frontend.
+     * @param ud    Boolean where true == upvote, false == downvote.
+     * @return      Either good or bad response to frontend.
+     */
+    String insertUpDownVote(VoteObj vo, boolean ud) {
+        Connection conn = createConnection();
+        String insertStmt;
+
+        // Determine if up/down vote (upvote will be true, downvote will be false):
+        if (ud)     insertStmt = "INSERT INTO tblupvotes VALUES (?,?);";
+        else        insertStmt = "INSERT INTO tbldownvotes VALUES (?,?);";
+
+        if (vo != null && vo.message_id > -1 && vo.user_id > -1) {
+            try {
+                //  (user_id, message_id)
+                PreparedStatement stmt = conn.prepareStatement(insertStmt);
+                stmt.setInt(1,vo.user_id);
+                stmt.setInt(2,vo.message_id);
+                stmt.executeUpdate();
+                stmt.close();
+            }
+            catch (SQLException e) {
+                System.out.println("Error in insertUpDownVote(): vote insertion failed");
+                e.printStackTrace();
+                return badData;
+            }
+            return goodData;
+        }
+        else {
+            return badData;
+        }
+    }
+
+    /**
+     * Execute an UPDATE query to modify table contents. Done by passing a boolean isLiked to indicate
      * whether it's a LIKE or DISLIKE.
      * @param   idNum               This is the index of the values to change.
      * @param   numLikes            This is the original number of likes.
      * @param   newLastLikeDate     This is the value to update time of last like/dislike.
      * @param   isLiked             If true, it's a LIKE. If false, it's a DISLIKE.
+     * DEPRECATED: Refer to insertUpDownVote() instead for proper POSTGRESQL syntax.
+     * Also, let's be honest: this method is TRASH.
      */
-    static void updateLike(int idNum, int numLikes, Date newLastLikeDate, Boolean isLiked) {
-        // get the MYSQL configuration from the environment
-        Connection conn = null;
+    void updateLike(int idNum, int numLikes, Date newLastLikeDate, Boolean isLiked) {
+        Connection conn = createConnection();
+
         int newNumLikes = 0;
 
         // Check if it's like/dislike and change numLikes accordingly.
-        if (isLiked)
-        {
-            newNumLikes = ++numLikes;
-        }
-        else
-        {
-            newNumLikes = --numLikes;
-        }
+        if (isLiked)    newNumLikes = ++numLikes;
+        else            newNumLikes = --numLikes;
 
         try {
-            // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" +          // HERE IS WHERE WE CONNECT
-                    port + "/" + db, user, pass);
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object");
-                return null;
-            }
-        } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception in updateLike");
-            e.printStackTrace();
-            return null;
-        }
-
-        // add vote to voteTbl
-        try {
-            String updateStmt = "UPDATE tblData SET numLikes = ?, lastLikeDate = ? WHERE id = ?";
+            String updateStmt = "UPDATE tbldata SET numLikes = ?, lastLikeDate = ? WHERE id = ?";
             PreparedStatement stmt = conn.prepareStatement(updateStmt);
             stmt.setInt(1, newNumLikes);
             stmt.setTimestamp(2, javaDateToSqlDate(newLastLikeDate));
@@ -636,55 +763,43 @@ public class App {
      * Constructs an App object which creates a new Database and Gson Object to be used later by the different routes
      * This object is used to store the Database for each instance.
      */
-
-    /**
-     * This method runs a command that drops the database tblData. Made private to ensure "adversaries"
-        }
+    public App() {
+        createDB();
+        gson = new Gson();
     }
 
-
-
+    public App(boolean needDrop) {
+        if (needDrop) {
+            dropDB();
+        }
+        createDB();
+        gson = new Gson();
+    }
 
     /**
-     * Constructs an App object which creates a new Database and Gson Object to be used later by the different routes
-     * This object is used to store the Database for each instance.
-     */
-
-    /**
-     * This method runs a command that drops the database tblData. Made private to ensure "adversaries"
-     * can't access it since it is highly dangerous in the wrong hands. Called within createDB() to ensure
-     * that our Docker instance is cleared. Especially useful for tests.
+     * This method runs a command that drops all of the used tables in mydb.
      */
     private static void dropDB() {
-        Connection conn = null;
+        Connection conn = createConnection();
 
-        // Connect to the database; fail if we can't
         try {
-            // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" +
-                    port + "/" + db, user, pass);
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object in createDB");
-                return;
-            }
-        } catch (SQLException e) {
-            System.out.println("Error: getConnection in createDB threw an exception");
-            e.printStackTrace();
-            return;
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return;
-        }
-
-
-
-        System.out.println("Got to dropDB() and about to create PS");
-        try {
-            PreparedStatement stmt = null;
-            String createStatement = "DROP TABLE IF EXISTS tblData";
-            stmt = conn.prepareStatement(createStatement);
+            // DROP ALL TABLES! IF THEY EXIST.
+            PreparedStatement stmt, stmt2, stmt3, stmt4, stmt5;
+            stmt = conn.prepareStatement("DROP TABLE IF EXISTS tbluser CASCADE");
             stmt.execute();
             stmt.close();
+            stmt2 = conn.prepareStatement("DROP TABLE IF EXISTS tblmessage CASCADE");
+            stmt2.execute();
+            stmt2.close();
+            stmt3 = conn.prepareStatement("DROP TABLE IF EXISTS tblcomments CASCADE");
+            stmt3.execute();
+            stmt3.close();
+            stmt4 = conn.prepareStatement("DROP TABLE IF EXISTS tbldownvotes CASCADE");
+            stmt4.execute();
+            stmt4.close();
+            stmt5 = conn.prepareStatement("DROP TABLE IF EXISTS tblupvotes CASCADE");
+            stmt5.execute();
+            stmt5.close();
         } catch (SQLException e) {
             System.out.println("Error: droptable error");
             e.printStackTrace();
@@ -692,64 +807,88 @@ public class App {
         }
     }
 
-
-
-
     /**
      * This method actually creates the database in Docker that is used to store values passed from
      * MySQL commands.
      */
     public void createDB() {
-        // Quickly make sure to drop table if exists. Used primarily for ease of testing.
-        // NOTE: This only works at the beginning of this because we create a new App object each time
-        // we need this connection. MAIN only uses one instance of App, so it won't accidentally delete.
-        dropDB();
+        Connection conn = createConnection();
 
-        Connection conn = null;
+        PreparedStatement createTblUser, createTblMessage, createTblComments, createTblDownVotes, createTblUpVotes;
 
-        // Connect to the database; fail if we can't
+        // MAJOR PROBLEM HERE WAS SYNTAX. Needed to primarily update variable types, as expected.
         try {
-            // Open a connection, fail if we cannot get one
-            conn = DriverManager.getConnection("jdbc:postgresql://" + ip + ":" +
-                    port + "/" + db, user, pass);
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object in createDB");
-                return;
-            }
+            // Create tblUser
+            createTblUser = conn.prepareStatement("CREATE TABLE IF NOT EXISTS tblUser (" +
+                    "user_id SERIAL PRIMARY KEY," +
+                    "username VARCHAR(255)," +
+                    "realname VARCHAR(255)," +
+                    "email VARCHAR(255)" +
+                    ");");
+            createTblUser.executeUpdate();
+            createTblUser.close();
+            //System.out.println("DEBUG:: Created tblUser");
+
+            // Create tblMessage
+            createTblMessage = conn.prepareStatement("CREATE TABLE IF NOT EXISTS tblMessage (" +
+                    "message_id SERIAL PRIMARY KEY," +
+                    "user_id INTEGER, title VARCHAR(50)," +
+                    "body VARCHAR(140)," +
+                    "create_date TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc')," +
+                    "FOREIGN KEY (user_id) REFERENCES tblUser (user_id)" +
+                    ");");
+            createTblMessage.executeUpdate();
+            createTblMessage.close();
+            //System.out.println("DEBUG:: Created tblMessage");
+
+            // Create tblComments
+            createTblComments = conn.prepareStatement("CREATE TABLE IF NOT EXISTS tblComments (" +
+                    "comment_id SERIAL PRIMARY KEY," +
+                    "user_id INTEGER," +
+                    "message_id INTEGER," +
+                    "comment_text VARCHAR(255)," +
+                    "create_date TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc')," +
+                    "FOREIGN KEY (user_id) REFERENCES tblUser (user_id)," +
+                    "FOREIGN KEY (message_id) REFERENCES tblMessage (message_id)" +
+                    ");");
+            createTblComments.executeUpdate();
+            createTblComments.close();
+            //System.out.println("DEBUG:: Created tblComments");
+
+            // Create tblDownVotes
+            createTblDownVotes = conn.prepareStatement("CREATE TABLE IF NOT EXISTS tblDownVotes (" +
+                    "user_id INTEGER," +
+                    "message_id INTEGER," +
+                    "FOREIGN KEY (user_id) REFERENCES tblUser (user_id)," +
+                    "FOREIGN KEY (message_id) REFERENCES tblMessage (message_id)," +
+                    "PRIMARY KEY (user_id, message_id)" +
+                    ");");
+            createTblDownVotes.executeUpdate();
+            createTblDownVotes.close();
+            //System.out.println("DEBUG:: Created tblDownVotes");
+
+            // Create tblUpVotes
+            createTblUpVotes = conn.prepareStatement("CREATE TABLE IF NOT EXISTS tblUpVotes (" +
+                    "user_id INTEGER," +
+                    "message_id INTEGER," +
+                    "FOREIGN KEY (user_id) REFERENCES tblUser (user_id)," +
+                    "FOREIGN KEY (message_id) REFERENCES tblMessage (message_id)," +
+                    "PRIMARY KEY (user_id, message_id)" +
+                    ");");
+            createTblUpVotes.executeUpdate();
+            createTblUpVotes.close();
+            //System.out.println("DEBUG:: Created tblUpVotes");
+
+            //conn.close();
         } catch (SQLException e) {
-            System.out.println("Error: getConnection in createDB threw an exception");
+            // Should we handle this in a better way?
+            System.out.println("ERROR in createDB(): table(s) failed to be created");
             e.printStackTrace();
-            return;
-        }
-        // Create a table to store data.  It matches the 'Datum' type from the
-        // previous tutorial.
-
-        PreparedStatement stmt;
-       PreparedStatement stmt5;
-       String createStatement = "CREATE TABLE IF NOT EXISTS tblData (id SERIAL NOT NULL, title VARCHAR(200), comment VARCHAR(200), numLikes INTEGER NOT NULL, uploadDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, lastLikeDate TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(id));";
-
-        try {
-            stmt5 = conn.prepareStatement(createStatement);
-            stmt5.executeUpdate();
-            stmt5.close();
-            System.out.println("stmt.execute worked. table created");
-            //conn.close();
-        } catch (SQLException e) {
-            // Should we handle this in a better way?
-            System.out.println("Table not created (it may already exist)");
+            System.exit(-1);
         }
 
-
-        String createUser="CREATE TABLE IF NOT EXISTS tblUser (user_id SERIAL PRIMARY KEY, username VARCHAR (255), realname VARCHAR (255), email VARCHAR(255));";
-        try {
-            stmt = conn.prepareStatement(createStatement);
-            stmt.execute();
-            stmt.close();
-            //conn.close();
-        } catch (SQLException e) {
-            // Should we handle this in a better way?
-            System.out.println("Table not created (it may already exist)");
-        }
+        //System.out.println("DEBUG:: All tables created; now exiting.");
+        //System.exit(0);
     }
 
     /**
@@ -775,105 +914,126 @@ public class App {
         return curCal.getTime();
     }
 
-    // returns true if the user token matches the most recent token paired with that user name
-    public static boolean validateUserToken(String uT, String uN){
-        Connection conn = null;
-
-        // Connect to the database; fail if we can't
-        try {
-            // Open a connection, fail if we cannot get one
-            conn = getConnection();
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object in createDB");
-                return false;
-            }
-        } catch (SQLException e) {
-            System.out.println("Error: getConnection in createDB threw an exception");
-            e.printStackTrace();
-            return false;
-        } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
-            e.printStackTrace();
-            return false;
+    /**
+     * Method that attempts to log a user in regardless of prior existence in DB and on site.
+     * @param username  Given username.
+     * @param password  Given password.
+     * @return          Secret_key as JSON if successful, badData if unsuccessful.
+     */
+    public String login(String username, String password) {
+        // FIRST, DO OAUTH VALIDATION
+        String apiKey = oValidate(username, password);
+        if (apiKey != null) {
+            // IF OAUTH VALIDATES CORRECTLY, CALL ADDUSER() TO HANDLE LOGIN
+            int sK = addUser(username, apiKey);
+            return "{\"username\":\"" + username + "\",\"secret_key\":" + sK + "}";
         }
-
-        try {
-            //get username from user data table
-            String getStmt = "SELECT userName FROM userData WHERE userToken = ?";
-            PreparedStatement stmt = conn.prepareStatement(getStmt);
-            stmt.setString(1, uT);
-
-            ResultSet rs = stmt.executeQuery();
-            // iterate through the java ResultSet
-            while (rs.next()) {
-                //get username, if any, that matches the user token in the table
-                String uTCheck = rs.getString("userName");
-                if (uTCheck.equals(uN)){
-                    return true;
-                }
-            }
-            stmt.close();
-            //conn.close();
-        } catch (SQLException e) {
-            System.out.println("Error: query failed");
-            e.printStackTrace();
-        }
-        return false;
-    }
-
-    // adds user's sign up info to possible user table. This table includes their desired UN, their email, and
-    // a boolean that indicates if their sign up data has been read by the admin app, set to false.
-    // returns good data if everything is not null, or bad data if something is null.
-    static String signUpUser(signDatum d) {
-        // get the MYSQL configuration from the environment
-        Connection conn = null;
-
-        // Use these to connect to the database and issue commands
-        // Connect to the database; fail if we can't
-        //System.out.println("Connecting to " + ip + ":" + port + "/" + db);
-        try {
-            // Open a connection, fail if we cannot get one
-            conn = getConnection();
-            if (conn == null) {
-                System.out.println("Error: getConnection returned null object");
-                return null;
-            }
-        } catch (SQLException e) {
-            System.out.println("Error: getConnection threw an exception in insertDatum");
-            e.printStackTrace();
-            return null;
-        } catch (URISyntaxException e) {
-            System.out.println("Error: getConnection threw a URI Syntax exception in getAllData");
-            e.printStackTrace();
-            return null;
-        }
-        // Only insert if whole datum is not null
-        if (d != null && d.userName != null && d.eMail != null) {
-            try {
-                //  (id, title, comment, numLikes, uploadDate, lastLikeDate)
-                String insertStmt = "INSERT INTO pUserData VALUES (default, ?, ?, ?)";
-                PreparedStatement stmt = conn.prepareStatement(insertStmt);
-                stmt.setString(1,d.userName);
-                stmt.setString(2,d.eMail);
-                stmt.setBoolean(3,false);
-                stmt.executeUpdate();
-                stmt.close();
-            } catch (SQLException e) {
-                System.out.println("Error: insertion failed");
-                e.printStackTrace();
-            }
-            return goodData;
-        } else {
+        else {
+            // IF OAUTH VALIDATION FAILS, RETURN BADDATA
             return badData;
         }
     }
+
+    /**
+     * Method that performs OAuth validation. If it receives any API code from OAuth, return
+     * true. Else, return false.
+     * @param username  Given username.
+     * @param password  Given password.
+     * @return          API key if successful, null if unsuccessful.
+     * TODO: Use actual OAuth validation in this method, aka Phase 3.
+     */
+    public static String oValidate(String username, String password) {
+        if (username != null && password != null)   return "oauth_api_key";
+        else                                        return null;
+    }
+
+    /**
+     * Method that logs in user after OAuth validation succeeds. Uses username,
+     * api key, and current date to build a secret key to add to hashmap and insertUser()
+     * if need be. To be called only after validation by login() method.
+     * @param username  Given username.
+     * @param apiKey    Given API key.
+     * @return          Secret key.
+     */
+    public int addUser(String username, String apiKey) {
+        // Create hashcode int (to serve as secret key)
+        Date curDate = new Date();
+        String toHash = username + apiKey + curDate.toString();
+        int hashCode = toHash.hashCode();
+        hashtable.put(username, hashCode);
+        int inTable = 0;
+
+        // Check to see if user exists in the table; add if doesn't exist.
+        Connection conn = createConnection();
+        try {
+            PreparedStatement ps = conn.prepareStatement("SELECT COUNT(*) AS intable FROM tbluser WHERE username = ?;");
+            ps.setString(1,username);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                inTable = rs.getInt("intable");
+            }
+            // Means that user isn't in table; needs to be added. Otherwise, in table.
+            if (inTable == 0) {
+                // TODO: Using OAuth, we should be able to retrieve realname for the user.
+                this.insertUser(new UserObj(username, username, username + "@lehigh.edu"));
+            }
+        }
+        catch (SQLException e) {
+            System.out.println("ERROR IN addUser(): failed to query for if user in table");
+            e.printStackTrace();
+        }
+
+        return hashCode;
+    }
+
+    /**
+     * Method that validates a username + secret key before allowing a user to proceed with any
+     * non-login action. Should be called before any route call in main() below.
+     * @param username  Given username.
+     * @param secretKey Given secret key.
+     * @return          True if validation is successful, false if validation fails.
+     */
+    public static boolean validateAction(String username, int secretKey) {
+        // Successful validation case
+        if (hashtable.containsKey(username) && hashtable.get(username) == secretKey) return true;
+        else                                      return false;
+    }
+
+    public static boolean validateAction(UserStateObj uso) {
+        // Successful validation case
+        if (hashtable.containsKey(uso.username) && hashtable.get(uso.username) == uso.secret_key) return true;
+        else                                      return false;
+    }
+
+    /**
+     * Method that logs a user out. Maybe should be called regardless of success of secret key? If it's
+     * invalid, then shouldn't a user not be logged in? Or would this just be an opportunity for trolls?
+     * For the moment however, only logout if secret key is true, may change later.
+     */
+    public String logout(String username, int secretKey) {
+        if (validateAction(username, secretKey)) {
+            hashtable.remove(username);
+            return goodData;
+        }
+        else return badData;
+    }
+
     /**
      * Main method which holds all get and post routes for updating and sending the database to the server.
      * Each route is formed as a lambda function which returns a GSON object to be passed.
      * @param args  Standard Java main class argument.
      */
-    public static void main( String[] args ) {
-        // Set up static file service WHAT IS THE HIERARCHY HERE
+    public static void main(String[] args) {
+        // "Do this early in your main -- Prof"
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            System.err.println("ERROR IN main(): Driver not found");
+            e.printStackTrace();
+            System.exit(-1);
+        }
+
+        App app = new App(true);
         staticFileLocation(sFileLocation);
 
         // GET '/' returns the index page
@@ -883,56 +1043,128 @@ public class App {
             return "";
         });
 
-        // GET '/data' returns a JSON string with all of the data in
-        // the MySQL database.
+        // GET '/data' returns a JSON string with all of the data in the POSTGRES db.
         get("/data", (req, res) -> {
-            String result = getAllData();
-            // send a JSON object back
+            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
+                return badData;
+            }
+            else {
+                String result = app.getAllMessages();
+                res.status(200);
+                res.type("application/json");
+                return result;
+            }
+        });
+
+        // POST a new item into the db
+        post("/data", (req, res) -> {
+            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
+                return badData;
+            }
+            else {
+                MessageObj mo = app.gson.fromJson(req.body(), MessageObj.class);
+                String result = app.insertMessage(mo);
+                res.status(200);
+                res.type("application/json");
+                return result;
+            }
+        });
+
+        // POST a new +vote into db
+        post("/data/vote/up", (req, res) -> {
+            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
+                return badData;
+            }
+            else {
+                VoteObj vo = app.gson.fromJson(req.body(), VoteObj.class);
+                String result = app.insertUpDownVote(vo,true);
+                res.status(200);
+                res.type("application/json");
+                return result;
+            }
+        });
+
+        // POST a new -vote into db
+        post("/data/vote/down", (req, res) -> {
+            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
+                return badData;
+            }
+            else {
+                VoteObj vo = app.gson.fromJson(req.body(), VoteObj.class);
+                String result = app.insertUpDownVote(vo,false);
+                res.status(200);
+                res.type("application/json");
+                return result;
+            }
+        });
+
+        // PHASE 2 ROUTES (written by Alex Van Heest):
+
+        // GET message and votes for one page
+        // TODO: Add the Comments section.
+        get("/data/message/:id", (req,res) -> {
+            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
+                return badData;
+            }
+            else {
+                int idx = Integer.parseInt(req.params("id"));
+                String result = app.getMessageContentAndVotes(idx);
+                res.status(200);
+                res.type("application/json");
+                return result;
+            }
+        });
+
+        // POST a comment for a given message
+        post("/data/message/comment/:id", (req,res) -> {
+            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
+                return badData;
+            }
+            else {
+                CommentObj co = app.gson.fromJson(req.body(), CommentObj.class);
+                String result = app.insertComment(co);
+                res.status(200);
+                res.type("application/json");
+                return result;
+            }
+        });
+
+        // GET userdata for a given profile page
+        get("/user/:id", (req,res) -> {
+            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
+                return badData;
+            }
+            else {
+                int idx = Integer.parseInt(req.params("id"));
+                String result = app.getUserData(idx);
+                // TBD: Get all comments and messages as well!
+                res.status(200);
+                res.type("application/json");
+                return result;
+            }
+        });
+
+        post("/login", (req,res) -> {
+            LoginObj lo = app.gson.fromJson(req.body(), LoginObj.class);
+            String result = app.login(lo.username, lo.password);
+            //System.out.println(result);
             res.status(200);
             res.type("application/json");
             return result;
         });
 
-       /* // POST a new item into the messsage database-make a new message
-        post("/data", (req, res) -> {
-            // Try to create a Datum from the request object
-            Datum d = gson.fromJson(req.body(), Datum.class);
-            if (validateUserToken(d.userToken, d.userName)){
-                String result = insertDatum(d);
+        get("/logout", (req,res) -> {
+            String un = req.cookie("user");
+            int us = Integer.parseInt(req.cookie("session"));
+            if (!validateAction(un, us)) {
+                return badData;
+            }
+            else {
+                String result = app.logout(un, us);
                 res.status(200);
                 res.type("application/json");
                 return result;
-            }else{
-                res.status(417);
-                res.type("application/json");
-                return null;
             }
         });
-
-    }
-}
-
-
-
-/*
-
-        // Route for RECORDING A LIKE. ":id" is used for getting index,
-        // NEW DATUM IS IDENTICAL FOR EVERYTHING EXCEPT LIKE AND LLDATE
-        post("upvote", (req, res) -> {
-            // Call the update method above with the new datum object
-            Vote v=app.gson.fromJson(req.body(), Vote.class);
-            int message_id = Integer.parseInt(req.params("message_id"));
-            int user_id=Integer.parseInt(req.params(user_id));
-            app.updateLike(int messageId, int userId, Boolean isLiked, int numLikes);
-            return goodData;
-        });
-
-        // Route for RECORDING A DISLIKE. ":id" is used for getting index,
-        // NEW DATUM IS IDENTICAL to like but decrements numlikes instead of incrementing it
-        post("/data/like/down/:id", (req, res) -> {
-            // Call the update method above with the new datum object
-        });
-
-
     }
 }
