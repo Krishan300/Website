@@ -14,8 +14,8 @@ import java.util.Hashtable;
 import java.security.MessageDigest;
 
 /**
- * @author Alex Van Heest (created for reasons of testing Phase 3 frontend)
- * @version 1.2.1
+ * @author Alex Van Heest (built from experimental build needed to test frontend during phase 3)
+ * @version 1.4
  */
 
 
@@ -1024,7 +1024,7 @@ public class App {
      * @param args  Standard Java main class argument.
      */
     public static void main(String[] args) {
-        // "Do this early in your main -- Prof"
+        // "Do this early in your main" -- Prof
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
