@@ -3,11 +3,15 @@ package backend.luna.lehigh.edu;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+
+import java.io.IOException;
+import java.util.Base64;
 import java.util.Date;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
 import java.lang.*;
+import java.io.File;
 
 /**
  * Unit test for simple App. Updated by Alex Van Heest to work with POSTGRESQL.
@@ -229,5 +233,27 @@ public class AppTest extends TestCase
         // fails after we're sure it's removed from the hashmap.
         assertEquals(App.hashtable.containsKey(username), false);
         assertEquals(App.validateAction(uso), false);
+    }
+
+    /**
+     * Tests whether saveFileToGDrive(File fileobj) works.
+     */
+//    public void testSaveFileToGDrive() {
+//        App app = new App(true);
+//        assertEquals(app.saveFileToGDrive(new File("~/Desktop/somefile.txt")), "DRIVE.FILE.LOCATION.COM/newfile.txt");
+//    }
+
+    /**
+     * Tests whether saveFileToGDrive(String filecontents) works
+     */
+    public void testSaveFileToGDriveString() {
+        App app = new App(true);
+
+        app.insertUser(new UserObj("ajv218", "Alex V", "ajv218@lehigh.edu"));
+
+        byte[] ba = Base64.getEncoder().encode("Test".getBytes());
+        MessageObj mo = new MessageObj(1, 1, "Alexs Message", "Body of Alexs message", new Date(), "ajv218", "Alex V", "ajv218@lehigh.edu", ba);
+        String retval = app.insertMessage(mo);
+        assertEquals(goodData,retval);
     }
 }

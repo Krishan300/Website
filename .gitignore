@@ -5,3 +5,5 @@ phase1-backend/phase1-backend.iml
 phase1-android/.idea
 phase1-android/.idea/misc.xml
 phase1-android/build/android-profile
+phase1-backend/src/main/resources/secret/
+phase1-backend/src/main/resources/files/

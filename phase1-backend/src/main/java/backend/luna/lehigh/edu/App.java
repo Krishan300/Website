@@ -1,9 +1,13 @@
 package backend.luna.lehigh.edu;
 
 import static spark.Spark.*;
+
+import com.google.api.client.http.FileContent;
 import com.google.gson.*;
 
 import javax.xml.transform.Result;
+import java.io.*;
+import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
@@ -12,6 +16,24 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.security.MessageDigest;
+
+import java.util.Arrays;
+import java.util.List;
+
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.*;
+import com.google.api.services.drive.Drive;
+import java.util.Base64;
 
 /**
  * @author Alex Van Heest (built from experimental build needed to test frontend during phase 3)
@@ -69,6 +91,8 @@ class MessageObj {
     String username;
     String realname;
     String email;
+    byte[] filecontent;
+
 
     public MessageObj (int Guser_id, int Gmessage_id, String Gtitle, String Gbody, java.util.Date GuploadDate,
                        String Gusername, String Grealname, String Gemail) {
@@ -80,6 +104,24 @@ class MessageObj {
         username = Gusername;
         realname = Grealname;
         email = Gemail;
+    }
+
+    public MessageObj (int Guser_id, int Gmessage_id, String Gtitle, String Gbody, java.util.Date GuploadDate,
+                       String Gusername, String Grealname, String Gemail, byte[] Gfilecontent) {
+        user_id = Guser_id;
+        message_id = Gmessage_id;
+        title = Gtitle;
+        body = Gbody;
+        uploadDate = GuploadDate;
+        username = Gusername;
+        realname = Grealname;
+        email = Gemail;
+        if (Gfilecontent != null && Gfilecontent.length != 0) {
+            filecontent = Gfilecontent.clone();
+        }
+        else {
+            filecontent = null;
+        }
     }
 
     public MessageObj (int Guser_id, String Gtitle, String Gbody) {
@@ -194,6 +236,85 @@ class LoginObj {
     public LoginObj (String Gusername, String Gpassword) {
         username = Gusername;
         password = Gpassword;
+    }
+}
+
+/**
+ * Quickstart - a class retrieved from Google's quickstart guide to help establish connection
+ * to Google account.
+ */
+class Quickstart {
+    private static final String APPLICATION_NAME = "Drive API Java Quickstart";
+
+    /**
+     * Directory to store user credentials for this application.
+     */
+    private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/drive-java-quickstart");
+
+    /**
+     * Global instance of the {@link FileDataStoreFactory}.
+     */
+    private static FileDataStoreFactory DATA_STORE_FACTORY;
+
+    /**
+     * Global instance of the JSON factory.
+     */
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+
+    /**
+     * Global instance of the HTTP transport.
+     */
+    private static HttpTransport HTTP_TRANSPORT;
+
+    /**
+     * Global instance of the scopes required by this quickstart.
+     * <p>
+     * If modifying these scopes, delete your previously saved credentials
+     * at ~/.credentials/drive-java-quickstart
+     */
+    private static final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE);
+
+    static {
+        try {
+            HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
+        } catch (Throwable t) {
+            t.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    /**
+     * Creates an authorized Credential object (from Drive API Quickstart guide).
+     * @return an authorized Credential object.
+     * @throws IOException
+     */
+    public static Credential authorize() throws IOException {
+        // Load client secrets.
+        InputStream in = Quickstart.class.getResourceAsStream("/secret/client_secret.json");
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(DATA_STORE_FACTORY)
+                .setAccessType("offline")
+                .build();
+
+        Credential credential = new AuthorizationCodeInstalledApp(flow,
+                new LocalServerReceiver.Builder().setHost("localhost").setPort(59213).build())
+                .authorize("User");
+        System.out.println("Credentials saved to " + DATA_STORE_DIR.getAbsolutePath());
+        return credential;
+    }
+
+    /**
+     * Build and return an authorized Drive client service (from Drive API Quickstart guide).
+     * @return an authorized Drive client service
+     * @throws IOException
+     */
+    public static Drive getDriveService() throws IOException {
+        Credential credential = authorize();
+        return new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME).build();
     }
 }
 
@@ -628,6 +749,14 @@ public class App {
     String insertMessage(MessageObj mo) {
         Connection conn = createConnection();
 
+        // Check if there's a file given, and if there is, retrieve it and save it:
+        if (mo.filecontent != null) {
+            // Decode the Base64 and get file contents as a string, write
+            byte[] decodedFile = Base64.getDecoder().decode(mo.filecontent);
+            String decodedFileContents = new String(decodedFile);
+            saveFileToGDrive(decodedFileContents);
+        }
+
         // Only insert if relevant parts of MessageObj are not null
         if (mo != null && mo.user_id > -1 && mo.title != null && mo.body != null) {
             try {
@@ -1009,6 +1138,9 @@ public class App {
      * Method that logs a user out. Maybe should be called regardless of success of secret key? If it's
      * invalid, then shouldn't a user not be logged in? Or would this just be an opportunity for trolls?
      * For the moment however, only logout if secret key is true, may change later.
+     * @param username  Given username.
+     * @param secretKey Given secret key.
+     * @return goodData if successful, badData if unsuccessful.
      */
     public String logout(String username, int secretKey) {
         if (validateAction(username, secretKey)) {
@@ -1016,6 +1148,41 @@ public class App {
             return goodData;
         }
         else return badData;
+    }
+
+    /**
+     * Method that takes in a File object from frontend and uploads it to the Google Drive.
+     * @param  filecontents Given raw string-formatted file contents.
+     * @return returl       URL of the created file from filecontents.
+     */
+    public String saveFileToGDrive(String filecontents) {
+        // Build a new authorized API client service.
+        System.out.println("TEST: saveFileToGDrive() started.");
+        //System.out.println("TEST: quickstart object created.");
+        try {
+            Drive service = Quickstart.getDriveService();
+            com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
+            fileMetadata.setName("myfilename.txt");
+            java.io.File filePath = new java.io.File("src/main/resources/files/myfilename.txt");
+            //filePath.createNewFile();
+            FileContent mediaContent = new FileContent("text/plain", filePath);
+            com.google.api.services.drive.model.File file = service.files()
+                    .create(fileMetadata, mediaContent)
+                    .setFields("id")
+                    .execute();
+            System.out.println("File ID: " + file.getId());
+            // TODO: saveFileToGDrive() currently uploads a local file. Change this to upload filecontents as a file.
+        }
+        catch (IOException ex) {
+            System.out.println("IOException in saveFileToGDrive() caught");
+            ex.printStackTrace();
+            System.exit(-1);
+        }
+
+        System.out.println("File contents: " + filecontents);
+
+        System.out.println("TEST: saveFileToGDrive() about to finish.");
+        return "DRIVE.FILE.LOCATION.COM/newfile.txt";
     }
 
     /**
@@ -1056,19 +1223,20 @@ public class App {
             }
         });
 
-        // POST a new item into the db
-        post("/data", (req, res) -> {
-            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
-                return badData;
-            }
-            else {
-                MessageObj mo = app.gson.fromJson(req.body(), MessageObj.class);
-                String result = app.insertMessage(mo);
-                res.status(200);
-                res.type("application/json");
-                return result;
-            }
-        });
+        // DEPRECATED VERSION OF POST MESSAGE:
+//        // POST a new item into the db
+//        post("/data", (req, res) -> {
+//            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
+//                return badData;
+//            }
+//            else {
+//                MessageObj mo = app.gson.fromJson(req.body(), MessageObj.class);
+//                String result = app.insertMessage(mo);
+//                res.status(200);
+//                res.type("application/json");
+//                return result;
+//            }
+//        });
 
         // POST a new +vote into db
         post("/data/vote/up", (req, res) -> {
@@ -1101,7 +1269,7 @@ public class App {
         // PHASE 2 ROUTES (written by Alex Van Heest):
 
         // GET message and votes for one page
-        // TODO: Add the Comments section.
+        // TODO: Add the Comments section as separate route.
         get("/data/message/:id", (req,res) -> {
             if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
                 return badData;
@@ -1161,6 +1329,21 @@ public class App {
             }
             else {
                 String result = app.logout(un, us);
+                res.status(200);
+                res.type("application/json");
+                return result;
+            }
+        });
+
+        // PHASE 4 ROUTES (written by Alex Van Heest):
+        // POST a new item into the db and receive optional file content
+        post("/data", (req, res) -> {
+            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
+                return badData;
+            }
+            else {
+                MessageObj mo = app.gson.fromJson(req.body(), MessageObj.class);
+                String result = app.insertMessage(mo);
                 res.status(200);
                 res.type("application/json");
                 return result;
