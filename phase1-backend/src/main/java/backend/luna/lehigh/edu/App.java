@@ -8,6 +8,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
 import java.lang.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
@@ -17,7 +19,7 @@ import java.security.MessageDigest;
  * @author Alex Van Heest (created for reasons of testing Phase 3 frontend)
  * @version 1.2.1
  */
-
+//global connection variable
 
 /**
  * Datum object is the base object for storing our data on the backend. We store an index, title, comment,
@@ -206,7 +208,7 @@ public class App {
     final static String goodData = "{\"res\":\"ok\"}";
     final static String badData = "{\"res\":\"bad data\"}";
     final static String sFileLocation = "/web";        // FIX FOR WHATEVER THE HIERARCHY IT IS IN FINAL VERSION
-
+    protected static Connection conn;
     // Only one gson instantiation, for efficiency.
     final Gson gson;
 
@@ -217,14 +219,60 @@ public class App {
     static String user = env.get("POSTGRES_USER");
     static String pass = env.get("POSTGRES_PASS");
     static String db = env.get("POSTGRES_DB");
+    static String dbstring = env.get("DATABASE_URL");
+
+
 
     static Hashtable<String, Integer> hashtable = new Hashtable<>();
+
+    private static Connection createConnection()  {
+        // Connection to be returned
+        //Connection conn=null;
+
+        //Connect to the database, fail if we can't
+        try {
+	    // String dbUrl=System.getenv("JDBC_DATABASE_URL");
+	    // conn=DriverManager.getConnection(dbUrl);
+	       URI dbUri = new URI(System.getenv("DATABASE_URL"));
+	                //URI dbUri=new URI("postgres://kqtcfljdpfesuu:c47c0eba68c7ffb8369fc739bcfc16f78b08167f29eb61523d81d2592a4c273f@ec2-54-83-26-65.compute-1.amazonaws.com:5432/db647b4fma1r2m");
+            String username = dbUri.getUserInfo().split(":")[0];
+            String password = dbUri.getUserInfo().split(":")[1];
+            String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
+            conn = DriverManager.getConnection(dbUrl, username, password); 
+            if(conn == null) {
+                System.out.println("Error in createDB(): getConnection returned null object in createDB");
+                System.exit(-1); 
+            }
+        }   catch(Exception exc) {
+            if(exc instanceof URISyntaxException)  {
+                System.out.println("Error in createDB(): getConnection in createDB threw a URISyntaxexception.");
+                exc.printStackTrace();
+                System.exit(-1);
+            }
+            else if (exc instanceof SQLException) {
+                System.out.println("Error in createDB(): getConnection in createDB threw an SQL exception");
+                exc.printStackTrace();
+                System.exit(-1);
+            }
+            else {
+                System.out.println("Error in createDB(): getConnection in createDB threw an exception");
+                exc.printStackTrace();
+                System.exit(-1);
+            }
+
+        }
+
+
+
+
+        return conn;
+    }
 
     /**
      * This is the long-awaited method that returns a Connection object. Replaces all the versions
      * throughout the code to keep the Connection stuff consistent and easier to update.
      */
-    public static Connection createConnection() {
+  /* public static Connection createConnection() {
         // Connection to be returned.
         Connection conn = null;
 
@@ -240,7 +288,7 @@ public class App {
         // Connect to the database; fail if we can't
         try {
             // Open a connection, fail if we cannot get one. Connection to POSTGRES server at following url:
-            String url = "jdbc:postgresql://" + ip + ":" + port + "/" + db;
+            String url = "jdbc:"+ dbstring;
             conn = DriverManager.getConnection(url, user, pass);
 
             // Make sure connection object isn't null. If it is, print error and exit.
@@ -256,7 +304,7 @@ public class App {
         }
 
         return conn;
-    }
+    } */
 
     /**
      * Check to see if all five expected tables exist. Used primarily for testing
@@ -934,6 +982,9 @@ public class App {
         }
     }
 
+
+
+
     /**
      * Method that performs OAuth validation. If it receives any API code from OAuth, return
      * true. Else, return false.
@@ -1017,6 +1068,21 @@ public class App {
         }
         else return badData;
     }
+    
+    public static int getHerokuAssignedPort() {
+        System.out.println("Port has been accessed");
+	ProcessBuilder processBuilder=new ProcessBuilder();
+        if(processBuilder.environment().get("PORT")!=null) {
+
+	    return Integer.parseInt(processBuilder.environment().get("PORT"));
+        }
+	return 4567;
+
+
+    }
+
+
+
 
     /**
      * Main method which holds all get and post routes for updating and sending the database to the server.
@@ -1024,6 +1090,7 @@ public class App {
      * @param args  Standard Java main class argument.
      */
     public static void main(String[] args) {
+        //conn = createConnection();
         // "Do this early in your main -- Prof"
         try {
             Class.forName("org.postgresql.Driver");
@@ -1032,9 +1099,12 @@ public class App {
             e.printStackTrace();
             System.exit(-1);
         }
-
-        App app = new App(true);
         staticFileLocation(sFileLocation);
+
+	port(getHerokuAssignedPort());
+      	get("/hello", (req, res)->"Hello Heroku World");
+  
+        App app = new App(true);
 
         // GET '/' returns the index page
         // (Leaving this alone, at least for now.)
@@ -1166,5 +1236,8 @@ public class App {
                 return result;
             }
         });
+	//port(getHerokuAssignedPort());
+	// get("/hello", (req, res) -> "Hello Heroku World");
+         
     }
 }
