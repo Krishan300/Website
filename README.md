@@ -19,6 +19,7 @@
 * Wrote/updated unit tests
 * Diagramming out the backend for teammates on frontend/backend so everyone's route configuration will be consistent.
 * Add/edit route for file uploads to GDrive
+* Finish configuring file upload functionality
 
 NOTE: I designed backend so that OAuth can easily be added in. Due to time restraints, I won't be adding OAuth during phase 4. Instead, I'll be focusing on getting backend as far along as possible into needed phase 4 functionality.
 
@@ -26,7 +27,6 @@ NOTE: I designed backend so that OAuth can easily be added in. Due to time restr
 
 **What still needs to be done:**
 
-* Finish configuring file upload functionality
 * Create a memcachier
 * Replace hashmap functionality with memcached functionality
 * Use memcached to cache files stored on GDrive
