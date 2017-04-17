@@ -1153,36 +1153,78 @@ public class App {
     /**
      * Method that takes in a File object from frontend and uploads it to the Google Drive.
      * @param  filecontents Given raw string-formatted file contents.
-     * @return returl       URL of the created file from filecontents.
+     * @return fileid       URL of the created file from file contents.
      */
     public String saveFileToGDrive(String filecontents) {
         // Build a new authorized API client service.
-        System.out.println("TEST: saveFileToGDrive() started.");
+        //System.out.println("TEST: saveFileToGDrive() started.");
         //System.out.println("TEST: quickstart object created.");
+
+        // Write "filecontents" to a file
+        String filepath = "src/main/resources/files/myfilename.txt";
+        //System.out.println("File contents: " + filecontents);
+        String fileid;
+
         try {
+            // First, write contents to the file
+            PrintWriter writer = new PrintWriter(filepath, "UTF-8");
+            writer.println(filecontents);
+            writer.close();
+
+            // Then write this to a file
             Drive service = Quickstart.getDriveService();
             com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
             fileMetadata.setName("myfilename.txt");
-            java.io.File filePath = new java.io.File("src/main/resources/files/myfilename.txt");
+            java.io.File filePath = new java.io.File(filepath);
             //filePath.createNewFile();
             FileContent mediaContent = new FileContent("text/plain", filePath);
             com.google.api.services.drive.model.File file = service.files()
                     .create(fileMetadata, mediaContent)
                     .setFields("id")
                     .execute();
-            System.out.println("File ID: " + file.getId());
-            // TODO: saveFileToGDrive() currently uploads a local file. Change this to upload filecontents as a file.
+            //System.out.println("File ID: " + file.getId());
+            fileid = file.getId();
         }
         catch (IOException ex) {
             System.out.println("IOException in saveFileToGDrive() caught");
             ex.printStackTrace();
+            fileid = "";
             System.exit(-1);
         }
 
         System.out.println("File contents: " + filecontents);
 
         System.out.println("TEST: saveFileToGDrive() about to finish.");
-        return "DRIVE.FILE.LOCATION.COM/newfile.txt";
+        return fileid;
+    }
+
+    /**
+     * Method where, given a file id, retrieves a File object for that file.
+     * @param fileid    File ID retrieved from frontend.
+     * @return          A link to a Google Drive file link.
+     */
+    public String getFileFromGDriveById(String fileid) {
+//        CODE I MAY NEED LATER, DEPENDING ON HOW FRONTEND/ANDROID RETRIEVE FILES
+//
+//        String gdrivelink;
+//        try {
+//            Drive service = Quickstart.getDriveService();
+//            com.google.api.services.drive.model.File file = service.files()
+//                    .get(fileid)
+//                    .execute();
+//
+//            // Attributes of file, to be used later:
+//            // file.getMimeType()
+//            // file.getTitle()
+//            // file.getDescription()
+//        }
+//        catch (IOException ex) {
+//            System.out.println("IOException in saveFileToGDrive() caught");
+//            ex.printStackTrace();
+//            System.exit(-1);
+//        }
+
+        return "https://drive.google.com/file/d/" + fileid;
     }
 
     /**
@@ -1336,7 +1378,7 @@ public class App {
         });
 
         // PHASE 4 ROUTES (written by Alex Van Heest):
-        // POST a new item into the db and receive optional file content
+        // POST a new item into the db and receive optional file content (handled in insertMessage()...)
         post("/data", (req, res) -> {
             if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
                 return badData;

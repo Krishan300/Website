@@ -251,6 +251,7 @@ public class AppTest extends TestCase
 
         app.insertUser(new UserObj("ajv218", "Alex V", "ajv218@lehigh.edu"));
 
+        // Creates a file on the GDrive
         byte[] ba = Base64.getEncoder().encode("Test".getBytes());
         MessageObj mo = new MessageObj(1, 1, "Alexs Message", "Body of Alexs message", new Date(), "ajv218", "Alex V", "ajv218@lehigh.edu", ba);
         String retval = app.insertMessage(mo);
