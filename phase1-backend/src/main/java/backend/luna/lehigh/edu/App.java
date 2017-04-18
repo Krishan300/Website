@@ -35,6 +35,12 @@ import com.google.api.services.drive.model.*;
 import com.google.api.services.drive.Drive;
 import java.util.Base64;
 
+import net.spy.memcached.AddrUtil;
+import net.spy.memcached.MemcachedClient;
+import net.spy.memcached.ConnectionFactoryBuilder;
+import net.spy.memcached.auth.PlainCallbackHandler;
+import net.spy.memcached.auth.AuthDescriptor;
+
 /**
  * @author Alex Van Heest (built from experimental build needed to test frontend during phase 3)
  * @version 1.4
@@ -319,6 +325,27 @@ class Quickstart {
 }
 
 /**
+ * MemcachedObj - class written to generate a memcached connection object for either file caching or our
+ * new hashmap equivalent secret_key storage mechanism. Can be used statically.
+ */
+class MemcachedObj {
+    public static MemcachedClient getMemcachedConnection(String mc_username, String mc_password, String mc_server_list) {
+        AuthDescriptor ad = new AuthDescriptor(new String[] { "PLAIN" },
+                new PlainCallbackHandler(mc_username, mc_password));
+        try {
+            MemcachedClient mc = new MemcachedClient(new ConnectionFactoryBuilder()
+                    .setProtocol(ConnectionFactoryBuilder.Protocol.BINARY)
+                    .setAuthDescriptor(ad).build(), AddrUtil.getAddresses(mc_server_list));
+            return mc;
+        }
+        catch (IOException ex) {
+            System.err.println("Couldn't create a connection to MemCachier: \nIOException " + ex.getMessage());
+        }
+        return null;
+    }
+}
+
+/**
  * The App class creates an App object which passes in a MySQL database and stores the
  * data in rows to be pulled from later.
  */
@@ -339,7 +366,12 @@ public class App {
     static String pass = env.get("POSTGRES_PASS");
     static String db = env.get("POSTGRES_DB");
 
-    static Hashtable<String, Integer> hashtable = new Hashtable<>();
+    //static Hashtable<String, Integer> hashtable = new Hashtable<>();
+
+    // User/pass/server for secret key connections to memcached client
+    static String mc_username_sk = "77AE4E";
+    static String mc_password_sk = "BF013B51F332A15D8BAD73A2F6D665EC";
+    static String mc_server_sk = "mc2.dev.ec2.memcachier.com:11211";
 
     /**
      * This is the long-awaited method that returns a Connection object. Replaces all the versions
@@ -1069,7 +1101,7 @@ public class App {
      * @param username  Given username.
      * @param password  Given password.
      * @return          API key if successful, null if unsuccessful.
-     * TODO: Use actual OAuth validation in this method, aka Phase 3.
+     * TODO: Use actual OAuth validation in this method, aka Phase 3. No time in Phase 4 to do this, sorry.
      */
     public static String oValidate(String username, String password) {
         if (username != null && password != null)   return "oauth_api_key";
@@ -1089,7 +1121,9 @@ public class App {
         Date curDate = new Date();
         String toHash = username + apiKey + curDate.toString();
         int hashCode = toHash.hashCode();
-        hashtable.put(username, hashCode);
+        MemcachedClient mc = MemcachedObj.getMemcachedConnection(mc_username_sk, mc_password_sk, mc_server_sk);
+        mc.set(username, 3600, hashCode);
+        //hashtable.put(username, hashCode);  // replaced by Memcachier in phase 4
         int inTable = 0;
 
         // Check to see if user exists in the table; add if doesn't exist.
@@ -1103,7 +1137,7 @@ public class App {
             }
             // Means that user isn't in table; needs to be added. Otherwise, in table.
             if (inTable == 0) {
-                // TODO: Using OAuth, we should be able to retrieve realname for the user.
+                // When using OAuth, we should be able to retrieve realname for the user.
                 this.insertUser(new UserObj(username, username, username + "@lehigh.edu"));
             }
         }
@@ -1124,14 +1158,30 @@ public class App {
      */
     public static boolean validateAction(String username, int secretKey) {
         // Successful validation case
-        if (hashtable.containsKey(username) && hashtable.get(username) == secretKey) return true;
-        else                                      return false;
+        int sK;
+        try {
+            MemcachedClient mc = MemcachedObj.getMemcachedConnection(mc_username_sk, mc_password_sk, mc_server_sk);
+            sK = (Integer) mc.get(username);
+        }
+        catch (NullPointerException ex) {
+            sK = secretKey + 1; // cannot equal secretKey and validate!
+        }
+        if (sK == secretKey)      return true;
+        else                      return false;
     }
 
     public static boolean validateAction(UserStateObj uso) {
         // Successful validation case
-        if (hashtable.containsKey(uso.username) && hashtable.get(uso.username) == uso.secret_key) return true;
-        else                                      return false;
+        int sK;
+        try {
+            MemcachedClient mc = MemcachedObj.getMemcachedConnection(mc_username_sk, mc_password_sk, mc_server_sk);
+            sK = (Integer) mc.get(uso.username);
+        }
+        catch (NullPointerException ex) {
+            sK = uso.secret_key + 1;    // cannot equal secretKey and validate!
+        }
+        if (sK == uso.secret_key) return true;
+        else                      return false;
     }
 
     /**
@@ -1143,8 +1193,9 @@ public class App {
      * @return goodData if successful, badData if unsuccessful.
      */
     public String logout(String username, int secretKey) {
+        MemcachedClient mc = MemcachedObj.getMemcachedConnection(mc_username_sk, mc_password_sk, mc_server_sk);
         if (validateAction(username, secretKey)) {
-            hashtable.remove(username);
+            mc.delete(username);
             return goodData;
         }
         else return badData;

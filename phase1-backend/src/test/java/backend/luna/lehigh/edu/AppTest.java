@@ -3,6 +3,7 @@ package backend.luna.lehigh.edu;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.spy.memcached.MemcachedClient;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -196,7 +197,12 @@ public class AppTest extends TestCase
 
         // Finally, check that the user is in the hashtable.
         // NOTE: hashtable variable in backend is static. Can be referenced by instance too.
-        assertEquals(App.hashtable.containsKey(username), true);
+        // NOTE: hashtable variable replaced in phase 4 by memcachier connection.
+        MemcachedClient mc = MemcachedObj.getMemcachedConnection(App.mc_username_sk, App.mc_password_sk, App.mc_server_sk);
+        int sK = (Integer) mc.get(username);
+        System.out.println(sK);
+        assertNotNull(sK);
+        //assertEquals(App.hashtable.containsKey(username), true);
     }
 
     /**
@@ -231,7 +237,10 @@ public class AppTest extends TestCase
         // Just getting goodData back doesn't mean the combo was removed from the hashmap. Let's
         // test this separately just to be sure, and let's make sure validation with invalid creds
         // fails after we're sure it's removed from the hashmap.
-        assertEquals(App.hashtable.containsKey(username), false);
+        MemcachedClient mc = MemcachedObj.getMemcachedConnection(App.mc_username_sk, App.mc_password_sk, App.mc_server_sk);
+        Object o = mc.get(username);
+        //assertEquals(App.hashtable.containsKey(username), false);
+        assertNull(o);
         assertEquals(App.validateAction(uso), false);
     }
 
