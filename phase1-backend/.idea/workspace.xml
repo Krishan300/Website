@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9463490a-5a9c-4760-a9bd-7f2a050bbbab" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/backend/luna/lehigh/edu/App.java" afterPath="$PROJECT_DIR$/src/main/java/backend/luna/lehigh/edu/App.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/java/backend/luna/lehigh/edu/AppTest.java" afterPath="$PROJECT_DIR$/src/test/java/backend/luna/lehigh/edu/AppTest.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test.txt" afterPath="" />
     </list>
     <ignored path="$PROJECT_DIR$/target/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
