@@ -1,349 +1,27 @@
 package backend.luna.lehigh.edu;
 
+import java.io.*;
+import java.lang.*;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Base64;
+
 import static spark.Spark.*;
 
 import com.google.api.client.http.FileContent;
 import com.google.gson.*;
-
-import javax.xml.transform.Result;
-import java.io.*;
-import java.io.File;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Map;
-import java.lang.*;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Hashtable;
-import java.security.MessageDigest;
-
-import java.util.Arrays;
-import java.util.List;
-
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
-import com.google.api.services.drive.DriveScopes;
-import com.google.api.services.drive.model.*;
 import com.google.api.services.drive.Drive;
-import java.util.Base64;
 
-import net.spy.memcached.AddrUtil;
 import net.spy.memcached.MemcachedClient;
-import net.spy.memcached.ConnectionFactoryBuilder;
-import net.spy.memcached.auth.PlainCallbackHandler;
-import net.spy.memcached.auth.AuthDescriptor;
 
 /**
- * @author Alex Van Heest (built from experimental build needed to test frontend during phase 3)
+ * @author Alex Van Heest
  * @version 1.4
  */
 
-
-/**
- * Datum object is the base object for storing our data on the backend. We store an index, title, comment,
- * number of likes, upload date, and like date.
- * DEPRECATED: Now using newer class to handle objects in multiple tables.
- */
-class Datum {
-    int index;
-    String title;
-    String comment;
-    int numLikes;
-    java.util.Date uploadDate;
-    java.util.Date lastLikeDate;
-}
-
-/**
- * UserObj - a class that stores data pertaining to tblUser table.
- */
-class UserObj {
-    int user_id;
-    String username;
-    String realname;
-    String email;
-
-    // below is probably more common constructor since frontend won't know new user's index
-    public UserObj(String Gusername, String Grealname, String Gemail) {
-        username = Gusername;
-        realname = Grealname;
-        email = Gemail;
-    }
-
-    public UserObj(int Guser_id, String Gusername, String Grealname, String Gemail) {
-        user_id = Guser_id;
-        username = Gusername;
-        realname = Grealname;
-        email = Gemail;
-    }
-}
-
-/**
- * MessageObj - a class that stores data pertaining to tblMessage table.
- */
-class MessageObj {
-    int user_id;
-    int message_id;
-    String title;
-    String body;
-    java.util.Date uploadDate;
-    String username;
-    String realname;
-    String email;
-    byte[] filecontent;
-
-
-    public MessageObj (int Guser_id, int Gmessage_id, String Gtitle, String Gbody, java.util.Date GuploadDate,
-                       String Gusername, String Grealname, String Gemail) {
-        user_id = Guser_id;
-        message_id = Gmessage_id;
-        title = Gtitle;
-        body = Gbody;
-        uploadDate = GuploadDate;
-        username = Gusername;
-        realname = Grealname;
-        email = Gemail;
-    }
-
-    public MessageObj (int Guser_id, int Gmessage_id, String Gtitle, String Gbody, java.util.Date GuploadDate,
-                       String Gusername, String Grealname, String Gemail, byte[] Gfilecontent) {
-        user_id = Guser_id;
-        message_id = Gmessage_id;
-        title = Gtitle;
-        body = Gbody;
-        uploadDate = GuploadDate;
-        username = Gusername;
-        realname = Grealname;
-        email = Gemail;
-        if (Gfilecontent != null && Gfilecontent.length != 0) {
-            filecontent = Gfilecontent.clone();
-        }
-        else {
-            filecontent = null;
-        }
-    }
-
-    public MessageObj (int Guser_id, String Gtitle, String Gbody) {
-        user_id = Guser_id;
-        title = Gtitle;
-        body = Gbody;
-    }
-}
-
-/**
- * MessageContentObj - a class that stores data pertaining to tblMessage table.
- * This version of the object includes userdata to be included with Message content, used
- * by front page. Perhaps this could've been better done with just a single MessageObj,
- * but hindsight is 20/20. I will have to adapt this at some point though.
- */
-class MessageContentObj {
-    int user_id;
-    int message_id;
-    String title;
-    String body;
-    java.util.Date uploadDate;
-    String username;
-    String realname;
-    String email;
-    int upvotes;
-    int downvotes;
-    int tot_votes;
-
-    public MessageContentObj (int Guser_id, int Gmessage_id, String Gtitle, String Gbody, java.util.Date GuploadDate,
-                       String Gusername, String Grealname, String Gemail, int Gupvotes, int Gdownvotes,
-                       int Gtot_votes) {
-        user_id = Guser_id;
-        message_id = Gmessage_id;
-        title = Gtitle;
-        body = Gbody;
-        uploadDate = GuploadDate;
-        username = Gusername;
-        realname = Grealname;
-        email = Gemail;
-        upvotes = Gupvotes;
-        downvotes = Gdownvotes;
-        tot_votes = Gtot_votes;
-    }
-}
-
-/**
- * CommentObj - a class that stores data pertaining to tblComment table.
- */
-class CommentObj {
-    int user_id;
-    int message_id;
-    int comment_id;
-    String comment_text;
-    java.util.Date uploadDate;
-    String username;
-    String realname;
-    String email;
-
-    public CommentObj(int Guser_id, int Gmessage_id, String Gcomment_text) {
-        user_id = Guser_id;
-        message_id = Gmessage_id;
-        comment_text = Gcomment_text;
-    }
-
-    public CommentObj (int Guser_id, int Gmessage_id, int Gcomment_id, String Gcomment_text, java.util.Date GuploadDate,
-                       String Gusername, String Grealname, String Gemail) {
-        user_id = Guser_id;
-        message_id = Gmessage_id;
-        comment_id = Gcomment_id;
-        comment_text = Gcomment_text;
-        uploadDate = GuploadDate;
-        username = Gusername;
-        realname = Grealname;
-        email = Gemail;
-    }
-}
-
-/**
- * VoteObj - a class that stores data pertaining to tblUpVote / tblDownVote table.
- */
-class VoteObj {
-    int user_id;
-    int message_id;
-
-    public VoteObj (int Guser_id, int Gmessage_id) {
-        user_id = Guser_id;
-        message_id = Gmessage_id;
-    }
-}
-
-/**
- * UserStateObj - a class that holds a username and secret key that're received from
- * frontend.
- */
-class UserStateObj {
-    String username;
-    int secret_key;
-
-    public UserStateObj (String Gusername, int GsecretKey) {
-        username = Gusername;
-        secret_key = GsecretKey;
-    }
-}
-
-/**
- * LoginObj - a class that stores received login credentials from frontend for validation.
- */
-class LoginObj {
-    String username;
-    String password;
-
-    public LoginObj (String Gusername, String Gpassword) {
-        username = Gusername;
-        password = Gpassword;
-    }
-}
-
-/**
- * Quickstart - a class retrieved from Google's quickstart guide to help establish connection
- * to Google account.
- */
-class Quickstart {
-    private static final String APPLICATION_NAME = "Drive API Java Quickstart";
-
-    /**
-     * Directory to store user credentials for this application.
-     */
-    private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/drive-java-quickstart");
-
-    /**
-     * Global instance of the {@link FileDataStoreFactory}.
-     */
-    private static FileDataStoreFactory DATA_STORE_FACTORY;
-
-    /**
-     * Global instance of the JSON factory.
-     */
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-
-    /**
-     * Global instance of the HTTP transport.
-     */
-    private static HttpTransport HTTP_TRANSPORT;
-
-    /**
-     * Global instance of the scopes required by this quickstart.
-     *
-     * If modifying these scopes, delete your previously saved credentials
-     * at ~/.credentials/drive-java-quickstart
-     */
-    private static final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE);
-
-    static {
-        try {
-            HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-            DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
-        } catch (Throwable t) {
-            t.printStackTrace();
-            System.exit(1);
-        }
-    }
-
-    /**
-     * Creates an authorized Credential object (from Drive API Quickstart guide).
-     * @return an authorized Credential object.
-     * @throws IOException
-     */
-    public static Credential authorize() throws IOException {
-        // Load client secrets.
-        InputStream in = Quickstart.class.getResourceAsStream("/secret/client_secret.json");
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
-
-        // Build flow and trigger user authorization request.
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                .setDataStoreFactory(DATA_STORE_FACTORY)
-                .setAccessType("offline")
-                .build();
-
-        Credential credential = new AuthorizationCodeInstalledApp(flow,
-                new LocalServerReceiver.Builder().setHost("localhost").setPort(59213).build())
-                .authorize("User");
-        System.out.println("Credentials saved to " + DATA_STORE_DIR.getAbsolutePath());
-        return credential;
-    }
-
-    /**
-     * Build and return an authorized Drive client service (from Drive API Quickstart guide).
-     * @return an authorized Drive client service
-     * @throws IOException
-     */
-    public static Drive getDriveService() throws IOException {
-        Credential credential = authorize();
-        return new Drive.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME).build();
-    }
-}
-
-/**
- * MemcachedObj - class written to generate a memcached connection object for either file caching or our
- * new hash map-equivalent secret_key storage mechanism. Can be used statically.
- */
-class MemcachedObj {
-    public static MemcachedClient getMemcachedConnection(String mc_username, String mc_password, String mc_server_list) {
-        AuthDescriptor ad = new AuthDescriptor(new String[] { "PLAIN" },
-                new PlainCallbackHandler(mc_username, mc_password));
-        try {
-            MemcachedClient mc = new MemcachedClient(new ConnectionFactoryBuilder()
-                    .setProtocol(ConnectionFactoryBuilder.Protocol.BINARY)
-                    .setAuthDescriptor(ad).build(), AddrUtil.getAddresses(mc_server_list));
-            return mc;
-        }
-        catch (IOException ex) {
-            System.err.println("Couldn't create a connection to MemCachier: \nIOException " + ex.getMessage());
-        }
-        return null;
-    }
-}
 
 /**
  * The App class creates an App object which passes in a MySQL database and stores the
@@ -369,7 +47,7 @@ public class App {
     //static Hashtable<String, Integer> hashtable = new Hashtable<>();
 
     // MEMCACHIER CREDENTIALS ... Note that servers are the same URL but separate
-    // in case that changes anytime soon.
+    // in case that changes at any point.
     // User/pass/server for secret key connections to memcached client
     static String mc_username_sk = "77AE4E";
     static String mc_password_sk = "BF013B51F332A15D8BAD73A2F6D665EC";
@@ -1129,7 +807,12 @@ public class App {
         String toHash = username + apiKey + curDate.toString();
         int hashCode = toHash.hashCode();
         MemcachedClient mc = MemcachedObj.getMemcachedConnection(mc_username_sk, mc_password_sk, mc_server_sk);
-        mc.set(username, 3600, hashCode);
+        try {
+            mc.set(username, 3600, hashCode);
+        }
+        catch (NullPointerException ex) {
+            System.out.println("ERROR in addUser(): unable to set() in memcachier!");
+        }
         //hashtable.put(username, hashCode);  // replaced by Memcachier in phase 4
         int inTable = 0;
 
