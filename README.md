@@ -20,8 +20,9 @@
 * Diagramming out the backend for teammates on frontend/backend so everyone's route configuration will be consistent.
 * Add/edit route for file uploads to GDrive
 * Finish configuring file upload functionality
-* Create a memcachier
+* Create two memcachiers: one for files, one for storing secret keys
 * Replace hashmap functionality with memcached functionality
+* Use memcached to cache files stored on GDrive
 
 NOTE: I designed backend so that OAuth can easily be added in. Due to time restraints, I won't be adding OAuth during phase 4. Instead, I'll be focusing on getting backend as far along as possible into needed phase 4 functionality.
 
@@ -29,4 +30,6 @@ NOTE: I designed backend so that OAuth can easily be added in. Due to time restr
 
 **What still needs to be done:**
 
-* Use memcached to cache files stored on GDrive
+* Reorganize file structure for backend
+* Add to get post methods the ability to retrieve file contents if found
+* Before final commit, make Heroku configuration changes

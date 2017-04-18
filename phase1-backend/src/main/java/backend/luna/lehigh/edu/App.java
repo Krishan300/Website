@@ -274,7 +274,7 @@ class Quickstart {
 
     /**
      * Global instance of the scopes required by this quickstart.
-     * <p>
+     *
      * If modifying these scopes, delete your previously saved credentials
      * at ~/.credentials/drive-java-quickstart
      */
@@ -326,7 +326,7 @@ class Quickstart {
 
 /**
  * MemcachedObj - class written to generate a memcached connection object for either file caching or our
- * new hashmap equivalent secret_key storage mechanism. Can be used statically.
+ * new hash map-equivalent secret_key storage mechanism. Can be used statically.
  */
 class MemcachedObj {
     public static MemcachedClient getMemcachedConnection(String mc_username, String mc_password, String mc_server_list) {
@@ -353,7 +353,7 @@ public class App {
     // Final static strings, used throughout program.
     final static String goodData = "{\"res\":\"ok\"}";
     final static String badData = "{\"res\":\"bad data\"}";
-    final static String sFileLocation = "/web";        // FIX FOR WHATEVER THE HIERARCHY IT IS IN FINAL VERSION
+    final static String sFileLocation = "/web";
 
     // Only one gson instantiation, for efficiency.
     final Gson gson;
@@ -368,10 +368,17 @@ public class App {
 
     //static Hashtable<String, Integer> hashtable = new Hashtable<>();
 
+    // MEMCACHIER CREDENTIALS ... Note that servers are the same URL but separate
+    // in case that changes anytime soon.
     // User/pass/server for secret key connections to memcached client
     static String mc_username_sk = "77AE4E";
     static String mc_password_sk = "BF013B51F332A15D8BAD73A2F6D665EC";
     static String mc_server_sk = "mc2.dev.ec2.memcachier.com:11211";
+
+    // User/pass/server for file caching memcached client
+    static String mc_username_fc = "7C31C5";
+    static String mc_password_fc = "25796431EB1773FF16ABD1247F00BF25";
+    static String mc_server_fc = "mc2.dev.ec2.memcachier.com:11211";
 
     /**
      * This is the long-awaited method that returns a Connection object. Replaces all the versions
@@ -1235,6 +1242,9 @@ public class App {
                     .execute();
             //System.out.println("File ID: " + file.getId());
             fileid = file.getId();
+
+            // Then add the file to the cache.
+            addFileToCache(fileid, filecontents);
         }
         catch (IOException ex) {
             System.out.println("IOException in saveFileToGDrive() caught");
@@ -1252,30 +1262,62 @@ public class App {
     /**
      * Method where, given a file id, retrieves a File object for that file.
      * @param fileid    File ID retrieved from frontend.
-     * @return          A link to a Google Drive file link.
+     * @return          Filecontents from cache/GDrive load or null if file not found.
      */
     public String getFileFromGDriveById(String fileid) {
-//        CODE I MAY NEED LATER, DEPENDING ON HOW FRONTEND/ANDROID RETRIEVE FILES
-//
-//        String gdrivelink;
-//        try {
-//            Drive service = Quickstart.getDriveService();
-//            com.google.api.services.drive.model.File file = service.files()
-//                    .get(fileid)
-//                    .execute();
-//
-//            // Attributes of file, to be used later:
-//            // file.getMimeType()
-//            // file.getTitle()
-//            // file.getDescription()
-//        }
-//        catch (IOException ex) {
-//            System.out.println("IOException in saveFileToGDrive() caught");
-//            ex.printStackTrace();
-//            System.exit(-1);
-//        }
+        // Let's plan to send the filecontents encoded in base64 back to the frontend/Android.
+        // There are two ways this can be done: if the file's in the cache, load it from there.
+        // Otherwise, we'll need to load the file contents from the GDrive.
 
-        return "https://drive.google.com/file/d/" + fileid;
+        // Let's figure out first if the file at the given fileid is in the cache in hopes of
+        // saving valuable milliseconds for our die hard fans!!!!!
+        MemcachedClient mc = MemcachedObj.getMemcachedConnection(mc_username_fc, mc_password_fc, mc_server_fc);
+        Object o;   // stores retrieved content from cache
+        String filecontents;    // stores retrieved filecontents from cache/Drive (if not found null)
+        try {
+            o = mc.get(fileid);
+        }
+        catch (NullPointerException ex) {
+            o = null;
+        }
+
+        // Then retrieve filecontents, either using GDrive or Memcachier file cache.
+        if (o != null) {    // means that the given key matched something in the cache! yay for efficiency!!
+            filecontents = o.toString();
+        }
+        else { // look for file on GDrive since it's definitely not in cache
+            try {
+                Drive service = Quickstart.getDriveService();
+                com.google.api.services.drive.model.File file = service.files().get(fileid).execute();
+                filecontents = file.getWebContentLink();
+                //String filemimetype = file.getMimeType();
+                //String filetitle = file.getTitle();
+                //String filedescr = file.getDescription();
+            }
+            catch (IOException ex) {
+                System.out.println("ERROR in getFileFromGDrive(): Not in cache or in GDrive, load failed! Null returned.");
+                filecontents = null;
+            }
+        }
+
+        //return "https://drive.google.com/file/d/" + fileid;
+        return filecontents;
+    }
+
+    /**
+     * Method called by saveFileToGDrive() that adds a file at filepath to a memcachier.
+     * @param fileid        Fileid given by GDrive, used as key in memcachier.
+     * @param filecontents  Contents we want to cache.
+     */
+    public static void addFileToCache(String fileid, String filecontents) {
+        // Get memcachier connection to our file-caching server.
+        MemcachedClient mc = MemcachedObj.getMemcachedConnection(mc_username_fc, mc_password_fc, mc_server_fc);
+        try {
+            mc.add(fileid, 3600, filecontents);
+        }
+        catch (NullPointerException ex) {
+            System.out.println("ERROR in addFileToCache(): Unable to add " + fileid + " to cache!");
+        }
     }
 
     /**
