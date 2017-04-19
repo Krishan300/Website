@@ -1,8 +1,0 @@
-<resources>
-    <string name="app_name">AndroidGroupWork</string>
-    <string name="action_settings">Settings</string>
-    <string name="messagetext">ActivityMessage</string>
-    <string name="LikeMessage">LikeMessage</string>
-    <string name="inputmessage">ActivityMessage</string>
-
-</resources>
