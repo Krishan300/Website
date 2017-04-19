@@ -26,10 +26,11 @@
 * Reorganize file structure for backend
 
 NOTE: I designed backend so that OAuth can easily be added in. Due to time restraints, I won't be adding OAuth during phase 4. Instead, I'll be focusing on getting backend as far along as possible into needed phase 4 functionality.
+NOTE: I didn't have time to finish everything for phase 4 due to spending so much time catching up from phases 2-3, but I've at least finished all of the functionality.
 
 ****
 
-**What still needs to be done:**
+**What needs to be done during Phase 5:**
 
 * Add to get post methods the ability to retrieve file contents if found
-* Before final commit, make Heroku configuration changes
+* Add Heroku configuration before pushing to Heroku
