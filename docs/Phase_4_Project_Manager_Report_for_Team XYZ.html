@@ -1,0 +1,159 @@
+<html>
+
+ <head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <title>Phase 4 Project Manager Report for Team XYZ</title>
+  <style>
+   body { font-family: Roboto; }
+   
+   div.answer { border: solid 1px black; width: 100%; min-height: 15em; }
+   
+   div.light { background-color: lightgray; }
+   
+   div.dark { background-color: darkgray; }
+  </style>
+ </head>
+
+ <body>
+  <h1>CSE 216 Project Manager Report: Phase 4, Team XYZ</h1>
+  <h3>List your team members, providing name, email, and role for this
+  project.</h3>
+  <div class="answer">Kieran Horan-kjh219@lehigh.edu-frontend  Robert Salay-rws218@lehigh.edu-android  Alex Van Heest-ajv218@lehigh.edu</div>
+
+  <div class="dark">
+   <h2>LUApps</h2>
+
+   <h3>If your team is participating in LUApps, describe the features that
+    you are adding, and any corners that you decided to cut in order to meet
+    the early LUApps deadline.</h3>
+   <div class="answer"></div>
+
+   <h3>
+    If your team is participating in LUApps, you may leave the rest of this
+    document blank.
+   </h3>
+
+  </div>
+
+  <div class="light">
+   <h2>Back-End Server</h2>
+
+   <h3>Describe the mechanism you are using to interact with Google Drive.
+    Are you using an existing library?  Are you using the REST API?  Are you
+    using some other mechanism?</h3>
+   <div class="answer"> Alex followed the code from a guide to create a class called Quickstart in the same folder as App.java that authorizes connections and gets a Google drive service connection. The pair of credentials used to form a connection with the google drive is stored in a seperate static JSON file that is read in when making the connection. Alex is using the Google Oauth client to authorize the user. He is using the Google API client to interact with files on the drive.  </div>
+
+   <h3>
+    Explain how you are using memcachier to cache documents.
+   </h3>
+   <div class="answer"> Alex uses the Google drive retrieved ID as the key and caches the contents of the file he is sending to the Google drive. Alex is also using memcachier to replace the functionality of the hashTable from phase 3. Alex created an object that gets connections to the memcachier. The object is used whenever a connection is needed to the memcachier. The object takes a username, password, and server and uses those to create a connection object that connects to the server. The object can be used to put things into the cache and retrive data from the cache. The object is used to abstract the process of connecting to both the file cache and the secretkey cache.  </div>
+   
+   <h3>Is the back-end code appropriately organized into files / classes /
+   packages?</h3>
+   <div class="answer"> Alex only used one package. He also reorganized App.java into multiple files. Their are 11 java files and 1 test file in the package.  </div>
+
+   <h3>Are the dependencies in the pom.xml file appropriate? Were there any
+   unexpected dependencies added to the program?</h3>
+   <div class="answer"> Alex added the google api dependencies, the google api drive service dependencies, Oauth dependencies, spy memcachier dependencies, and a repository for spy memcachier. I also added the dependencies needed for heroku to work. </div>
+
+   <h3>What was the biggest issue that came up in code review of the back-end
+   server?</h3>
+   <div class="answer"> Alex's code succeeds at sending files to the Google drive. Alex's code is functional up to phase 4, and the greatest struggle Alex faced was implementing the functionality from phase 1 to phase 4. It should be noted that the phase 1 backend was done by Alex during the intermediate catchup phase. </div>
+
+   <h3>What technical debt do you see in the current back-end server
+   implementation?</h3>
+   <div class="answer">None. Alex succeeded at getting his code to work. </div>
+   
+   <h3>Describe any refactoring that was performed to reduce technical debt
+    from the last phase</h3>
+   <div class="answer"> Alex changed the process of accepting the number of likes from the frontend to a process where the number of likes is retrieved from a database. The number of likes is inserted into the backend database. Alex cleaned up methods that has unnecessary arguments. Alex used many databases to retrieve data rather than relying on data from rest APIs. Alex wrote one method to get connections to the database rather than establishing connections before every method. Alex made the tests more rigourous. </div>
+  </div>
+
+  <div class="dark">
+   <h2>Web Front-End</h2>
+
+   <h3>Describe your solution for file upload?</h3>
+   <div class="answer">Kieran worked with Alex, who was responsible for backend, to update the data route so that a file could be sent from frontend to backend. The route now has an extra field, and if that field is not NULL, a file is sent. At the moment of this review, Kieran has not yet created a way to use the new features of the route. </div>
+
+   <h3>Is the web front-end appropriately organized into files / classes /
+   packages?</h3>
+   <div class="answer"> The dev file has all of the css, hb, and ts files needed to display the website. The web file, which is in the same folder, has all the compiled versions of these files. </div>
+
+   <h3>Are the dependencies in the package.json file appropriate? Were there
+   any unexpected dependencies added to the program?</h3>
+   <div class="answer"> Kieran did not need to add any new dependencies for the camera or file routes. He kept all of the old ones as well.</div>
+
+   <h3>What was the biggest issue that came up in code review of the web
+   front-end?</h3>
+   <div class="answer"> As of now, Kieran can take photos with the frontend, but has no way to send the photos to the backend or store them. Kieran also does not know if his route to send photos to the backend works.</div>
+
+   <h3>What technical debt do you see in the current web front-end
+   implementation?</h3>
+   <div class="answer"> Whoever inherits the code will need to find a way to save photos taken by the camera, to send those photos to the backend, and write a route from the front-end to oauth. </div>
+  </div>
+
+  <div class="light">
+   <h2>Android App</h2>
+
+   <h3>Which approach to the Camera API did you use, and how well did it
+    work?</h3>
+   <div class="answer">Robert's approach is to check to see if the system has a camera. If no camera is present, the app can still receive photos from Google. If a camera is present, a button is added to the prompt to allow the user to take a picture. Unfortunately, this is the intended consequence of Robert's code, as Android Studio builds Robert's code, but the run button does not run it.</div>
+
+   <h3>Is the android app appropriately organized into files / classes /
+   packages?</h3>
+   <div class="answer">In the class mainactivity, another class is written within it that manages the cache. The class mainactivity has its own functions, like pictureintent, which was written to create an intent that activates the camera app, galleryaddpic, which should save a photo to the phone, imagefile, which names every taken photo, and a function called cacheupdate, which saves local data to the cache every 20 seconds. A file named "setting.gradle" needed to be added to the android folder for the files to build. </div>
+
+   <h3>Are the dependencies in the build.gradle file appropriate? Were there
+   any unexpected dependencies added to the program?</h3>
+   <div class="answer">The classpath dependency had to be added to a build.gradle for the files to build, which was unexpected because another build.gradle in the same folder had that dependency. It seems that the program could only build if both build.gradle files are present. </div>
+
+   <h3>What was the biggest issue that came up in code review of the android
+   app?</h3>
+   <div class="answer"> The app did not run, so I have have no way to tell how if it works.</div>
+
+   <h3>What technical debt do you see in the current android app
+   implementation?</h3>
+   <div class="answer"> We do not know if it works, due to android studio only building the app, but not running it. Attempts to run the app just lead to a "build successful" message. As the app is written, only links to photos are shown, not the photos themselves. Issues carried over from phase 3 are the app only allowing the user to type comments, but not giving a title to the comments posted, and the app not connecting to Google.  </div>
+  </div>
+
+  <div class="dark">
+   <h2>Unit Tests</h2>
+
+   <h3>How did your tester verify the correctness of file upload and
+   download?</h3>
+   <div class="answer"></div>
+
+   <h3>How did your tester verify the correctness of the Camera API?</h3>
+   <div class="answer"></div>
+
+   <h3>What other testing was performed?</h3>
+   <div class="answer"></div>
+
+  </div>
+
+  <div class="light">
+   <h2>Project-Wide</h2>
+
+   <h3>Briefly summarize the state of your project, and how close it is to
+    meeting the requirements for each component (to include the admin
+    interface) </h3> <div class="answer">The android portion of the code is far behind, as nothing was effectively done for phase 4. While the frontend can send messages and files to the backend, it cannot send or store photos. The frontend also cannot send a username or password to oauth to authenticate admins. </div>
+   
+   <h3>Describe any ways in which your team has become more or less effective
+    over time.</h3>
+   <div class="answer"> During this phase, time was an issue due to people having to visit families for Easter weekend and Robert facing medical issues. They showed up to scheduled meetings, however, and progress was made on the frontend and backend. </div>
+
+   <h3>Were there any team issues that arose?</h3>
+   <div class="answer"> People had to travel for Easter weekend, so nothing was done during that time. </div>
+
+   <h3>Describe the most significant obstacle or difficulty your team
+    faced.</h3>
+   <div class="answer"> The amount of technical debt that every non-PM role faced was great. Alex managed to get the frontend working from a phase 1 level to a level worthy of phase 4. Kieran also got a camera to work for the frontend. </div>
+
+   <h3>What is your biggest concern as you think ahead to the final phase of
+    the project? </h3>
+   <div class="answer"> For the frontend, finding a way to store photos and send them to the backend, as well as to implement a css feature that can upload files. For android, getting the camera API working so that photos can be taken and sent to the backend via Volley. </div>
+  </div>
+
+ </body>
+
+</html>
