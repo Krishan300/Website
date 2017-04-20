@@ -55,7 +55,7 @@ public class App {
     static String user = env.get("POSTGRES_USER");
     static String pass = env.get("POSTGRES_PASS");
     static String db = env.get("POSTGRES_DB");
-    static String dbstring = env.get("DATABASE_URL");
+    //static String dbstring = env.get("DATABASE_URL");
 
     //static Hashtable<String, Integer> hashtable = new Hashtable<>();
 
@@ -76,7 +76,7 @@ public class App {
      * throughout the code to keep the Connection stuff consistent and easier to update.
      */
     public static Connection createConnection() {
-        // Connection to be returned.
+	/*        // Connection to be returned.
         Connection conn = null;
 
         // Include the needed driver (needs to be tested, may be redundant.
@@ -108,7 +108,46 @@ public class App {
 
         return conn;
     } */
+	try{
+        
+	URI dbUri = new URI(System.getenv("DATABASE_URL"))
+        String username = dbUri.getUserInfo().split(":")[0];
+	String password = dbUri.getUserInfo().split(":")[1];
+	String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
+	conn = DriverManager.getConnection(dbUrl, username, password);
+	if(conn == null) {
+	    System.out.println("Error in createDB(): getConnection returned\
+ null object in createDB");
+	    System.exit(-1);
+	}
+    }   catch(Exception exc) {
+	if(exc instanceof URISyntaxException)  {
+	    System.out.println("Error in createDB(): getConnection in creat\
+eDB threw a URISyntaxexception.");
+	    exc.printStackTrace();
+	    System.exit(-1);
+	}
+	else if (exc instanceof SQLException) {
+	    System.out.println("Error in createDB(): getConnection in createDB \
+threw an SQL exception");
+	    exc.printStackTrace();
+	    System.exit(-1);
+	}
+	else {
+	    System.out.println("Error in createDB(): getConnection in creat\
+eDB threw an exception");
+	    exc.printStackTrace();
+	    System.exit(-1);
+	}
 
+	}
+
+
+
+
+    return conn;
+    }
+       
     /**
      * Check to see if all five expected tables exist. Used primarily for testing
      * purposes.
