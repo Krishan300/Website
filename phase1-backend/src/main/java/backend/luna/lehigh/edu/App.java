@@ -1,9 +1,7 @@
 package backend.luna.lehigh.edu;
 
-import static spark.Spark.*;
-import com.google.gson.*;
-
-import javax.xml.transform.Result;
+import java.io.*;
+import java.lang.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
@@ -12,169 +10,19 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Hashtable;
-import java.security.MessageDigest;
+import java.util.Base64;
+
+import static spark.Spark.*;
+
+import com.google.api.client.http.FileContent;
+import com.google.gson.*;
+import com.google.api.services.drive.Drive;
+
+import net.spy.memcached.MemcachedClient;
 
 /**
- * @author Alex Van Heest (created for reasons of testing Phase 3 frontend)
- * @version 1.2.1
- */
-//global connection variable
-
-/**
- * Datum object is the base object for storing our data on the backend. We store an index, title, comment,
- * number of likes, upload date, and like date.
- * DEPRECATED: Now using newer class to handle objects in multiple tables.
- */
-class Datum {
-    int index;
-    String title;
-    String comment;
-    int numLikes;
-    java.util.Date uploadDate;
-    java.util.Date lastLikeDate;
-}
-
-/**
- * UserObj - a class that stores data pertaining to tblUser table.
- */
-class UserObj {
-    int user_id;
-    String username;
-    String realname;
-    String email;
-
-    // below is probably more common constructor since frontend won't know new user's index
-    public UserObj(String Gusername, String Grealname, String Gemail) {
-        username = Gusername;
-        realname = Grealname;
-        email = Gemail;
-    }
-
-    public UserObj(int Guser_id, String Gusername, String Grealname, String Gemail) {
-        user_id = Guser_id;
-        username = Gusername;
-        realname = Grealname;
-        email = Gemail;
-    }
-}
-
-/**
- * MessageObj - a class that stores data pertaining to tblMessage table.
- */
-class MessageObj {
-    int user_id;
-    int message_id;
-    String title;
-    String body;
-    java.util.Date uploadDate;
-    String username;
-    String realname;
-    String email;
-
-    public MessageObj (int Guser_id, int Gmessage_id, String Gtitle, String Gbody, java.util.Date GuploadDate,
-                       String Gusername, String Grealname, String Gemail) {
-        user_id = Guser_id;
-        message_id = Gmessage_id;
-        title = Gtitle;
-        body = Gbody;
-        uploadDate = GuploadDate;
-        username = Gusername;
-        realname = Grealname;
-        email = Gemail;
-    }
-
-    public MessageObj (int Guser_id, String Gtitle, String Gbody) {
-        user_id = Guser_id;
-        title = Gtitle;
-        body = Gbody;
-    }
-}
-
-/**
- * MessageContentObj - a class that stores data pertaining to tblMessage table.
- * This version of the object includes userdata to be included with Message content, used
- * by front page. Perhaps this could've been better done with just a single MessageObj,
- * but hindsight is 20/20. I will have to adapt this at some point though.
- */
-class MessageContentObj {
-    int user_id;
-    int message_id;
-    String title;
-    String body;
-    java.util.Date uploadDate;
-    String username;
-    String realname;
-    String email;
-    int upvotes;
-    int downvotes;
-    int tot_votes;
-
-    public MessageContentObj (int Guser_id, int Gmessage_id, String Gtitle, String Gbody, java.util.Date GuploadDate,
-                       String Gusername, String Grealname, String Gemail, int Gupvotes, int Gdownvotes,
-                       int Gtot_votes) {
-        user_id = Guser_id;
-        message_id = Gmessage_id;
-        title = Gtitle;
-        body = Gbody;
-        uploadDate = GuploadDate;
-        username = Gusername;
-        realname = Grealname;
-        email = Gemail;
-        upvotes = Gupvotes;
-        downvotes = Gdownvotes;
-        tot_votes = Gtot_votes;
-    }
-}
-
-/**
- * CommentObj - a class that stores data pertaining to tblComment table.
- */
-class CommentObj {
-    int user_id;
-    int message_id;
-    int comment_id;
-    String comment_text;
-    java.util.Date uploadDate;
-    String username;
-    String realname;
-    String email;
-
-    public CommentObj(int Guser_id, int Gmessage_id, String Gcomment_text) {
-        user_id = Guser_id;
-        message_id = Gmessage_id;
-        comment_text = Gcomment_text;
-    }
-
-    public CommentObj (int Guser_id, int Gmessage_id, int Gcomment_id, String Gcomment_text, java.util.Date GuploadDate,
-                       String Gusername, String Grealname, String Gemail) {
-        user_id = Guser_id;
-        message_id = Gmessage_id;
-        comment_id = Gcomment_id;
-        comment_text = Gcomment_text;
-        uploadDate = GuploadDate;
-        username = Gusername;
-        realname = Grealname;
-        email = Gemail;
-    }
-}
-
-/**
- * VoteObj - a class that stores data pertaining to tblUpVote / tblDownVote table.
- */
-class VoteObj {
-    int user_id;
-    int message_id;
-
-    public VoteObj (int Guser_id, int Gmessage_id) {
-        user_id = Guser_id;
-        message_id = Gmessage_id;
-    }
-}
-
-/**
- * UserStateObj - a class that holds a username and secret key that're received from
- * frontend.
+ * @author Alex Van Heest
+ * @version 1.4
  */
 class UserStateObj {
     String username;
@@ -186,18 +34,6 @@ class UserStateObj {
     }
 }
 
-/**
- * LoginObj - a class that stores received login credentials from frontend for validation.
- */
-class LoginObj {
-    String username;
-    String password;
-
-    public LoginObj (String Gusername, String Gpassword) {
-        username = Gusername;
-        password = Gpassword;
-    }
-}
 
 /**
  * The App class creates an App object which passes in a MySQL database and stores the
@@ -207,8 +43,8 @@ public class App {
     // Final static strings, used throughout program.
     final static String goodData = "{\"res\":\"ok\"}";
     final static String badData = "{\"res\":\"bad data\"}";
-    final static String sFileLocation = "/web";        // FIX FOR WHATEVER THE HIERARCHY IT IS IN FINAL VERSION
-    protected static Connection conn;
+    final static String sFileLocation = "/web";
+
     // Only one gson instantiation, for efficiency.
     final Gson gson;
 
@@ -221,58 +57,25 @@ public class App {
     static String db = env.get("POSTGRES_DB");
     static String dbstring = env.get("DATABASE_URL");
 
+    //static Hashtable<String, Integer> hashtable = new Hashtable<>();
 
+    // MEMCACHIER CREDENTIALS ... Note that servers are the same URL but separate
+    // in case that changes at any point.
+    // User/pass/server for secret key connections to memcached client
+    static String mc_username_sk = "77AE4E";
+    static String mc_password_sk = "BF013B51F332A15D8BAD73A2F6D665EC";
+    static String mc_server_sk = "mc2.dev.ec2.memcachier.com:11211";
 
-    static Hashtable<String, Integer> hashtable = new Hashtable<>();
-
-    private static Connection createConnection()  {
-        // Connection to be returned
-        //Connection conn=null;
-
-        //Connect to the database, fail if we can't
-        try {
-	    // String dbUrl=System.getenv("JDBC_DATABASE_URL");
-	    // conn=DriverManager.getConnection(dbUrl);
-	       URI dbUri = new URI(System.getenv("DATABASE_URL"));
-	                //URI dbUri=new URI("postgres://kqtcfljdpfesuu:c47c0eba68c7ffb8369fc739bcfc16f78b08167f29eb61523d81d2592a4c273f@ec2-54-83-26-65.compute-1.amazonaws.com:5432/db647b4fma1r2m");
-            String username = dbUri.getUserInfo().split(":")[0];
-            String password = dbUri.getUserInfo().split(":")[1];
-            String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
-            conn = DriverManager.getConnection(dbUrl, username, password); 
-            if(conn == null) {
-                System.out.println("Error in createDB(): getConnection returned null object in createDB");
-                System.exit(-1); 
-            }
-        }   catch(Exception exc) {
-            if(exc instanceof URISyntaxException)  {
-                System.out.println("Error in createDB(): getConnection in createDB threw a URISyntaxexception.");
-                exc.printStackTrace();
-                System.exit(-1);
-            }
-            else if (exc instanceof SQLException) {
-                System.out.println("Error in createDB(): getConnection in createDB threw an SQL exception");
-                exc.printStackTrace();
-                System.exit(-1);
-            }
-            else {
-                System.out.println("Error in createDB(): getConnection in createDB threw an exception");
-                exc.printStackTrace();
-                System.exit(-1);
-            }
-
-        }
-
-
-
-
-        return conn;
-    }
+    // User/pass/server for file caching memcached client
+    static String mc_username_fc = "7C31C5";
+    static String mc_password_fc = "25796431EB1773FF16ABD1247F00BF25";
+    static String mc_server_fc = "mc2.dev.ec2.memcachier.com:11211";
 
     /**
      * This is the long-awaited method that returns a Connection object. Replaces all the versions
      * throughout the code to keep the Connection stuff consistent and easier to update.
      */
-  /* public static Connection createConnection() {
+    public static Connection createConnection() {
         // Connection to be returned.
         Connection conn = null;
 
@@ -288,7 +91,7 @@ public class App {
         // Connect to the database; fail if we can't
         try {
             // Open a connection, fail if we cannot get one. Connection to POSTGRES server at following url:
-            String url = "jdbc:"+ dbstring;
+            String url = "jdbc:postgresql://" + ip + ":" + port + "/" + db;
             conn = DriverManager.getConnection(url, user, pass);
 
             // Make sure connection object isn't null. If it is, print error and exit.
@@ -676,6 +479,14 @@ public class App {
     String insertMessage(MessageObj mo) {
         Connection conn = createConnection();
 
+        // Check if there's a file given, and if there is, retrieve it and save it:
+        if (mo.filecontent != null) {
+            // Decode the Base64 and get file contents as a string, write
+            byte[] decodedFile = Base64.getDecoder().decode(mo.filecontent);
+            String decodedFileContents = new String(decodedFile);
+            saveFileToGDrive(decodedFileContents);
+        }
+
         // Only insert if relevant parts of MessageObj are not null
         if (mo != null && mo.user_id > -1 && mo.title != null && mo.body != null) {
             try {
@@ -982,16 +793,13 @@ public class App {
         }
     }
 
-
-
-
     /**
      * Method that performs OAuth validation. If it receives any API code from OAuth, return
      * true. Else, return false.
      * @param username  Given username.
      * @param password  Given password.
      * @return          API key if successful, null if unsuccessful.
-     * TODO: Use actual OAuth validation in this method, aka Phase 3.
+     * TODO: Use actual OAuth validation in this method, aka Phase 3. No time in Phase 4 to do this, sorry.
      */
     public static String oValidate(String username, String password) {
         if (username != null && password != null)   return "oauth_api_key";
@@ -1011,7 +819,14 @@ public class App {
         Date curDate = new Date();
         String toHash = username + apiKey + curDate.toString();
         int hashCode = toHash.hashCode();
-        hashtable.put(username, hashCode);
+        MemcachedClient mc = MemcachedObj.getMemcachedConnection(mc_username_sk, mc_password_sk, mc_server_sk);
+        try {
+            mc.set(username, 3600, hashCode);
+        }
+        catch (NullPointerException ex) {
+            System.out.println("ERROR in addUser(): unable to set() in memcachier!");
+        }
+        //hashtable.put(username, hashCode);  // replaced by Memcachier in phase 4
         int inTable = 0;
 
         // Check to see if user exists in the table; add if doesn't exist.
@@ -1025,7 +840,7 @@ public class App {
             }
             // Means that user isn't in table; needs to be added. Otherwise, in table.
             if (inTable == 0) {
-                // TODO: Using OAuth, we should be able to retrieve realname for the user.
+                // When using OAuth, we should be able to retrieve realname for the user.
                 this.insertUser(new UserObj(username, username, username + "@lehigh.edu"));
             }
         }
@@ -1046,24 +861,44 @@ public class App {
      */
     public static boolean validateAction(String username, int secretKey) {
         // Successful validation case
-        if (hashtable.containsKey(username) && hashtable.get(username) == secretKey) return true;
-        else                                      return false;
+        int sK;
+        try {
+            MemcachedClient mc = MemcachedObj.getMemcachedConnection(mc_username_sk, mc_password_sk, mc_server_sk);
+            sK = (Integer) mc.get(username);
+        }
+        catch (NullPointerException ex) {
+            sK = secretKey + 1; // cannot equal secretKey and validate!
+        }
+        if (sK == secretKey)      return true;
+        else                      return false;
     }
 
     public static boolean validateAction(UserStateObj uso) {
         // Successful validation case
-        if (hashtable.containsKey(uso.username) && hashtable.get(uso.username) == uso.secret_key) return true;
-        else                                      return false;
+        int sK;
+        try {
+            MemcachedClient mc = MemcachedObj.getMemcachedConnection(mc_username_sk, mc_password_sk, mc_server_sk);
+            sK = (Integer) mc.get(uso.username);
+        }
+        catch (NullPointerException ex) {
+            sK = uso.secret_key + 1;    // cannot equal secretKey and validate!
+        }
+        if (sK == uso.secret_key) return true;
+        else                      return false;
     }
 
     /**
      * Method that logs a user out. Maybe should be called regardless of success of secret key? If it's
      * invalid, then shouldn't a user not be logged in? Or would this just be an opportunity for trolls?
      * For the moment however, only logout if secret key is true, may change later.
+     * @param username  Given username.
+     * @param secretKey Given secret key.
+     * @return goodData if successful, badData if unsuccessful.
      */
     public String logout(String username, int secretKey) {
+        MemcachedClient mc = MemcachedObj.getMemcachedConnection(mc_username_sk, mc_password_sk, mc_server_sk);
         if (validateAction(username, secretKey)) {
-            hashtable.remove(username);
+            mc.delete(username);
             return goodData;
         }
         else return badData;
@@ -1090,8 +925,7 @@ public class App {
      * @param args  Standard Java main class argument.
      */
     public static void main(String[] args) {
-        //conn = createConnection();
-        // "Do this early in your main -- Prof"
+        // "Do this early in your main" -- Prof
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
@@ -1126,19 +960,20 @@ public class App {
             }
         });
 
-        // POST a new item into the db
-        post("/data", (req, res) -> {
-            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
-                return badData;
-            }
-            else {
-                MessageObj mo = app.gson.fromJson(req.body(), MessageObj.class);
-                String result = app.insertMessage(mo);
-                res.status(200);
-                res.type("application/json");
-                return result;
-            }
-        });
+        // DEPRECATED VERSION OF POST MESSAGE:
+//        // POST a new item into the db
+//        post("/data", (req, res) -> {
+//            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
+//                return badData;
+//            }
+//            else {
+//                MessageObj mo = app.gson.fromJson(req.body(), MessageObj.class);
+//                String result = app.insertMessage(mo);
+//                res.status(200);
+//                res.type("application/json");
+//                return result;
+//            }
+//        });
 
         // POST a new +vote into db
         post("/data/vote/up", (req, res) -> {
@@ -1171,7 +1006,7 @@ public class App {
         // PHASE 2 ROUTES (written by Alex Van Heest):
 
         // GET message and votes for one page
-        // TODO: Add the Comments section.
+        // TODO: Add the Comments section as separate route.
         get("/data/message/:id", (req,res) -> {
             if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
                 return badData;
@@ -1236,8 +1071,20 @@ public class App {
                 return result;
             }
         });
-	//port(getHerokuAssignedPort());
-	// get("/hello", (req, res) -> "Hello Heroku World");
-         
+
+        // PHASE 4 ROUTES (written by Alex Van Heest):
+        // POST a new item into the db and receive optional file content (handled in insertMessage()...)
+        post("/data", (req, res) -> {
+            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
+                return badData;
+            }
+            else {
+                MessageObj mo = app.gson.fromJson(req.body(), MessageObj.class);
+                String result = app.insertMessage(mo);
+                res.status(200);
+                res.type("application/json");
+                return result;
+            }
+        });
     }
 }

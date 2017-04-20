@@ -3,11 +3,16 @@ package backend.luna.lehigh.edu;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import net.spy.memcached.MemcachedClient;
+
+import java.io.IOException;
+import java.util.Base64;
 import java.util.Date;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
 import java.lang.*;
+import java.io.File;
 
 /**
  * Unit test for simple App. Updated by Alex Van Heest to work with POSTGRESQL.
