@@ -1,0 +1,3 @@
+Kieran Horan
+
+The site uses the camera api to take pictures and has a file selecting mechanism. before moving on the phase5, the routes need to be configured. the canvas and pictures need to be converted to base64 for that to work. admin interface is the same as the regular one and needs to have the deletion written and a way to check admin credentials on the back end.

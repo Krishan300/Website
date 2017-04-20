@@ -8,6 +8,7 @@ class nav {
 		}));
 		$("#navContentBtn").click(nav.onContentClick);
 		$("#navWelcomeBtn").click(nav.onWelcomeClick);
+		$("#navAdminBtn").click(nav.onAdminClick);
 	}
 
 	/// Manage the highlighting of whichever button corresponds
@@ -28,6 +29,13 @@ class nav {
 	public static onWelcomeClick() {
 		nav.highlight(this);
 		welcome.putInDom();
+	}
+
+	// Handle a click of the "Admin Login" button
+	public static onAdminClick(){
+		nav.highlight(this);
+		//should take to andmin page which displays deletable content if user is admin
+		content.getAndShowDeletable();
 	}
 
 	public static loggedIn() {

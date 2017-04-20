@@ -7,6 +7,13 @@
 		<div id="commentBox"><input id='comment-title' cols='50' type='text' placeholder="Your message title"></input>
 			<br><textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder="Type message here!"></textarea><br>
 			<button id="comment-send-btn" onclick="content.sendComment()">Send Comment</button>
+
+
+        {{!add button to send .pdf files}}
+        <input type="file" id="myFileInput" />
+        <input type="button" onclick="document.getElementById('myFileInput').click()" value="Select a File" />
+
+
 		</div>
 		<ul id="article-list">
 			{{#each this}}

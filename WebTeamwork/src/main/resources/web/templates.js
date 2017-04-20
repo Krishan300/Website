@@ -15,7 +15,7 @@ templates['content.hb'] = template({"1":function(container,depth0,helpers,partia
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=container.lambda, alias2=container.escapeExpression;
 
-  return "<div class=\"panel panel-default\">\n	<div class=\"panel-heading\">\n		<h3 class=\"panel-title\">Recent posts</h3>\n	</div>\n	<div class=\"panel-body\">\n		<div id=\"commentBox\"><input id='comment-title' cols='50' type='text' placeholder=\"Your message title\"></input>\n			<br><textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder=\"Type message here!\"></textarea><br>\n			<button id=\"comment-send-btn\" onclick=\"content.sendComment()\">Send Comment</button>\n		</div>\n		<ul id=\"article-list\">\n"
+  return "<div class=\"panel panel-default\">\n	<div class=\"panel-heading\">\n		<h3 class=\"panel-title\">Recent posts</h3>\n	</div>\n	<div class=\"panel-body\">\n		<div id=\"commentBox\"><input id='comment-title' cols='50' type='text' placeholder=\"Your message title\"></input>\n			<br><textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder=\"Type message here!\"></textarea><br>\n			<button id=\"comment-send-btn\" onclick=\"content.sendComment()\">Send Comment</button>\n\n\n        <input type=\"file\" id=\"myFileInput\" />\n        <input type=\"button\" onclick=\"document.getElementById('myFileInput').click()\" value=\"Select a File\" />\n\n\n		</div>\n		<ul id=\"article-list\">\n"
     + ((stack1 = helpers.each.call(depth0 != null ? depth0 : {},depth0,{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "		</ul>\n	</div>\n</div>\n<!-- Votes: <button id='upvote' onclick='content.upvote("
     + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
@@ -31,9 +31,9 @@ templates['content.hb'] = template({"1":function(container,depth0,helpers,partia
 templates['nav.hb'] = template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper;
 
-  return "<nav id=\"nav\" class=\"navbar navbar-default navbar-fixed-top\">\n	<div class=\"container-fluid\">\n		<div class=\"navbar-header\">\n			<button type=\"button\" class=\"navbar-toggle collapsed\" data-toggle=\"collapse\" data-target=\"#bs-example-navbar-collapse-1\" aria-expanded=\"false\">\n				<span class=\"sr-only\">Toggle navigation</span>\n				<span class=\"icon-bar\"></span>\n				<span class=\"icon-bar\"></span>\n				<span class=\"icon-bar\"></span>\n			</button>\n			<a class=\"navbar-brand\" href=\"#\">Luna's Phase 3</a>\n		</div>\n\n		<div class=\"collapse navbar-collapse\" id=\"bs-example-navbar-collapse-1\">\n			<ul class=\"nav navbar-nav\">\n				<li><a id=\"navWelcomeBtn\" href=\"#\">"
+  return "<nav id=\"nav\" class=\"navbar navbar-default navbar-fixed-top\">\n	<div class=\"container-fluid\">\n		<div class=\"navbar-header\">\n			<button type=\"button\" class=\"navbar-toggle collapsed\" data-toggle=\"collapse\" data-target=\"#bs-example-navbar-collapse-1\" aria-expanded=\"false\">\n				<span class=\"sr-only\">Toggle navigation</span>\n				<span class=\"icon-bar\"></span>\n				<span class=\"icon-bar\"></span>\n				<span class=\"icon-bar\"></span>\n			</button>\n			<a class=\"navbar-brand\" href=\"#\">Luna's Phase 4</a>\n		</div>\n\n\n		<div class=\"collapse navbar-collapse\" id=\"bs-example-navbar-collapse-1\">\n			<ul class=\"nav navbar-nav\">\n				<li><a id=\"navWelcomeBtn\" href=\"#\">"
     + container.escapeExpression(((helper = (helper = helpers.account || (depth0 != null ? depth0.account : depth0)) != null ? helper : helpers.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : {},{"name":"account","hash":{},"data":data}) : helper)))
-    + "</a></li>\n				<li><a id=\"navContentBtn\" href=\"#\">Content</a></li>\n			</ul>\n		</div>\n	</div>\n</nav>";
+    + "</a></li>\n				<li><a id=\"navContentBtn\" href=\"#\">Content</a></li>\n				<li><a id=\"navAdminBtn\" href=\"#\">Admin Page</a></li>\n			</ul>\n		</div>\n	</div>\n</nav>";
 },"useData":true});
 })();
 (function() {

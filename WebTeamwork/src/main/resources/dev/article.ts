@@ -47,4 +47,8 @@ class article {
 			success: article.getAndShow(idx)
 		});
 	}
+
+
+
+
 }

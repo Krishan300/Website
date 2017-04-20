@@ -10,14 +10,16 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="#">Luna's Phase 3</a>
+			<a class="navbar-brand" href="#">Luna's Phase 4</a>
 		</div>
 
-		{{! This div will either be showing (large screen) or will be a menu that gets expanded when we click the 'expand' button.}}
+
+	{{!  This div will either be showing 'large screen' or will be a menu that gets expanded when we click the 'expand' button.--}}
 		<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 			<ul class="nav navbar-nav">
 				<li><a id="navWelcomeBtn" href="#">{{account}}</a></li>
 				<li><a id="navContentBtn" href="#">Content</a></li>
+				<li><a id="navAdminBtn" href="#">Admin Page</a></li>
 			</ul>
 		</div>
 	</div>

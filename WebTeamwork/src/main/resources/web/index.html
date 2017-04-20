@@ -2,6 +2,15 @@
 <html lang="en">
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+    video, img {
+      max-width:100%;
+    }
+    </style>
+
+
+
 	<meta charset="utf-8">
 	<meta name="format-detection" content="telephone=no" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
@@ -9,7 +18,7 @@
 	<meta name="author" content="Alex Van Heest">
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
 
-	<title>Phase 3 Luna</title>
+	<title>Phase 4 Luna</title>
 
 	<script src="lib/jquery.min.js"></script>
 	<script src="lib/bootstrap.min.js"></script>
@@ -24,9 +33,56 @@
 <body role="document">
 	<div id="indexNav"></div>
 	<div class="indexMain" id="indexMain"></div>
-</body>
 
-</html>
+
+
+    <canvas id="canvas" width="480" height="320"></canvas>
+
+
+
+
+	<video autoplay></video>
+	<script>
+        (function() {
+        'use strict';
+      var video = document.querySelector('video');
+      var canvas;
+
+    /**
+     *  takes a photo and puts it under the autoplay when clicked
+     *  needs to convert photo to pdf and post on data route
+     */
+    function takePicture() {
+      var img = document.querySelector('img') || document.createElement('img');
+      var context;
+      var width = video.offsetWidth
+      var height = video.offsetHeight;
+
+      canvas = canvas || document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      context = canvas.getContext('2d');
+      context.drawImage(video, 0, 0, width, height);
+
+      img.src = canvas.toDataURL('image/png');
+      document.body.appendChild(img);
+    }
+
+    if (navigator.mediaDevices) {
+      // access the web cam if access granted
+      navigator.mediaDevices.getUserMedia({video: true})
+        .then(function(stream) {
+                 video.src = window.URL.createObjectURL(stream);
+             video.addEventListener('click', takePicture);
+           })
+        }
+    })();
+
+    </script>
+
+
+
 </body>
 
 </html>
