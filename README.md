@@ -1,18 +1,39 @@
-# Luna Phase 5 Frontend
+# Luna Phase 5
 
-**Edited by Krishan Madan**
+**Edited by Alex Van Heest**
 
 ****
 
-**What needs to be done to the Phase 5**
+**What are our "roles" for Phase 5?**
+* Kieran: Backend developer
+* Krishan: Frontend developer
+* Robert: Project Manager & Heroku Setup
+* Alex: New API Implementation Design & General Advisor
 
-* ~~Phase 2 Storing and sending photos for frontend~~
-* Authenticating user id for admin with oauth
-* ~~Article page~~
-* ~~Kieran did substantially update the merge. As of this commit, I have no inc\
-orporated his changes into the master branch. Please look at his branch (p4_fro\
-ntend) to see the changes he has made. I apologize; I ran into some weird issue\
-s during merging.~~
+****
 
+**How are we breaking up the work?**
+
+Kieran:
+* build admin app
+	* handle admin authentication
+	* let admins delete any post
+* implement new OMDb features
+* add feature for users to delete their own posts
+
+Krishan:
+* add comments to individual message pages
+* implement new OMDb features
+* add feature for users to delete their own posts
+
+Robert:
+* re-merge / fix master to reflect all Phase 4 progress
+* handle refresh issue on Heroku
+* help Kieran and Krishan with design/coding issues
+
+Alex:
+* ~~design OMDb API implementation for frontend/backend~~
+* help Kieran and Krishan with design/coding issues
+* help get backend/frontend up and running on Heroku
 
 ****

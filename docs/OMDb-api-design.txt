@@ -1,0 +1,115 @@
+Alex Van Heest
+CSE 216: Team Luna
+4/25/2017
+
+
+
+
+OMDB API Implementation Design Document:
+
+This document is the design I’ve created based on discussions during our 4/24 meeting in the hopes of guiding my group members through implementing a new feature using the OMDb API. This feature will allow users who provide a movie title in square brackets in a message to view some data about the movie in an infobox that displays below if the movie title is found in an OMDb query. 
+
+We wanted to start with a concrete design this phase. This phase, I’ll be acting as the middleman between our developers and the technical details of the API we selected. I pseudocoded the implementation we’ll need on backend and gave a bit of code and left some details open for the frontend. This should help when we need to combine frontend and backend to run our final project, and keeping to this design should keep everyone on track and steadily progressing.
+
+After finishing this document, I’ll be advising our backend and frontend devs on how to proceed if they have any questions and helping them iron out any flaws in the design that could (but hopefully won’t) arise. I’ll also help combine the two on Heroku when frontend and backend are finished since I know how both work pretty well at this point.
+
+
+
+
+IMPORTANT HTTP API REQUESTS:
+
+SEARCH QUERY:
+http://www.omdbapi.com/?s=TITLEHERE&y=YEARHERE
+
+QUERY WITH AN EXACT TITLE:
+http://www.omdbapi.com/?t=memento
+
+We’ll be focusing on the search query, at least for now.
+
+
+
+
+BACKEND:
+
+First, edit the tblMessage in the database to reflect a few new optional fields we’ll need to store: movietitle, year, imdbid, metascore, runtime, and genres. Nothing else drastic will need to be done to the database.
+
+Then, add this package to Maven:
+https://github.com/Omertron/api-omdb
+It’s a simple Java API for OMDb I found. And here’s how to add it to mvn:
+https://stackoverflow.com/questions/20161602/loading-maven-dependencies-from-github
+(And of course don’t forget to import everything you’ll need. Docs seem decent from Omertron’s API, so shouldn’t be too bad.)
+
+Now you should be set for configuration. Below are some methods I designed:
+
+// Called by insertMessage from conditional looking for bracketed
+// substring. If found, call this method with bracketed substr as argument.
+// @parameter searchString: “bracketed” text from message
+// @return: nothing. we’re just inserting into the database with this.
+void queryOMDb(String searchString):
+	use Omertron’s OMDb API to create an OMDb object
+	set the title using the searchString parameter and do a ?t= request
+		(for more on this, see above API usage and use Omertron’s docs)
+	store the retrieved JSON in a JSON object
+	don’t forget to handle cases where searchString isn’t found; don’t crash the backend b/c this because this may happen a lot
+	grab and store movietitle (may be different from searchString due to capitalization or spelling), year, imdbid (may be needed later), metascore, runtime, and genres
+	[return null]
+
+
+Add to the MessageObj the new OMDb fields we’ll need. Then change the getAllMessages() method to reflect these changes.
+
+And just a friendly suggestion from someone who just did backend and found this immeasurably helpful: Keep the tests in AppTest up to date with your changes and remember to keep them all atomic as they are now or things will break really hard really fast! I’d write some new unit tests as you see fit and fix old ones should they break. These’ll be essential to combining your backend with Krishan’s frontend (early?) next week. Just a couple quick suggestions on unit tests:
+
+testValidOMDbQuery(): tests that a title returns correct output from OMDb
+testInvalidOMDbQuery(): tests that gibberish in searchString is handled 	however you handled it
+
+
+Finally, if you make any, update our Google Doc with the new route outputs whenever you can so Krishan can see it.
+
+
+
+
+FRONTEND:
+
+The way we get messages should remain the same, but you’ll need to use Handlebars to design an optional movie infobox. You’ll only use routes that already exist for this. You’ll only be editing article.hb (the Handlebars file) for this. Here’s a basic rundown on how to do this. I’ve tried to include as much detail as I can for this since you haven’t worked on frontend for a long time and may be unfamiliar with the file structure and code we have written in the past couple phases:
+
+article.hb is the Handlebars file that is used to build an individual message page, NOT the full message listing page. After the div with class “article-votes”, you’ll want to create a new div with the class “movie-infobox.” I’ll explain why this needs to be in a div later. It should look something like this:
+
+<div class=“movie-infobox”>
+	{{! MOVIE INFO BOX }}
+</div>
+
+Next, you’ll design the info box itself where {{! MOVIE INFO BOX}} currently is. Here are the fields that you’ll have that need to be in the infobox:
+
+this.movietitle
+this.year
+this.imdbid
+this.metascore
+this.runtime
+this.genres
+
+You’ll want to use some format like this inside the div tags described above:
+
+<h3><a href=“http://www.imdb.com/title/{{this.imdbid}}”>{{this.movietitle}}</a></h3>
+<b>Year:</b> {{this.year}}<br>
+<b>Metascore:</b> {{this.metascore}}<br>
+<b>Runtime:</b> {{this.runtime}} minutes<br>
+… etc.
+
+Once you do this, we’ll have a movie infobox. However, the way it is now, it’ll appear for every post, even if there’s no movie attached to it. This is where the challenge comes in: Using Handlebars syntax, you’ll need to design a solution that only displays the infobox if the OMDb fields listed above are not null. This shouldn’t be too hard if you read up on Handlebars syntax like {{#if}}.
+
+Once this is working, we have one thing left to do: edit the appearance of the infobox. This is why we put this all in a div, so we can edit how just the infobox appears. To do this, go into article.css. On a new line at the bottom, put in the following:
+
+.movie-infobox {
+// STUFF HERE
+}
+
+This is going to allow you to “style” the movie-infobox you just created. I’d recommend putting the below where STUFF HERE is written for starters and adding anything else you see fit:
+
+border-left-style: solid;
+border-width: 10px;
+background-color: grey;
+padding-left: 1cm;
+padding-bottom: 10px;
+padding-top: 10px;
+
+And that’s about it for the OMDb stuff. Remember that capitalization and formatting is essential to Handlebars and CSS working correctly. I’d also test this incrementally if you can use what Kieran showed you last week. Let me know if you have any questions.
