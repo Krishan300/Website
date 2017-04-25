@@ -5,9 +5,6 @@ import java.lang.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
-import java.lang.*;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Base64;
@@ -24,15 +21,6 @@ import net.spy.memcached.MemcachedClient;
  * @author Alex Van Heest
  * @version 1.4
  */
-class UserStateObj {
-    String username;
-    int secret_key;
-
-    public UserStateObj (String Gusername, int GsecretKey) {
-        username = Gusername;
-        secret_key = GsecretKey;
-    }
-}
 
 
 /**
@@ -55,7 +43,6 @@ public class App {
     static String user = env.get("POSTGRES_USER");
     static String pass = env.get("POSTGRES_PASS");
     static String db = env.get("POSTGRES_DB");
-    //static String dbstring = env.get("DATABASE_URL");
 
     //static Hashtable<String, Integer> hashtable = new Hashtable<>();
 
@@ -76,7 +63,7 @@ public class App {
      * throughout the code to keep the Connection stuff consistent and easier to update.
      */
     public static Connection createConnection() {
-	/*        // Connection to be returned.
+        // Connection to be returned.
         Connection conn = null;
 
         // Include the needed driver (needs to be tested, may be redundant.
@@ -107,47 +94,8 @@ public class App {
         }
 
         return conn;
-    } */
-	try{
-        
-	URI dbUri = new URI(System.getenv("DATABASE_URL"))
-        String username = dbUri.getUserInfo().split(":")[0];
-	String password = dbUri.getUserInfo().split(":")[1];
-	String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
-	conn = DriverManager.getConnection(dbUrl, username, password);
-	if(conn == null) {
-	    System.out.println("Error in createDB(): getConnection returned\
- null object in createDB");
-	    System.exit(-1);
-	}
-    }   catch(Exception exc) {
-	if(exc instanceof URISyntaxException)  {
-	    System.out.println("Error in createDB(): getConnection in creat\
-eDB threw a URISyntaxexception.");
-	    exc.printStackTrace();
-	    System.exit(-1);
-	}
-	else if (exc instanceof SQLException) {
-	    System.out.println("Error in createDB(): getConnection in createDB \
-threw an SQL exception");
-	    exc.printStackTrace();
-	    System.exit(-1);
-	}
-	else {
-	    System.out.println("Error in createDB(): getConnection in creat\
-eDB threw an exception");
-	    exc.printStackTrace();
-	    System.exit(-1);
-	}
-
-	}
-
-
-
-
-    return conn;
     }
-       
+
     /**
      * Check to see if all five expected tables exist. Used primarily for testing
      * purposes.
@@ -942,21 +890,118 @@ eDB threw an exception");
         }
         else return badData;
     }
-    
-    public static int getHerokuAssignedPort() {
-        System.out.println("Port has been accessed");
-	ProcessBuilder processBuilder=new ProcessBuilder();
-        if(processBuilder.environment().get("PORT")!=null) {
 
-	    return Integer.parseInt(processBuilder.environment().get("PORT"));
+    /**
+     * Method that takes in a File object from frontend and uploads it to the Google Drive.
+     * @param  filecontents Given raw string-formatted file contents.
+     * @return fileid       URL of the created file from file contents.
+     */
+    public String saveFileToGDrive(String filecontents) {
+        // Build a new authorized API client service.
+        //System.out.println("TEST: saveFileToGDrive() started.");
+        //System.out.println("TEST: quickstart object created.");
+
+        // Write "filecontents" to a file
+        String filepath = "src/main/resources/files/myfilename.txt";
+        //System.out.println("File contents: " + filecontents);
+        String fileid;
+
+        try {
+            // First, write contents to the file
+            PrintWriter writer = new PrintWriter(filepath, "UTF-8");
+            writer.println(filecontents);
+            writer.close();
+
+            // Then write this to a file
+            Drive service = Quickstart.getDriveService();
+            com.google.api.services.drive.model.File fileMetadata = new com.google.api.services.drive.model.File();
+            fileMetadata.setName("myfilename.txt");
+            java.io.File filePath = new java.io.File(filepath);
+            //filePath.createNewFile();
+            FileContent mediaContent = new FileContent("text/plain", filePath);
+            com.google.api.services.drive.model.File file = service.files()
+                    .create(fileMetadata, mediaContent)
+                    .setFields("id")
+                    .execute();
+            //System.out.println("File ID: " + file.getId());
+            fileid = file.getId();
+
+            // Then add the file to the cache.
+            addFileToCache(fileid, filecontents);
         }
-	return 4567;
+        catch (IOException ex) {
+            System.out.println("IOException in saveFileToGDrive() caught");
+            ex.printStackTrace();
+            fileid = "";
+            System.exit(-1);
+        }
 
+        System.out.println("File contents: " + filecontents);
 
+        System.out.println("TEST: saveFileToGDrive() about to finish.");
+        return fileid;
     }
 
+    /**
+     * Method where, given a file id, retrieves a File object for that file.
+     * @param fileid    File ID retrieved from frontend.
+     * @return          Filecontents from cache/GDrive load or null if file not found.
+     */
+    public String getFileFromGDriveById(String fileid) {
+        // Let's plan to send the filecontents encoded in base64 back to the frontend/Android.
+        // There are two ways this can be done: if the file's in the cache, load it from there.
+        // Otherwise, we'll need to load the file contents from the GDrive.
 
+        // Let's figure out first if the file at the given fileid is in the cache in hopes of
+        // saving valuable milliseconds for our die hard fans!!!!!
+        MemcachedClient mc = MemcachedObj.getMemcachedConnection(mc_username_fc, mc_password_fc, mc_server_fc);
+        Object o;   // stores retrieved content from cache
+        String filecontents;    // stores retrieved filecontents from cache/Drive (if not found null)
+        try {
+            o = mc.get(fileid);
+        }
+        catch (NullPointerException ex) {
+            o = null;
+        }
 
+        // Then retrieve filecontents, either using GDrive or Memcachier file cache.
+        if (o != null) {    // means that the given key matched something in the cache! yay for efficiency!!
+            filecontents = o.toString();
+        }
+        else { // look for file on GDrive since it's definitely not in cache
+            try {
+                Drive service = Quickstart.getDriveService();
+                com.google.api.services.drive.model.File file = service.files().get(fileid).execute();
+                filecontents = file.getWebContentLink();
+                //String filemimetype = file.getMimeType();
+                //String filetitle = file.getTitle();
+                //String filedescr = file.getDescription();
+            }
+            catch (IOException ex) {
+                System.out.println("ERROR in getFileFromGDrive(): Not in cache or in GDrive, load failed! Null returned.");
+                filecontents = null;
+            }
+        }
+
+        //return "https://drive.google.com/file/d/" + fileid;
+        return filecontents;
+    }
+
+    /**
+     * Method called by saveFileToGDrive() that adds a file at filepath to a memcachier.
+     * @param fileid        Fileid given by GDrive, used as key in memcachier.
+     * @param filecontents  Contents we want to cache.
+     */
+    public static void addFileToCache(String fileid, String filecontents) {
+        // Get memcachier connection to our file-caching server.
+        MemcachedClient mc = MemcachedObj.getMemcachedConnection(mc_username_fc, mc_password_fc, mc_server_fc);
+        try {
+            mc.add(fileid, 3600, filecontents);
+        }
+        catch (NullPointerException ex) {
+            System.out.println("ERROR in addFileToCache(): Unable to add " + fileid + " to cache!");
+        }
+    }
 
     /**
      * Main method which holds all get and post routes for updating and sending the database to the server.
@@ -972,12 +1017,9 @@ eDB threw an exception");
             e.printStackTrace();
             System.exit(-1);
         }
-        staticFileLocation(sFileLocation);
 
-	port(getHerokuAssignedPort());
-      	get("/hello", (req, res)->"Hello Heroku World");
-  
         App app = new App(true);
+        staticFileLocation(sFileLocation);
 
         // GET '/' returns the index page
         // (Leaving this alone, at least for now.)

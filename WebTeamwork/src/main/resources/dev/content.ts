@@ -34,6 +34,18 @@ class content {
 		});
 	}
 
+	//needs to be updated for admin to be able to delete data
+    //need to add another route
+	public static getAndShowDeletable() {
+		///document.getElementById("#indexMain").innerHTML = "";
+		$.ajax({
+			method: "GET",
+			url: "/data",
+			dataType: "json",
+			success: content.show
+		});
+	}
+
 	/// When the data arrives from the server, render the content.hb
 	/// template using the data.
 	private static show(data: any) {
@@ -67,6 +79,15 @@ class content {
             window.alert("Send comment failed");
         });
 	}
+
+
+
+
+    public static sendPDF(){
+
+    }
+
+
 }
 
 

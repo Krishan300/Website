@@ -35,17 +35,16 @@ var content = (function () {
             success: content.show
         });
     };
-
     //needs to be updated for admin to be able to delete data
     //need to add another route
     content.getAndShowDeletable = function () {
         ///document.getElementById("#indexMain").innerHTML = "";
         $.ajax({
-		method: "GET",
-		url: "/data",
-		dataType: "json",
-		success: content.show
-	    });
+            method: "GET",
+            url: "/data",
+            dataType: "json",
+            success: content.show
+        });
     };
     /// When the data arrives from the server, render the content.hb
     /// template using the data.
@@ -78,6 +77,8 @@ var content = (function () {
             window.alert("Send comment failed");
         });
     };
+    content.sendPDF = function () {
+    };
     return content;
 }());
 /// The navigation bar has two buttons, one for the 'Welcome' page and one for the 'Content' page
@@ -91,6 +92,7 @@ var nav = (function () {
         }));
         $("#navContentBtn").click(nav.onContentClick);
         $("#navWelcomeBtn").click(nav.onWelcomeClick);
+        $("#navAdminBtn").click(nav.onAdminClick);
     };
     /// Manage the highlighting of whichever button corresponds
     /// to the active content on the page
@@ -108,6 +110,12 @@ var nav = (function () {
     nav.onWelcomeClick = function () {
         nav.highlight(this);
         welcome.putInDom();
+    };
+    // Handle a click of the "Admin Login" button
+    nav.onAdminClick = function () {
+        nav.highlight(this);
+        //should take to andmin page which displays deletable content if user is admin
+        content.getAndShowDeletable();
     };
     nav.loggedIn = function () {
         if (document.cookie === "") {
@@ -192,23 +200,6 @@ var welcome = (function () {
     };
     return welcome;
 }());
-/// If we say that '$' and 'Handlebars' are both variables of type
-/// any, we lose all static checking but we don't get any error
-/// messages while compiling.
-///
-/// In general, this is a bad thing to do because it means that it
-/// is on us to make sure we are using jQuery and Handlebars
-/// correctly. For this tutorial, we'll let it slide...
-var $;
-var Handlebars;
-/// This is equivalent to 'public static main()' in Java. It runs
-/// once all of the files that comprise our program have loaded.
-/// In this demo, all it does is initialize the navbar and simulate
-/// a click on the Welcome button.
-$(document).ready(function () {
-    nav.init();
-    nav.onWelcomeClick();
-});
 /// The content object is responsible for filling the 'indexMain'
 /// div with the result of an AJAX query to get the most recent data.
 var article = (function () {
@@ -284,3 +275,20 @@ var profile = (function () {
     };
     return profile;
 }());
+/// If we say that '$' and 'Handlebars' are both variables of type
+/// any, we lose all static checking but we don't get any error
+/// messages while compiling.
+///
+/// In general, this is a bad thing to do because it means that it
+/// is on us to make sure we are using jQuery and Handlebars
+/// correctly. For this tutorial, we'll let it slide...
+var $;
+var Handlebars;
+/// This is equivalent to 'public static main()' in Java. It runs
+/// once all of the files that comprise our program have loaded.
+/// In this demo, all it does is initialize the navbar and simulate
+/// a click on the Welcome button.
+$(document).ready(function () {
+    nav.init();
+    nav.onWelcomeClick();
+});

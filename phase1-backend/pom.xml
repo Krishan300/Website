@@ -97,68 +97,17 @@
 		 <mainClass>backend.luna.lehigh.edu</mainClass>
 		 </configuration>
 		 </plugin>
-
-
-         <plugin>
-           <artifactId>maven-assembly-plugin</artifactId>
-           <executions> 
-           <execution>
-           <phase>package</phase>
-           <goals>
-              <goal>single</goal>
-           </goals>
-           </execution>
-         </executions>
-        <configuration>
-          <descriptorRefs>
-          <!--This tells Maven to include all dependencies -->
-           <descriptorRef>jar-with-dependencies</descriptorRef>
-            </descriptorRefs>
-           <archive>
-             <manifest>
-               <mainClass>backend.luna.lehigh.edu.App</mainClass>
-               </manifest>
-              </archive>
-             </configuration>
-             </plugin>
-
-           <plugin>
-             <groupId>org.codehaus.mojo</groupId>
-             <artifactId>exec-maven-plugin</artifactId>
-             <version>1.2.1</version>
-             <configuration>
-                 <mainClass>backend.luna.lehigh.edu.App</mainClass>
-                 <arguments>
-                 </arguments>
-             </configuration>
-         </plugin> 
-
-
-
-        <plugin>
-         <groupId>com.heroku.sdk</groupId>
-           <artifactId>heroku-maven-plugin</artifactId>
-           <version>0.4.4</version>
-           <configuration>
-              <jdkVersion>1.8</jdkVersion>
-              <!-- User your own application name -->
-              <appName>cse216</appName>
-              <processTypes>
-                 <web>java -jar ./target/phase1-backend-1.0-SNAPSHOT-jar-with-dependencies.jar</web>
-                </processTypes>
-                </configuration>
-                </plugin>
-
-<!--        <plugin>
-             <groupId>org.apache.maven.plugins</groupId>
-             <artifactId>maven-surefire-plugin</artifactId>
-             <configuration>
-
-                 <argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
-             </configuration>
-         </plugin> -->
-
-     </plugins>
+	 <plugin>
+	  <groupId>org.codehaus.mojo</groupId>
+	  <artifactId>exec-maven-plugin</artifactId>
+	  <version>1.2.1</version>
+	  <configuration>
+	   <mainClass>backend.luna.lehigh.edu.App</mainClass>
+	   <arguments>
+	   </arguments>
+	  </configuration>
+	 </plugin>
+	 </plugins>
 
    </build>
   </project>
