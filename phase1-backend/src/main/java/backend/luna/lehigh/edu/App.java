@@ -28,6 +28,7 @@ import net.spy.memcached.MemcachedClient;
  * data in rows to be pulled from later.
  */
 public class App {
+
     // Final static strings, used throughout program.
     final static String goodData = "{\"res\":\"ok\"}";
     final static String badData = "{\"res\":\"bad data\"}";
@@ -1168,4 +1169,6 @@ public class App {
             }
         });
     }
+
+
 }
