@@ -19,7 +19,7 @@ Kieran:
 
 * build admin app
 	* handle admin authentication
-	* let admins delete any post
+	* ~~let admins delete any post~~
 * implement new OMDb features
 * add feature for users to delete their own posts
 
@@ -31,14 +31,14 @@ Krishan:
 
 Robert:
 
-* re-merge / fix master to reflect all Phase 4 progress
-* handle refresh issue on Heroku
-* help Kieran and Krishan with design/coding issues
+* ~~re-merge / fix master to reflect all Phase 4 progress~~
+* ~~handle refresh issue on Heroku~~
+* set up backend on Heroku for phase 4 code
 
 Alex:
 
 * ~~design OMDb API implementation for frontend/backend~~
 * help Kieran and Krishan with design/coding issues
-* help get backend/frontend up and running on Heroku
+* help get backend/frontend up and running on Heroku at end of phase
 
 ****
