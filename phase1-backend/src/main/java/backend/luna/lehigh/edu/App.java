@@ -49,6 +49,7 @@ public class App {
     static String user = env.get("POSTGRES_USER");
     static String pass = env.get("POSTGRES_PASS");
     static String db = env.get("POSTGRES_DB");
+    //static String dbstring = env.get("DATABASE_URL");
 
     static Hashtable<String, Integer> hashtable = new Hashtable<>();
 
@@ -73,8 +74,8 @@ public class App {
         try {
             // String dbUrl=System.getenv("JDBC_DATABASE_URL");
             // conn=DriverManager.getConnection(dbUrl);
-            URI dbUri = new URI(System.getenv("DATABASE_URL"));
-            //URI dbUri=new URI("postgres://kqtcfljdpfesuu:c47c0eba68c7ffb8369fc739bcfc16f78b08167f29eb61523d81d2592a4c273f@ec2-54-83-26-65.compute-1.amazonaws.com:5432/db647b4fma1r2m");
+            //URI dbUri = new URI(System.getenv("DATABASE_URL"));
+            URI dbUri=new URI("postgres://kqtcfljdpfesuu:c47c0eba68c7ffb8369fc739bcfc16f78b08167f29eb61523d81d2592a4c273f@ec2-54-83-26-65.compute-1.amazonaws.com:5432/db647b4fma1r2m");
             String username = dbUri.getUserInfo().split(":")[0];
             String password = dbUri.getUserInfo().split(":")[1];
             String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
