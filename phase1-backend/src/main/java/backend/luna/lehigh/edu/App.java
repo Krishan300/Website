@@ -8,6 +8,10 @@ import java.util.Map;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Base64;
+import java.util.Hashtable;
+import java.security.MessageDigest;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import static spark.Spark.*;
 
@@ -33,6 +37,7 @@ public class App {
     final static String goodData = "{\"res\":\"ok\"}";
     final static String badData = "{\"res\":\"bad data\"}";
     final static String sFileLocation = "/web";
+    protected static Connection conn;
 
     // Only one gson instantiation, for efficiency.
     final Gson gson;
@@ -45,7 +50,7 @@ public class App {
     static String pass = env.get("POSTGRES_PASS");
     static String db = env.get("POSTGRES_DB");
 
-    //static Hashtable<String, Integer> hashtable = new Hashtable<>();
+    static Hashtable<String, Integer> hashtable = new Hashtable<>();
 
     // MEMCACHIER CREDENTIALS ... Note that servers are the same URL but separate
     // in case that changes at any point.
@@ -64,37 +69,74 @@ public class App {
      * throughout the code to keep the Connection stuff consistent and easier to update.
      */
     public static Connection createConnection() {
-        // Connection to be returned.
-        Connection conn = null;
 
-        // Include the needed driver (needs to be tested, may be redundant.
         try {
-            Class.forName("org.postgresql.Driver");
-        }
-        catch (ClassNotFoundException e) {
-            System.err.println("ERROR in createConnection(): Driver not found");
-            e.printStackTrace();
-        }
-
-        // Connect to the database; fail if we can't
-        try {
-            // Open a connection, fail if we cannot get one. Connection to POSTGRES server at following url:
-            String url = "jdbc:postgresql://" + ip + ":" + port + "/" + db;
-            conn = DriverManager.getConnection(url, user, pass);
-
-            // Make sure connection object isn't null. If it is, print error and exit.
-            if (conn == null) {
+            // String dbUrl=System.getenv("JDBC_DATABASE_URL");
+            // conn=DriverManager.getConnection(dbUrl);
+            URI dbUri = new URI(System.getenv("DATABASE_URL"));
+            //URI dbUri=new URI("postgres://kqtcfljdpfesuu:c47c0eba68c7ffb8369fc739bcfc16f78b08167f29eb61523d81d2592a4c273f@ec2-54-83-26-65.compute-1.amazonaws.com:5432/db647b4fma1r2m");
+            String username = dbUri.getUserInfo().split(":")[0];
+            String password = dbUri.getUserInfo().split(":")[1];
+            String dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath();
+            conn = DriverManager.getConnection(dbUrl, username, password);
+            if(conn == null) {
                 System.out.println("Error in createDB(): getConnection returned null object in createDB");
                 System.exit(-1);
             }
-        } catch (SQLException e) {
-            // Unable to create connection to DB. Check env variables?
-            System.out.println("Error in createDB(): getConnection in createDB threw an exception");
-            e.printStackTrace();
-            System.exit(-1);
+        }   catch(Exception exc) {
+            if(exc instanceof URISyntaxException)  {
+                System.out.println("Error in createDB(): getConnection in createDB threw a URISyntaxexception.");
+                exc.printStackTrace();
+                System.exit(-1);
+            }
+            else if (exc instanceof SQLException) {
+                System.out.println("Error in createDB(): getConnection in createDB threw an SQL exception");
+                exc.printStackTrace();
+                System.exit(-1);
+            }
+            else {
+                System.out.println("Error in createDB(): getConnection in createDB threw an exception");
+                exc.printStackTrace();
+                System.exit(-1);
+            }
+
         }
 
+
+
+
         return conn;
+        // Connection to be returned.
+        //Connection conn = null;
+
+        // Include the needed driver (needs to be tested, may be redundant.
+        //try {
+        //    Class.forName("org.postgresql.Driver");
+        //}
+        //catch (ClassNotFoundException e) {
+        //    System.err.println("ERROR in createConnection(): Driver not found");
+        //    e.printStackTrace();
+        //}
+
+        // Connect to the database; fail if we can't
+        //try {
+            // Open a connection, fail if we cannot get one. Connection to POSTGRES server at following url:
+         //   String url = "jdbc:postgresql://" + ip + ":" + port + "/" + db;
+         //   conn = DriverManager.getConnection(url, user, pass);
+
+            // Make sure connection object isn't null. If it is, print error and exit.
+         //   if (conn == null) {
+         //       System.out.println("Error in createDB(): getConnection returned null object in createDB");
+         //       System.exit(-1);
+         //   }
+        //} catch (SQLException e) {
+            // Unable to create connection to DB. Check env variables?
+        //    System.out.println("Error in createDB(): getConnection in createDB threw an exception");
+        //    e.printStackTrace();
+        //    System.exit(-1);
+        //}
+
+        //return conn;
     }
 
     /**
