@@ -3,16 +3,11 @@ package backend.luna.lehigh.edu;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import net.spy.memcached.MemcachedClient;
-
-import java.io.IOException;
-import java.util.Base64;
 import java.util.Date;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Map;
 import java.lang.*;
-import java.io.File;
 
 /**
  * Unit test for simple App. Updated by Alex Van Heest to work with POSTGRESQL.
@@ -197,18 +192,7 @@ public class AppTest extends TestCase
 
         // Finally, check that the user is in the hashtable.
         // NOTE: hashtable variable in backend is static. Can be referenced by instance too.
-        // NOTE: hashtable variable replaced in phase 4 by memcachier connection.
-        MemcachedClient mc = MemcachedObj.getMemcachedConnection(App.mc_username_sk, App.mc_password_sk, App.mc_server_sk);
-        int sK;
-        try {
-            sK = (Integer) mc.get(username);
-        }
-        catch (NullPointerException ex) {
-            sK = -1;
-        }
-        System.out.println(sK);
-        assertNotNull(sK);
-        //assertEquals(App.hashtable.containsKey(username), true);
+        assertEquals(App.hashtable.containsKey(username), true);
     }
 
     /**
@@ -217,9 +201,8 @@ public class AppTest extends TestCase
     public void testValidatedAction() {
         // Simulate login
         String username = "ajv218";
-        String password = "abc123";
         App app = new App(true);
-        String retval = app.login(username, password);
+        String retval = app.login(username, "abc123");
         UserStateObj uso = app.gson.fromJson(retval, UserStateObj.class);
         //System.out.println(uso.secret_key);
         //System.out.println(App.hashtable.get(uso.username));
@@ -244,31 +227,7 @@ public class AppTest extends TestCase
         // Just getting goodData back doesn't mean the combo was removed from the hashmap. Let's
         // test this separately just to be sure, and let's make sure validation with invalid creds
         // fails after we're sure it's removed from the hashmap.
-        MemcachedClient mc = MemcachedObj.getMemcachedConnection(App.mc_username_sk, App.mc_password_sk, App.mc_server_sk);
-        Object o;
-        try {
-            o = mc.get(username);
-        }
-        catch (NullPointerException ex) {
-            o = null;
-        }
-        //assertEquals(App.hashtable.containsKey(username), false);
-        assertNull(o);
+        assertEquals(App.hashtable.containsKey(username), false);
         assertEquals(App.validateAction(uso), false);
-    }
-
-    /**
-     * Tests whether saveFileToGDrive(String filecontents) works
-     */
-    public void testSaveFileToGDriveString() {
-        App app = new App(true);
-
-        app.insertUser(new UserObj("ajv218", "Alex V", "ajv218@lehigh.edu"));
-
-        // Creates a file on the GDrive
-        byte[] ba = Base64.getEncoder().encode("Test".getBytes());
-        MessageObj mo = new MessageObj(1, 1, "Alexs Message", "Body of Alexs message", new Date(), "ajv218", "Alex V", "ajv218@lehigh.edu", ba);
-        String retval = app.insertMessage(mo);
-        assertEquals(goodData,retval);
     }
 }

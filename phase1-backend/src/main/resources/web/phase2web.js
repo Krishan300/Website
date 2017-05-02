@@ -245,6 +245,18 @@ var article = (function () {
             success: article.getAndShow(idx)
         });
     };
+    article.sendComment = function (idx) {
+        var myTitle = $("#comment-title").val();
+        var myBody = $("#comment-body").val();
+        myTitle = (myTitle === "") ? null : myTitle;
+        myBody = (myBody === "") ? null : myBody;
+        $.ajax({
+            method: "POST",
+            url: "/data/message/comment/" + idx,
+            data: JSON.stringify({ user_id: 1, message_id: idx, comment_text: myBody }),
+            dataType: "json"
+        });
+    };
     return article;
 }());
 /// The content object is responsible for filling the 'indexMain'

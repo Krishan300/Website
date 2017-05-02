@@ -4,7 +4,7 @@
 		<h3 class="panel-title">Recent posts</h3>
 	</div>
 	<div class="panel-body">
-		<div id="commentBox"><input id='comment-title' cols='50' type='text' placeholder="Your message title"></input>
+		<div id="commentBox"><input id='comment-title' cols='50' type='text' placeholder="Test input"></input>
 			<br><textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder="Type message here!"></textarea><br>
 			<button id="comment-send-btn" onclick="content.sendComment()">Send Comment</button>
 		</div>

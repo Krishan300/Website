@@ -15,7 +15,7 @@ templates['content.hb'] = template({"1":function(container,depth0,helpers,partia
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=container.lambda, alias2=container.escapeExpression;
 
-  return "<div class=\"panel panel-default\">\n	<div class=\"panel-heading\">\n		<h3 class=\"panel-title\">Recent posts</h3>\n	</div>\n	<div class=\"panel-body\">\n		<div id=\"commentBox\"><input id='comment-title' cols='50' type='text' placeholder=\"Your message title\"></input>\n			<br><textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder=\"Type message here!\"></textarea><br>\n			<button id=\"comment-send-btn\" onclick=\"content.sendComment()\">Send Comment</button>\n		</div>\n		<ul id=\"article-list\">\n"
+  return "<div class=\"panel panel-default\">\n	<div class=\"panel-heading\">\n		<h3 class=\"panel-title\">Recent posts</h3>\n	</div>\n	<div class=\"panel-body\">\n		<div id=\"commentBox\"><input id='comment-title' cols='50' type='text' placeholder=\"Test input\"></input>\n			<br><textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder=\"Type message here!\"></textarea><br>\n			<button id=\"comment-send-btn\" onclick=\"content.sendComment()\">Send Comment</button>\n		</div>\n		<ul id=\"article-list\">\n"
     + ((stack1 = helpers.each.call(depth0 != null ? depth0 : {},depth0,{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "		</ul>\n	</div>\n</div>\n<!-- Votes: <button id='upvote' onclick='content.upvote("
     + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
@@ -67,7 +67,23 @@ templates['article.hb'] = template({"1":function(container,depth0,helpers,partia
     + alias2(alias1((depth0 != null ? depth0.tot_votes : depth0), depth0))
     + "   <button id='downvote' onclick='article.downvote("
     + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
-    + ")'>Down</button><br><br>\n			</div>\n			<a id=\"article-back-btn\" onclick=\"content.getAndShow()\">&larr; Return to Content Listing</a>\n		</div>\n";
+    + ")'>Down</button><br><br>\n			</div>\n			<a id=\"article-back-btn\" onclick=\"content.getAndShow()\">&larr; Return to Content Listing</a>\n\n<div class=\"article-message\">\n<div id=\"commentBox\"><input id='comment title' cols='50' placeholder=\"Your comment title\"></input><br><textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder=\"Type message here!\"></textarea><br><button id=\"comment-send-btn\" onclick=\"article.sendComment()\">Send Comment</button> \n</div>\n\n\n<div class=\"movie-infobox\">\n<h3><a href=\"http://ww.imdb.com/title/"
+    + alias2(alias1((depth0 != null ? depth0.imdbid : depth0), depth0))
+    + "\">"
+    + alias2(alias1((depth0 != null ? depth0.movietitle : depth0), depth0))
+    + "</a></h3>\n\n<b>Movie Title</b>"
+    + alias2(alias1((depth0 != null ? depth0.movietitle : depth0), depth0))
+    + "<br>  \n<b>Year:</b>"
+    + alias2(alias1((depth0 != null ? depth0.year : depth0), depth0))
+    + "<br>\n<b>IMDB</b>"
+    + alias2(alias1((depth0 != null ? depth0.imbid : depth0), depth0))
+    + "<br>\n<b>Metascore:</b>"
+    + alias2(alias1((depth0 != null ? depth0.metascore : depth0), depth0))
+    + "<br>\n<b>Runtime:</b>"
+    + alias2(alias1((depth0 != null ? depth0.runtime : depth0), depth0))
+    + "<br>\n<b>Genres:<br>"
+    + alias2(alias1((depth0 != null ? depth0.genres : depth0), depth0))
+    + "<br>\n</div>\n\n\n\n</div>\n\n";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1;
 

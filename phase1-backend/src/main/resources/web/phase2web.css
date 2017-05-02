@@ -1,5 +1,25 @@
+
+
+
+
 a { 
 	cursor: pointer; 
+}
+
+
+
+
+
+
+
+
+movie-infobox {
+border-left-style:solid;
+border-width: 10px;
+background-color: grey;
+padding-left: 1cm;
+padding-bottom: 10px;
+padding-top: 10px;
 }a { 
 	cursor: pointer; 
 }
