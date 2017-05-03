@@ -9,7 +9,7 @@ class article {
 	public static getAndShow(idx) {
 		$.ajax({
 			method: "GET",
-			url: "/data/message/" + idx,
+			url: "/data/message/"+idx,
 			dataType: "json",
 			success: article.show
 		});
@@ -48,7 +48,7 @@ class article {
 		});
 	}
      
-    public static sendComment(idx){
+    public static sendComment(user_id, message_id){
 
         var myTitle = $("#comment-title").val();
         var myBody = $("#comment-body").val();
@@ -57,9 +57,35 @@ class article {
 
      $.ajax({
         method: "POST",
-        url: "/data/message/comment/" + idx,
-        data: JSON.stringify ({user_id: 1, message_id: idx, comment_text: myBody}),
-        dataType: "json"
-     });
-    
-   }}
+        url: "/data/message/comment/" + message_id,
+        data: JSON.stringify ({user_id: user_id, message_id:message_id, title: myTitle, comment_text: myBody}),
+        dataType: "json",
+		}).done( function (data, status) {
+            if (data.res === "ok") {
+                this.getAndShow();
+            }
+            else {
+                window.alert("Invalid input provided (title and comment cannot be empty)");
+            }
+        }).fail( function (errortype, data, status) {
+            window.alert("Send comment failed");
+        });
+
+
+
+
+
+   }
+
+
+    public static deleteMessage(idx){
+       $.ajax({
+        method: "GET",
+			url: "/data/delete/"+idx,
+			dataType: "json",
+			success: article.show
+      });
+
+
+    }
+   }

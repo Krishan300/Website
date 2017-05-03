@@ -13,13 +13,16 @@ a {
 
 
 
-movie-infobox {
+.movie-infobox {
 border-left-style:solid;
 border-width: 10px;
 background-color: grey;
 padding-left: 1cm;
 padding-bottom: 10px;
 padding-top: 10px;
+}
+
+.nomovieinfobox{
 }a { 
 	cursor: pointer; 
 }

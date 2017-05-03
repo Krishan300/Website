@@ -407,7 +407,7 @@ public class App {
             // Retrieve all contents from Comment table for specified message_id:
             PreparedStatement stmt = conn.prepareStatement("SELECT tblcomments.comment_id, " +
                     "tblcomments.user_id, tblcomments.comment_text, tblcomments.create_date, " +
-                    "tbluser.username, tbluser.realname, tbluser.email " +
+                    "tbluser.username, tbluser.realname, tbluser.email "+
                     "FROM tblcomments INNER JOIN tbluser ON tblcomments.user_id = tbluser.user_id " +
                     "WHERE message_id=?;");
             stmt.setInt(1, givenMessage_id);

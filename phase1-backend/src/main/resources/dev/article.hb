@@ -19,23 +19,38 @@
 			</div>
 			<a id="article-back-btn" onclick="content.getAndShow()">&larr; Return to Content Listing</a>
 
+            <br>
+			<a id="article-delete-btn" onclick="article.deleteMessage({{this.message_id}})">delete post</a>
+
 <div class="article-message">
-<div id="commentBox"><input id='comment title' cols='50' placeholder="Your comment title"></input><br><textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder="Type message here!"></textarea><br><button id="comment-send-btn" onclick="article.sendComment()">Send Comment</button> 
+<div id="commentBox"><input id='comment title' cols='50' placeholder="Your comment title"></input><br><textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder="Type message here!"></textarea><br><button id="comment-send-btn" onclick="article.sendComment({{this.user_id}}, {{this.message_id}})">Send Comment</button>
+<ul id="comment-list">
+			{{#each this}}
+			<li>
+				<h3><a onclick="article.getAndShow({{this.message_id}})">{{this.title}}</a></h3>
+			</li><hr>
+			{{/each}}
+		</ul>
 </div>
 
 
+
+{{#if this.movietitle}}
 <div class="movie-infobox">
-<h3><a href="http://ww.imdb.com/title/{{this.imdbid}}">{{this.movietitle}}</a></h3>
+{{#if this.movietitle}} <h3><a href="http://ww.imdb.com/title/{{this.imdbid}}">{{this.movietitle}}</a></h3>{{/if}}
 
-<b>Movie Title</b>{{this.movietitle}}<br>  
-<b>Year:</b>{{this.year}}<br>
-<b>IMDB</b>{{this.imbid}}<br>
-<b>Metascore:</b>{{this.metascore}}<br>
-<b>Runtime:</b>{{this.runtime}}<br>
-<b>Genres:<br>{{this.genres}}<br>
+
+{{#if this.year}}<b>Year:</b>{{this.year}}<br>{{/if}}
+{{#if this.imdbid}}<b>IMDB:</b>{{this.imdbid}}<br>{{/if}}
+{{#if this.metascore}}<b>Metascore:</b>{{this.metascore}}<br>{{/if}}
+{{#if this.runtime}}<b>Runtime:</b>{{this.runtime}}<br>{{/if}}
+{{#if this.genres}}<b>Genres:<br>{{this.genres}}<br>{{/if}}
 </div>
 
-
+{{else}}
+<div class="nomovieinfobox">
+</div>
+{{/if}}
 
 </div>
 

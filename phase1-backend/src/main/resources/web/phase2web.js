@@ -245,16 +245,33 @@ var article = (function () {
             success: article.getAndShow(idx)
         });
     };
-    article.sendComment = function (idx) {
+    article.sendComment = function (user_id, message_id) {
         var myTitle = $("#comment-title").val();
         var myBody = $("#comment-body").val();
         myTitle = (myTitle === "") ? null : myTitle;
         myBody = (myBody === "") ? null : myBody;
         $.ajax({
             method: "POST",
-            url: "/data/message/comment/" + idx,
-            data: JSON.stringify({ user_id: 1, message_id: idx, comment_text: myBody }),
+            url: "/data/message/comment/" + message_id,
+            data: JSON.stringify({ user_id: user_id, message_id: message_id, title: myTitle, comment_text: myBody }),
             dataType: "json"
+        }).done(function (data, status) {
+            if (data.res === "ok") {
+                this.getAndShow();
+            }
+            else {
+                window.alert("Invalid input provided (title and comment cannot be empty)");
+            }
+        }).fail(function (errortype, data, status) {
+            window.alert("Send comment failed");
+        });
+    };
+    article.deleteMessage = function (idx) {
+        $.ajax({
+            method: "GET",
+            url: "/data/delete/" + idx,
+            dataType: "json",
+            success: article.show
         });
     };
     return article;
