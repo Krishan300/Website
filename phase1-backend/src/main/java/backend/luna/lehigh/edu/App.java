@@ -109,8 +109,8 @@ class MessageContentObj {
     int tot_votes;
 
     public MessageContentObj (int Guser_id, int Gmessage_id, String Gtitle, String Gbody, java.util.Date GuploadDate,
-                       String Gusername, String Grealname, String Gemail, int Gupvotes, int Gdownvotes,
-                       int Gtot_votes) {
+                              String Gusername, String Grealname, String Gemail, int Gupvotes, int Gdownvotes,
+                              int Gtot_votes) {
         user_id = Guser_id;
         message_id = Gmessage_id;
         title = Gtitle;
@@ -383,6 +383,28 @@ public class App {
         return gson.toJson(allMessages);
     }
 
+    //kieran
+    /**
+     * Method that deletes a message from the tblMessage
+     */
+    boolean deleteMessage(int id){
+        String answer = "";
+        try{
+            Connection conn = createConnection();
+            PreparedStatement stmt = conn.prepareStatement("Delete from tblMessage where " +
+                    "message_id = " + id + ";");
+            stmt.executeQuery();
+            return true;
+        }
+        catch (SQLException e){
+            System.out.println("Error in deleteMessage()");
+            e.printStackTrace();
+            return false;
+        }
+
+    }
+
+
     /**
      * Method that collects all Comments from tblComment pertaining to a given message_id
      * and returns a JSON string with all of the contents.
@@ -407,7 +429,7 @@ public class App {
             // Retrieve all contents from Comment table for specified message_id:
             PreparedStatement stmt = conn.prepareStatement("SELECT tblcomments.comment_id, " +
                     "tblcomments.user_id, tblcomments.comment_text, tblcomments.create_date, " +
-                    "tbluser.username, tbluser.realname, tbluser.email "+
+                    "tbluser.username, tbluser.realname, tbluser.email " +
                     "FROM tblcomments INNER JOIN tbluser ON tblcomments.user_id = tbluser.user_id " +
                     "WHERE message_id=?;");
             stmt.setInt(1, givenMessage_id);
@@ -426,7 +448,8 @@ public class App {
             stmt.close();
         }
         catch (SQLException e) {
-            System.out.println("ERROR IN getAllComments(): Unable to retrieve comments for Message with id " + givenMessage_id + "!");
+            System.out.println("ERROR IN getAllComments(): " +
+                    "Unable to retrieve comments for Message with id " + givenMessage_id + "!");
             e.printStackTrace();
         }
 
@@ -1064,6 +1087,42 @@ public class App {
             else {
                 MessageObj mo = app.gson.fromJson(req.body(), MessageObj.class);
                 String result = app.insertMessage(mo);
+                res.status(200);
+                res.type("application/json");
+                return result;
+            }
+        });
+
+        //kieran
+        post("/data/delete/:id", (req, res) -> {
+            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
+                return badData;
+            }
+            else {
+                //System.out.println("Reached delete route");
+                int idx = Integer.parseInt(req.params("id"));
+                boolean bool = app.deleteMessage(idx);
+                //System.out.println("Reached bool"+bool);
+
+                res.status(200);
+                res.type("application/json");
+                if(bool){
+                    return goodData;
+                }
+                else{
+                    return badData;
+                }
+            }
+        });
+
+        //kieran getcomments to display
+        get("/data/message/comment/show/:id", (req, res) -> {
+            if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
+                return badData;
+            }
+            else {
+                int idx = Integer.parseInt(req.params("id"));
+                String result = app.getAllComments(idx);
                 res.status(200);
                 res.type("application/json");
                 return result;

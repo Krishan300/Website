@@ -268,7 +268,7 @@ var article = (function () {
     };
     article.deleteMessage = function (idx) {
         $.ajax({
-            method: "GET",
+            method: "POST",
             url: "/data/delete/" + idx,
             dataType: "json",
             success: article.show

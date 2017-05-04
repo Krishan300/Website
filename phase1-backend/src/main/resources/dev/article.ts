@@ -80,7 +80,7 @@ class article {
 
     public static deleteMessage(idx){
        $.ajax({
-        method: "GET",
+        method: "POST",
 			url: "/data/delete/"+idx,
 			dataType: "json",
 			success: article.show

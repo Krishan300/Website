@@ -67,7 +67,7 @@ templates['article.hb'] = template({"1":function(container,depth0,helpers,partia
     + alias2(alias1((depth0 != null ? depth0.tot_votes : depth0), depth0))
     + "   <button id='downvote' onclick='article.downvote("
     + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
-    + ")'>Down</button><br><br>\n			</div>\n			<a id=\"article-back-btn\" onclick=\"content.getAndShow()\">&larr; Return to Content Listing</a>\n\n			<a id=\"article-delete-btn\" onclick=\"article.deleteMessage("
+    + ")'>Down</button><br><br>\n			</div>\n			<a id=\"article-back-btn\" onclick=\"content.getAndShow()\">&larr; Return to Content Listing</a>\n\n            <br>\n			<a id=\"article-delete-btn\" onclick=\"article.deleteMessage("
     + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
     + ")\">delete post</a>\n\n<div class=\"article-message\">\n<div id=\"commentBox\"><input id='comment title' cols='50' placeholder=\"Your comment title\"></input><br><textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder=\"Type message here!\"></textarea><br><button id=\"comment-send-btn\" onclick=\"article.sendComment("
     + alias2(alias1((depth0 != null ? depth0.user_id : depth0), depth0))
