@@ -67,15 +67,15 @@ templates['article.hb'] = template({"1":function(container,depth0,helpers,partia
     + alias2(alias1((depth0 != null ? depth0.tot_votes : depth0), depth0))
     + "   <button id='downvote' onclick='article.downvote("
     + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
-    + ")'>Down</button><br><br>\n			</div>\n			<a id=\"article-back-btn\" onclick=\"content.getAndShow()\">&larr; Return to Content Listing</a>\n\n            <br>\n			<a id=\"article-delete-btn\" onclick=\"article.deleteMessage("
-    + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
-    + ")\">delete post</a>\n            </br>\n\n\n\n\n<div id=\"commentBox\">\n<input id='comment title' cols='50' placeholder=\"Your comment title\">\n</input><br>\n<textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder=\"Type message here!\"></textarea><br>\n<button id=\"comment-send-btn\" onclick=\"article.sendComment("
+    + ")'>Down</button><br><br>\n			</div>\n			<a id=\"article-back-btn\" onclick=\"content.getAndShow()\">&larr; Return to Content Listing</a>\n\n            <br>\n            </br>\n\n\n\n\n<div id=\"commentBox\">\n<textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder=\"Type message here!\"></textarea><br>\n<button id=\"comment-send-btn\" onclick=\"article.sendComment("
     + alias2(alias1((depth0 != null ? depth0.user_id : depth0), depth0))
     + ", "
     + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
     + ")\">Send Comment</button>\n<hr>\n<button id=\"display-comments-btn\" onclick=\"article.callCommentGetAndShow("
     + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
-    + ")\">Comments</button>\n<hr>\n\n\n\n"
+    + ")\">Comments</button>  \n<button id=\"article-delete-btn\" onclick=\"article.deleteMessage("
+    + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
+    + ")\">Delete</button>\n<hr>\n\n\n\n"
     + ((stack1 = helpers["if"].call(depth0 != null ? depth0 : {},(depth0 != null ? depth0.movietitle : depth0),{"name":"if","hash":{},"fn":container.program(2, data, 0),"inverse":container.program(9, data, 0),"data":data})) != null ? stack1 : "")
     + "\n</div>\n\n";
 },"2":function(container,depth0,helpers,partials,data) {

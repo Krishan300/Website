@@ -239,14 +239,12 @@ var article = (function () {
         });
     };
     article.sendComment = function (user_id, message_id) {
-        var myTitle = $("#comment-title").val();
         var myBody = $("#comment-body").val();
-        myTitle = (myTitle === "") ? null : myTitle;
         myBody = (myBody === "") ? null : myBody;
         $.ajax({
             method: "POST",
             url: "/data/message/comment/" + message_id,
-            data: JSON.stringify({ user_id: user_id, message_id: message_id, title: myTitle, comment_text: myBody }),
+            data: JSON.stringify({ user_id: user_id, message_id: message_id, comment_text: myBody }),
             dataType: "json"
         }).done(function (data, status) {
             if (data.res === "ok") {

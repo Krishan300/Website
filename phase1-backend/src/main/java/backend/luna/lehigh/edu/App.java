@@ -12,6 +12,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.security.MessageDigest;
+import com.omertron.omdbapi.*;
+import com.omertron.omdbapi.model.*;
+import com.omertron.omdbapi.tools.*;
 
 /**
  * @author Alex Van Heest (created for reasons of testing Phase 3 frontend)
@@ -107,10 +110,13 @@ class MessageContentObj {
     int upvotes;
     int downvotes;
     int tot_votes;
+    String movietitle;
+    String year;
+    String imdbid;
 
     public MessageContentObj (int Guser_id, int Gmessage_id, String Gtitle, String Gbody, java.util.Date GuploadDate,
-                              String Gusername, String Grealname, String Gemail, int Gupvotes, int Gdownvotes,
-                              int Gtot_votes) {
+                       String Gusername, String Grealname, String Gemail, int Gupvotes, int Gdownvotes,
+                       int Gtot_votes, String Gmovietitle, String Gyear, String Gimdbid) {
         user_id = Guser_id;
         message_id = Gmessage_id;
         title = Gtitle;
@@ -122,6 +128,9 @@ class MessageContentObj {
         upvotes = Gupvotes;
         downvotes = Gdownvotes;
         tot_votes = Gtot_votes;
+        movietitle = Gmovietitle;
+        year = Gyear;
+        imdbid = Gimdbid;
     }
 }
 
@@ -383,9 +392,42 @@ public class App {
         return gson.toJson(allMessages);
     }
 
+
+    //kieran
+    /**
+     * Method that searches OMDB for movie by title
+     * @return returns "" if nothing is found, string of information if it is found
+     */
+    ArrayList<String> queryOMDB(String searchString){
+        ArrayList movieInfo = new ArrayList<String>();
+        try {
+            OmdbApi omdb = new OmdbApi();
+            //not sure if this only does a search by title, will figure out later
+            SearchResults results = omdb.search(new OmdbBuilder().setSearchTerm(searchString).build());
+            if (!results.isResponse()) {
+                ArrayList answer = new ArrayList<String>();
+                return answer;
+            }
+            //dont know the searchresults methods for what to do
+            String title = results.getResults().get(0).getTitle();
+            String year = results.getResults().get(0).getYear();
+            String imdbid = results.getResults().get(0).getImdbID();
+
+            movieInfo.add(title);
+            movieInfo.add(year);
+            movieInfo.add(imdbid);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return movieInfo;
+    }
+
+
     //kieran
     /**
      * Method that deletes a message from the tblMessage
+     * @return true if message was deleted. false otherwise
      */
     boolean deleteMessage(int id){
         String answer = "";
@@ -483,7 +525,8 @@ public class App {
             // First retrieve details of message at givenMessage_id:
             PreparedStatement stmt = conn.prepareStatement("SELECT tbluser.username, " +
                     "tbluser.realname, tbluser.email, tblmessage.message_id, tblmessage.title, " +
-                    "tblmessage.body, tblmessage.create_date, tbluser.user_id " +
+                    "tblmessage.body, tblmessage.create_date, tbluser.user_id, tblmessage.movietitle, " +
+                    "tblmessage.year, tblmessage.imdbid " +
                     "FROM tblmessage INNER JOIN tbluser ON tblmessage.user_id = tbluser.user_id " +
                     "WHERE tblmessage.message_id = ?;");
             stmt.setInt(1, givenMessage_id);
@@ -492,6 +535,7 @@ public class App {
             // should only be one row but for now it's forgivable
             int curUser_id = 0, curMessage_id = 0;
             String curTitle = null, curBody = null, curUsername = null, curRealname = null, curEmail = null;
+            String curMovieTitle = null, curYear = null, curImdbid = null;
             java.util.Date curCreate_date = new Date();
             while (rs.next()) {
                 curUser_id = rs.getInt("user_id");
@@ -502,6 +546,9 @@ public class App {
                 curUsername = rs.getString("username");
                 curRealname = rs.getString("realname");
                 curEmail = rs.getString("email");
+                curMovieTitle = rs.getString("movietitle");
+                curYear = rs.getString("year");
+                curImdbid = rs.getString("imdbid");
             }
 
             // Next get the total upvotes and downvotes:
@@ -522,7 +569,8 @@ public class App {
 
             // Then create the new object and add it to the arraylist
             msgData.add(new MessageContentObj(curUser_id, curMessage_id, curTitle, curBody, curCreate_date,
-                    curUsername, curRealname, curEmail, curUpvotes, curDownvotes, curUpvotes - curDownvotes));
+                    curUsername, curRealname, curEmail, curUpvotes, curDownvotes, curUpvotes - curDownvotes, curMovieTitle,
+                    curYear, curImdbid));
 
             stmt.close();
             stmt2.close();
@@ -641,6 +689,7 @@ public class App {
         }
     }
 
+    //kieran. added bracket search
     /**
      * Method that takes in a new message object and adds it into the database. (NOTE: Building this into
      * the main App for now because I'm creating this just so I can build the frontend. Configuration
@@ -654,14 +703,46 @@ public class App {
         // Only insert if relevant parts of MessageObj are not null
         if (mo != null && mo.user_id > -1 && mo.title != null && mo.body != null) {
             try {
+                //if there are brackets, puts the chars inside brackets in String title
+                String movieTitle = "";
+                for(int i = 0; i < mo.body.length(); i++){
+                    if(mo.body.charAt(i) == '['){
+                        for(int j = i + 1; j < mo.body.length(); j++){
+                            if(mo.body.charAt(j) == ']') {
+                                break;
+                            }
+                            else {
+                                movieTitle += mo.body.charAt(j);
+                            }
+                        }
+                        break;
+                    }
+                }
+
                 //  ((message_id, user_id, title, body, create_date)
-                String insertStmt = "INSERT INTO tblmessage VALUES (default, ?, ?, ?, default);";
+                String insertStmt = "INSERT INTO tblmessage VALUES (default, ?, ?, ?, default, ?, ?, ?);";
                 PreparedStatement stmt = conn.prepareStatement(insertStmt);
                 stmt.setInt(1,mo.user_id);
                 stmt.setString(2,mo.title);
                 stmt.setString(3,mo.body);
+
+                //verify title before adding
+                ArrayList<String> movieInfo = queryOMDB(movieTitle);
+
+                if(movieInfo.size() > 0) {
+                    stmt.setString(6, movieInfo.get(2));
+                    stmt.setString(5, movieInfo.get(1));
+                    stmt.setString(4, movieInfo.get(0));
+                }
+                else{
+                    stmt.setString(6, null);
+                    stmt.setString(5, null);
+                    stmt.setString(4, null);
+                }
+
                 stmt.executeUpdate();
                 stmt.close();
+
             }
             catch (SQLException e) {
                 System.out.println("Error in insertMessage(): message insertion failed");
@@ -853,11 +934,16 @@ public class App {
             //System.out.println("DEBUG:: Created tblUser");
 
             // Create tblMessage
+            //kieran. updated for movies
             createTblMessage = conn.prepareStatement("CREATE TABLE IF NOT EXISTS tblMessage (" +
                     "message_id SERIAL PRIMARY KEY," +
-                    "user_id INTEGER, title VARCHAR(50)," +
+                    "user_id INTEGER, " +
+                    "title VARCHAR(50)," +
                     "body VARCHAR(140)," +
                     "create_date TIMESTAMP NOT NULL DEFAULT (now() at time zone 'utc')," +
+                    "movietitle VARCHAR(30)," +
+                    "year VARCHAR(32)," +
+                    "imdbid VARCHAR(32)," +
                     "FOREIGN KEY (user_id) REFERENCES tblUser (user_id)" +
                     ");");
             createTblMessage.executeUpdate();
@@ -1099,11 +1185,8 @@ public class App {
                 return badData;
             }
             else {
-                //System.out.println("Reached delete route");
                 int idx = Integer.parseInt(req.params("id"));
                 boolean bool = app.deleteMessage(idx);
-                //System.out.println("Reached bool"+bool);
-
                 res.status(200);
                 res.type("application/json");
                 if(bool){
@@ -1176,7 +1259,6 @@ public class App {
 
         // POST a comment for a given message
         post("/data/message/comment/:id", (req,res) -> {
-
             if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
                 return badData;
             }

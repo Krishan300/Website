@@ -1,5 +1,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+
+	<!-- kieran -->
+	<repositories>
+		<repository>
+			<id>jitpack.io</id>
+			<url>https://jitpack.io</url>
+		</repository>
+	</repositories>
+
+
+
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>backend.luna.lehigh.edu</groupId>
   <artifactId>phase1-backend</artifactId>
@@ -8,6 +21,16 @@
   <name>phase0-backend</name>
   <url>http://maven.apache.org</url>
   <dependencies>
+
+	  <!-- kieran -->
+	  <dependency>
+		  <groupId>com.github.Omertron</groupId>
+		  <artifactId>api-omdb</artifactId>
+		  <version>API-OMDB-1.4</version>
+	  </dependency>
+
+
+
 	  <dependency>
 		  <groupId>com.google.code.gson</groupId>
 		  <artifactId>gson</artifactId>

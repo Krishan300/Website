@@ -20,19 +20,17 @@
 			<a id="article-back-btn" onclick="content.getAndShow()">&larr; Return to Content Listing</a>
 
             <br>
-			<a id="article-delete-btn" onclick="article.deleteMessage({{this.message_id}})">delete post</a>
             </br>
 
 
 
 
 <div id="commentBox">
-<input id='comment title' cols='50' placeholder="Your comment title">
-</input><br>
 <textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder="Type message here!"></textarea><br>
 <button id="comment-send-btn" onclick="article.sendComment({{this.user_id}}, {{this.message_id}})">Send Comment</button>
 <hr>
 <button id="display-comments-btn" onclick="article.callCommentGetAndShow({{this.message_id}})">Comments</button>
+<button id="article-delete-btn" onclick="article.deleteMessage({{this.message_id}})">Delete</button>
 <hr>
 
 
@@ -42,8 +40,8 @@
 {{#if this.movietitle}} <h3><a href="http://www.imdb.com/title/{{this.imdbid}}">{{this.movietitle}}</a></h3>{{/if}}
 
 
-{{#if this.year}}<b>Year:</b>{{this.year}}<br>{{/if}}
-{{#if this.imdbid}}<b>IMDB:</b>{{this.imdbid}}<br>{{/if}}
+{{#if this.year}}<b>Year: </b>{{this.year}}<br>{{/if}}
+{{#if this.imdbid}}<b>IMDB: </b>{{this.imdbid}}<br>{{/if}}
 </div>
 
 {{else}}
