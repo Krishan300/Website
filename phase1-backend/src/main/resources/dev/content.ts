@@ -58,7 +58,7 @@ class content {
             dataType: "json"
         }).done( function (data, status) {
             if (data.res === "ok") {
-                this.getAndShow();
+                content.getAndShow();
             }
             else {
                 window.alert("Invalid input provided (title and comment cannot be empty)");

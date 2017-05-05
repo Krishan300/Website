@@ -51,7 +51,7 @@ templates['welcome.hb'] = template({"compiler":[7,">= 4.0.0"],"main":function(co
 (function() {
   var template = Handlebars.template, templates = Handlebars.templates = Handlebars.templates || {};
 templates['article.hb'] = template({"1":function(container,depth0,helpers,partials,data) {
-    var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : {};
+    var stack1, alias1=container.lambda, alias2=container.escapeExpression;
 
   return "		<div class=\"panel-heading\">\n			<h3 class=\"panel-title\">"
     + alias2(alias1((depth0 != null ? depth0.title : depth0), depth0))
@@ -69,40 +69,32 @@ templates['article.hb'] = template({"1":function(container,depth0,helpers,partia
     + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
     + ")'>Down</button><br><br>\n			</div>\n			<a id=\"article-back-btn\" onclick=\"content.getAndShow()\">&larr; Return to Content Listing</a>\n\n            <br>\n			<a id=\"article-delete-btn\" onclick=\"article.deleteMessage("
     + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
-    + ")\">delete post</a>\n\n<div class=\"article-message\">\n<div id=\"commentBox\"><input id='comment title' cols='50' placeholder=\"Your comment title\"></input><br><textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder=\"Type message here!\"></textarea><br><button id=\"comment-send-btn\" onclick=\"article.sendComment("
+    + ")\">delete post</a>\n            </br>\n\n\n\n\n<div id=\"commentBox\">\n<input id='comment title' cols='50' placeholder=\"Your comment title\">\n</input><br>\n<textarea id='comment-body' rows='4' cols='50' maxlength='144' placeholder=\"Type message here!\"></textarea><br>\n<button id=\"comment-send-btn\" onclick=\"article.sendComment("
     + alias2(alias1((depth0 != null ? depth0.user_id : depth0), depth0))
     + ", "
     + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
-    + ")\">Send Comment</button>\n<ul id=\"comment-list\">\n"
-    + ((stack1 = helpers.each.call(alias3,depth0,{"name":"each","hash":{},"fn":container.program(2, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "		</ul>\n</div>\n\n\n\n"
-    + ((stack1 = helpers["if"].call(alias3,(depth0 != null ? depth0.movietitle : depth0),{"name":"if","hash":{},"fn":container.program(4, data, 0),"inverse":container.program(17, data, 0),"data":data})) != null ? stack1 : "")
+    + ")\">Send Comment</button>\n<hr>\n<button id=\"display-comments-btn\" onclick=\"article.callCommentGetAndShow("
+    + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
+    + ")\">Comments</button>\n<hr>\n\n\n\n"
+    + ((stack1 = helpers["if"].call(depth0 != null ? depth0 : {},(depth0 != null ? depth0.movietitle : depth0),{"name":"if","hash":{},"fn":container.program(2, data, 0),"inverse":container.program(15, data, 0),"data":data})) != null ? stack1 : "")
     + "\n</div>\n\n";
 },"2":function(container,depth0,helpers,partials,data) {
-    var alias1=container.lambda, alias2=container.escapeExpression;
-
-  return "			<li>\n				<h3><a onclick=\"article.getAndShow("
-    + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
-    + ")\">"
-    + alias2(alias1((depth0 != null ? depth0.title : depth0), depth0))
-    + "</a></h3>\n			</li><hr>\n";
-},"4":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=depth0 != null ? depth0 : {};
 
   return "<div class=\"movie-infobox\">\n"
-    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.movietitle : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.movietitle : depth0),{"name":"if","hash":{},"fn":container.program(3, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "\n\n\n"
-    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.year : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.year : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "\n"
-    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.imdbid : depth0),{"name":"if","hash":{},"fn":container.program(9, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.imdbid : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "\n"
-    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.metascore : depth0),{"name":"if","hash":{},"fn":container.program(11, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.metascore : depth0),{"name":"if","hash":{},"fn":container.program(9, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "\n"
-    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.runtime : depth0),{"name":"if","hash":{},"fn":container.program(13, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.runtime : depth0),{"name":"if","hash":{},"fn":container.program(11, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "\n"
-    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.genres : depth0),{"name":"if","hash":{},"fn":container.program(15, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.genres : depth0),{"name":"if","hash":{},"fn":container.program(13, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "\n</div>\n\n";
-},"5":function(container,depth0,helpers,partials,data) {
+},"3":function(container,depth0,helpers,partials,data) {
     var alias1=container.lambda, alias2=container.escapeExpression;
 
   return " <h3><a href=\"http://ww.imdb.com/title/"
@@ -110,34 +102,34 @@ templates['article.hb'] = template({"1":function(container,depth0,helpers,partia
     + "\">"
     + alias2(alias1((depth0 != null ? depth0.movietitle : depth0), depth0))
     + "</a></h3>";
-},"7":function(container,depth0,helpers,partials,data) {
+},"5":function(container,depth0,helpers,partials,data) {
     return "<b>Year:</b>"
     + container.escapeExpression(container.lambda((depth0 != null ? depth0.year : depth0), depth0))
     + "<br>";
-},"9":function(container,depth0,helpers,partials,data) {
+},"7":function(container,depth0,helpers,partials,data) {
     return "<b>IMDB:</b>"
     + container.escapeExpression(container.lambda((depth0 != null ? depth0.imdbid : depth0), depth0))
     + "<br>";
-},"11":function(container,depth0,helpers,partials,data) {
+},"9":function(container,depth0,helpers,partials,data) {
     return "<b>Metascore:</b>"
     + container.escapeExpression(container.lambda((depth0 != null ? depth0.metascore : depth0), depth0))
     + "<br>";
-},"13":function(container,depth0,helpers,partials,data) {
+},"11":function(container,depth0,helpers,partials,data) {
     return "<b>Runtime:</b>"
     + container.escapeExpression(container.lambda((depth0 != null ? depth0.runtime : depth0), depth0))
     + "<br>";
-},"15":function(container,depth0,helpers,partials,data) {
+},"13":function(container,depth0,helpers,partials,data) {
     return "<b>Genres:<br>"
     + container.escapeExpression(container.lambda((depth0 != null ? depth0.genres : depth0), depth0))
     + "<br>";
-},"17":function(container,depth0,helpers,partials,data) {
+},"15":function(container,depth0,helpers,partials,data) {
     return "<div class=\"nomovieinfobox\">\n</div>\n";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1;
 
   return "<div class=\"panel panel-default\">\n"
     + ((stack1 = helpers.each.call(depth0 != null ? depth0 : {},depth0,{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "</div>";
+    + "\n</div>";
 },"useData":true});
 })();
 (function() {
@@ -160,5 +152,25 @@ templates['profile.hb'] = template({"1":function(container,depth0,helpers,partia
   return "<div class=\"panel panel-default\">\n"
     + ((stack1 = helpers.each.call(depth0 != null ? depth0 : {},depth0,{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "</div>";
+},"useData":true});
+})();
+(function() {
+  var template = Handlebars.template, templates = Handlebars.templates = Handlebars.templates || {};
+templates['comment.hb'] = template({"1":function(container,depth0,helpers,partials,data) {
+    var alias1=container.lambda, alias2=container.escapeExpression;
+
+  return "\n			<div class=\"comment-body\">\n				"
+    + alias2(alias1((depth0 != null ? depth0.comment_text : depth0), depth0))
+    + "<br>\n				Written by <a onclick=\"profile.getAndShow("
+    + alias2(alias1((depth0 != null ? depth0.user_id : depth0), depth0))
+    + ")\">"
+    + alias2(alias1((depth0 != null ? depth0.realname : depth0), depth0))
+    + "</a><br>\n			</div>\n\n			<hr>\n";
+},"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1;
+
+  return "<div class=\"panel panel-default\">\n		<div class=\"panel-heading\">\n			<h3 class=\"panel-title\">Comments</h3>\n		</div>\n		<div class=\"panel-body\">\n"
+    + ((stack1 = helpers.each.call(depth0 != null ? depth0 : {},depth0,{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
+    + "        </div>\n</div>";
 },"useData":true});
 })();

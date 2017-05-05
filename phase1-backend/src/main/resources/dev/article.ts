@@ -20,6 +20,8 @@ class article {
 	/// NOTE: Using dummy text here. Will replace with values received from backend once it works at all.
 	private static show(data: any) {
 		$("#indexMain").html(Handlebars.templates['article.hb'](data));
+        //$("indexMain").html(Handlebars.templates['comment.hb'](data));
+//add another line comment.hb-look up how two hb files in the same div-or make another div in index.html
 	}
 
 	/// Upvote and downvote methods: will be updated once the backend
@@ -62,7 +64,7 @@ class article {
         dataType: "json",
 		}).done( function (data, status) {
             if (data.res === "ok") {
-                this.getAndShow();
+                article.getAndShow(message_id);
             }
             else {
                 window.alert("Invalid input provided (title and comment cannot be empty)");
@@ -77,15 +79,8 @@ class article {
 
    }
 
+	public static callCommentGetAndShow(idx) {
+		comment.getAndShow(idx);
+	}
 
-    public static deleteMessage(idx){
-       $.ajax({
-        method: "POST",
-			url: "/data/delete/"+idx,
-			dataType: "json",
-			success: article.show
-      });
-
-
-    }
-   }
+}

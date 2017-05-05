@@ -1176,6 +1176,7 @@ public class App {
 
         // POST a comment for a given message
         post("/data/message/comment/:id", (req,res) -> {
+
             if (!validateAction(req.cookie("user"), Integer.parseInt(req.cookie("session")))) {
                 return badData;
             }

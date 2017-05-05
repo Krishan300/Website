@@ -57,7 +57,7 @@ var content = (function () {
             dataType: "json"
         }).done(function (data, status) {
             if (data.res === "ok") {
-                this.getAndShow();
+                content.getAndShow();
             }
             else {
                 window.alert("Invalid input provided (title and comment cannot be empty)");
@@ -180,23 +180,6 @@ var welcome = (function () {
     };
     return welcome;
 }());
-/// If we say that '$' and 'Handlebars' are both variables of type
-/// any, we lose all static checking but we don't get any error
-/// messages while compiling.
-///
-/// In general, this is a bad thing to do because it means that it
-/// is on us to make sure we are using jQuery and Handlebars
-/// correctly. For this tutorial, we'll let it slide...
-var $;
-var Handlebars;
-/// This is equivalent to 'public static main()' in Java. It runs
-/// once all of the files that comprise our program have loaded.
-/// In this demo, all it does is initialize the navbar and simulate
-/// a click on the Welcome button.
-$(document).ready(function () {
-    nav.init();
-    nav.onWelcomeClick();
-});
 /// The content object is responsible for filling the 'indexMain'
 /// div with the result of an AJAX query to get the most recent data.
 var article = (function () {
@@ -220,6 +203,8 @@ var article = (function () {
     /// NOTE: Using dummy text here. Will replace with values received from backend once it works at all.
     article.show = function (data) {
         $("#indexMain").html(Handlebars.templates['article.hb'](data));
+        //$("indexMain").html(Handlebars.templates['comment.hb'](data));
+        //add another line comment.hb-look up how two hb files in the same div-or make another div in index.html
     };
     /// Upvote and downvote methods: will be updated once the backend
     /// database is properly created and verifiable in some form.
@@ -257,7 +242,7 @@ var article = (function () {
             dataType: "json"
         }).done(function (data, status) {
             if (data.res === "ok") {
-                this.getAndShow();
+                article.getAndShow(message_id);
             }
             else {
                 window.alert("Invalid input provided (title and comment cannot be empty)");
@@ -266,15 +251,26 @@ var article = (function () {
             window.alert("Send comment failed");
         });
     };
-    article.deleteMessage = function (idx) {
-        $.ajax({
-            method: "POST",
-            url: "/data/delete/" + idx,
-            dataType: "json",
-            success: article.show
-        });
+    article.callCommentGetAndShow = function (idx) {
+        comment.getAndShow(idx);
     };
     return article;
+}());
+var comment = (function () {
+    function comment() {
+    }
+    comment.getAndShow = function (idx) {
+        $.ajax({
+            method: "GET",
+            url: "/data/message/comment/show/" + idx,
+            dataType: "json",
+            success: comment.show
+        });
+    };
+    comment.show = function (data) {
+        $("#indexMain").html(Handlebars.templates['comment.hb'](data));
+    };
+    return comment;
 }());
 /// The content object is responsible for filling the 'indexMain'
 /// div with the result of an AJAX query to get the most recent data.
@@ -301,3 +297,20 @@ var profile = (function () {
     };
     return profile;
 }());
+/// If we say that '$' and 'Handlebars' are both variables of type
+/// any, we lose all static checking but we don't get any error
+/// messages while compiling.
+///
+/// In general, this is a bad thing to do because it means that it
+/// is on us to make sure we are using jQuery and Handlebars
+/// correctly. For this tutorial, we'll let it slide...
+var $;
+var Handlebars;
+/// This is equivalent to 'public static main()' in Java. It runs
+/// once all of the files that comprise our program have loaded.
+/// In this demo, all it does is initialize the navbar and simulate
+/// a click on the Welcome button.
+$(document).ready(function () {
+    nav.init();
+    nav.onWelcomeClick();
+});

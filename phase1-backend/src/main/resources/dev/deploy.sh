@@ -19,7 +19,7 @@ cat article.css content.css index.css nav.css profile.css welcome.css > ../web/p
 
 # Compile our TypeScript into the webed .js
 # NOTE: It's important that index.ts is last
-node_modules/typescript/bin/tsc --outFile ../web/phase2web.js content.ts nav.ts welcome.ts index.ts article.ts profile.ts
+node_modules/typescript/bin/tsc --outFile ../web/phase2web.js content.ts nav.ts welcome.ts article.ts comment.ts profile.ts index.ts
 
 # Compile our handlebars templates and append the results into the webed JS
 node_modules/handlebars/bin/handlebars content.hb >> ../web/templates.js
@@ -27,6 +27,7 @@ node_modules/handlebars/bin/handlebars nav.hb >> ../web/templates.js
 node_modules/handlebars/bin/handlebars welcome.hb >> ../web/templates.js
 node_modules/handlebars/bin/handlebars article.hb >> ../web/templates.js
 node_modules/handlebars/bin/handlebars profile.hb >> ../web/templates.js
+node_modules/handlebars/bin/handlebars comment.hb >> ../web/templates.js
 
 # Copy the index.html file and data.json to the webed position
 cp index.html ../web
