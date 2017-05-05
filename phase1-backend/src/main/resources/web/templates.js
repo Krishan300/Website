@@ -76,7 +76,7 @@ templates['article.hb'] = template({"1":function(container,depth0,helpers,partia
     + ")\">Send Comment</button>\n<hr>\n<button id=\"display-comments-btn\" onclick=\"article.callCommentGetAndShow("
     + alias2(alias1((depth0 != null ? depth0.message_id : depth0), depth0))
     + ")\">Comments</button>\n<hr>\n\n\n\n"
-    + ((stack1 = helpers["if"].call(depth0 != null ? depth0 : {},(depth0 != null ? depth0.movietitle : depth0),{"name":"if","hash":{},"fn":container.program(2, data, 0),"inverse":container.program(15, data, 0),"data":data})) != null ? stack1 : "")
+    + ((stack1 = helpers["if"].call(depth0 != null ? depth0 : {},(depth0 != null ? depth0.movietitle : depth0),{"name":"if","hash":{},"fn":container.program(2, data, 0),"inverse":container.program(9, data, 0),"data":data})) != null ? stack1 : "")
     + "\n</div>\n\n";
 },"2":function(container,depth0,helpers,partials,data) {
     var stack1, alias1=depth0 != null ? depth0 : {};
@@ -87,17 +87,11 @@ templates['article.hb'] = template({"1":function(container,depth0,helpers,partia
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.year : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "\n"
     + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.imdbid : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "\n"
-    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.metascore : depth0),{"name":"if","hash":{},"fn":container.program(9, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "\n"
-    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.runtime : depth0),{"name":"if","hash":{},"fn":container.program(11, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
-    + "\n"
-    + ((stack1 = helpers["if"].call(alias1,(depth0 != null ? depth0.genres : depth0),{"name":"if","hash":{},"fn":container.program(13, data, 0),"inverse":container.noop,"data":data})) != null ? stack1 : "")
     + "\n</div>\n\n";
 },"3":function(container,depth0,helpers,partials,data) {
     var alias1=container.lambda, alias2=container.escapeExpression;
 
-  return " <h3><a href=\"http://ww.imdb.com/title/"
+  return " <h3><a href=\"http://www.imdb.com/title/"
     + alias2(alias1((depth0 != null ? depth0.imdbid : depth0), depth0))
     + "\">"
     + alias2(alias1((depth0 != null ? depth0.movietitle : depth0), depth0))
@@ -111,18 +105,6 @@ templates['article.hb'] = template({"1":function(container,depth0,helpers,partia
     + container.escapeExpression(container.lambda((depth0 != null ? depth0.imdbid : depth0), depth0))
     + "<br>";
 },"9":function(container,depth0,helpers,partials,data) {
-    return "<b>Metascore:</b>"
-    + container.escapeExpression(container.lambda((depth0 != null ? depth0.metascore : depth0), depth0))
-    + "<br>";
-},"11":function(container,depth0,helpers,partials,data) {
-    return "<b>Runtime:</b>"
-    + container.escapeExpression(container.lambda((depth0 != null ? depth0.runtime : depth0), depth0))
-    + "<br>";
-},"13":function(container,depth0,helpers,partials,data) {
-    return "<b>Genres:<br>"
-    + container.escapeExpression(container.lambda((depth0 != null ? depth0.genres : depth0), depth0))
-    + "<br>";
-},"15":function(container,depth0,helpers,partials,data) {
     return "<div class=\"nomovieinfobox\">\n</div>\n";
 },"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1;

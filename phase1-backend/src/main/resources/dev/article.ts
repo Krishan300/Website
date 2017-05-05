@@ -49,7 +49,17 @@ class article {
 			success: article.getAndShow(idx)
 		});
 	}
-     
+
+    public static deleteMessage(idx){
+      $.ajax({
+       method:"POST",
+       url: "/data/delete/" + idx,
+       dataType: "json",
+       success: content.getAndShow
+       });
+
+     }
+
     public static sendComment(user_id, message_id){
 
         var myTitle = $("#comment-title").val();

@@ -39,14 +39,11 @@
 
 {{#if this.movietitle}}
 <div class="movie-infobox">
-{{#if this.movietitle}} <h3><a href="http://ww.imdb.com/title/{{this.imdbid}}">{{this.movietitle}}</a></h3>{{/if}}
+{{#if this.movietitle}} <h3><a href="http://www.imdb.com/title/{{this.imdbid}}">{{this.movietitle}}</a></h3>{{/if}}
 
 
 {{#if this.year}}<b>Year:</b>{{this.year}}<br>{{/if}}
 {{#if this.imdbid}}<b>IMDB:</b>{{this.imdbid}}<br>{{/if}}
-{{#if this.metascore}}<b>Metascore:</b>{{this.metascore}}<br>{{/if}}
-{{#if this.runtime}}<b>Runtime:</b>{{this.runtime}}<br>{{/if}}
-{{#if this.genres}}<b>Genres:<br>{{this.genres}}<br>{{/if}}
 </div>
 
 {{else}}

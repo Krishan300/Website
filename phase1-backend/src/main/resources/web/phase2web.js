@@ -230,6 +230,14 @@ var article = (function () {
             success: article.getAndShow(idx)
         });
     };
+    article.deleteMessage = function (idx) {
+        $.ajax({
+            method: "POST",
+            url: "/data/delete/" + idx,
+            dataType: "json",
+            success: content.getAndShow
+        });
+    };
     article.sendComment = function (user_id, message_id) {
         var myTitle = $("#comment-title").val();
         var myBody = $("#comment-body").val();
