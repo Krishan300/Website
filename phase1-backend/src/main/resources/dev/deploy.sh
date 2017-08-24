@@ -15,7 +15,7 @@ cp node_modules/js-cookie/src/js.cookie.js ../web/lib
 cp -R node_modules/bootstrap/fonts/ ../web/
 
 # Merge our CSS files into the webed .css
-cat article.css content.css index.css nav.css profile.css welcome.css > ../web/phase2web.css
+cat article.css content.css index.css nav.css profile.css comment.css welcome.css > ../web/phase2web.css
 
 # Compile our TypeScript into the webed .js
 # NOTE: It's important that index.ts is last

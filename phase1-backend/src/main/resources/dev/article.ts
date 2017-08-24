@@ -87,8 +87,8 @@ class article {
 
    }
 
-	public static callCommentGetAndShow(idx) {
+
+   public static callCommentGetAndShow(idx) {
 		comment.getAndShow(idx);
 	}
-
 }
